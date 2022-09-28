@@ -83,7 +83,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "_manager",
         "type": "address"
@@ -412,4 +412,5 @@
     "stateMutability": "payable",
     "type": "receive"
   }
+
 ]

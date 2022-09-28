@@ -54,6 +54,24 @@ export class OwnerChanged__Params {
   }
 }
 
+export class Subscribe extends ethereum.Event {
+  get params(): Subscribe__Params {
+    return new Subscribe__Params(this);
+  }
+}
+
+export class Subscribe__Params {
+  _event: Subscribe;
+
+  constructor(event: Subscribe) {
+    this._event = event;
+  }
+
+  get param0(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
 export class XXXFactory extends ethereum.SmartContract {
   static bind(address: Address): XXXFactory {
     return new XXXFactory("XXXFactory", address);

@@ -19,10 +19,12 @@ dataSources:
         - name: XXXFactory
           file: ./abis/XXXFactory.json
       eventHandlers:
-        - event: FundCreated(indexed address, indexed address)
+        - event: FundCreated(indexed address,indexed address)
           handler: handleFundCreated
-        - event: OwnerChanged(indexed address, indexed address)
+        - event: OwnerChanged(indexed address,indexed address)
           handler: handleOwnerChanged
+        - event: Subscribe(indexed address)
+          handler: handleSubscribe
       file: ./src/xxx-factory.ts
 templates:
   - kind: ethereum
@@ -43,16 +45,14 @@ templates:
       eventHandlers:
         - event: Initialize(indexed address)
           handler: handleInitialize
-        - event: Deposit(indexed address, address, uint256)
+        - event: Deposit(indexed address,address,uint256)
           handler: handleDeposit
-        - event: Withdraw(indexed address, address, uint256)
+        - event: Withdraw(indexed address,address,uint256)
           handler: handleWithdraw
-        - event: Swap(indexed address, address, address, uint256, uint256)
+        - event: Swap(indexed address,address,address,uint256,uint256)
           handler: handleSwap
-        - event: Subscribe(indexed address)
-          handler: handleSubscribe
-        - event: IncreaseInvestorToken(indexed address, address, uint256)
+        - event: IncreaseInvestorToken(indexed address,address,uint256)
           handler: handleIncreaseInvestorToken
-        - event: DecreaseInvestorToken(indexed address, address, uint256)
+        - event: DecreaseInvestorToken(indexed address,address,uint256)
           handler: handleDecreaseInvestorToken
       file: ./src/xxx-fund2.ts
