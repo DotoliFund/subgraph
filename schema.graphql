@@ -5,48 +5,12 @@ type Factory @entity {
   timestamp: BigInt!
   # amount of funds created
   fundCount: BigInt!
-  # amoutn of transactions all time
-  txCount: BigInt!
   # total volume all time in derived USD
   totalVolumeUSD: BigDecimal!
   # total volume all time in derived ETH
   totalVolumeETH: BigDecimal!
   # current owner of the factory
   owner: ID!
-}
-
-
-type Token @entity {
-  # token address
-  id: ID!
-  # token symbol
-  symbol: String!
-  # token name
-  name: String!
-  # token decimals
-  decimals: BigInt!
-  # token total supply
-  totalSupply: BigInt!
-  # volume in token units
-  volume: BigDecimal!
-  # volume in derived USD
-  volumeUSD: BigDecimal!
-  # volume in USD even on pools with less reliable USD values
-  untrackedVolumeUSD: BigDecimal!
-  # fees in USD
-  feesUSD: BigDecimal!
-  # transactions across all pools that include this token
-  txCount: BigInt!
-  # number of pools containing this token
-  poolCount: BigInt!
-  # liquidity across all pools in token units
-  totalValueLocked: BigDecimal!
-  # liquidity across all pools in derived USD
-  totalValueLockedUSD: BigDecimal!
-  # TVL derived in USD untracked
-  totalValueLockedUSDUntracked: BigDecimal!
-  # derived price in ETH
-  derivedETH: BigDecimal!
 }
 
 type Fund @entity {
@@ -58,16 +22,12 @@ type Fund @entity {
   createdAtBlockNumber: BigInt!
   # manager address
   manager: Bytes!
-  # tokens
-  tokens: [Token!]!
   # principalETH
   principalETH: BigDecimal!
   # principalUSD
   principalUSD: BigDecimal!
   # profit
   profit: BigInt!
-  # all time number of transactions
-  txCount: BigInt!
   # all time fees collected derived USD
   collectedFeesUSD: BigDecimal!
   # volumeETH
@@ -76,104 +36,166 @@ type Fund @entity {
   volumeUSD: BigDecimal!
   # investorCount
   investorCount: BigInt!
-  # hourly snapshots of fund data
-  fundHourData: [FundHourData!]! @derivedFrom(field: "fund")
-  # daily snapshots of fund data
-  fundDayData: [FundDayData!]! @derivedFrom(field: "fund")
+  # snapshots of fund data
+  fundSnapshot: [FundDaySnapshot!]! @derivedFrom(field: "fund")
   # derived fields
+  subscribe: [Subscribe!]! @derivedFrom(field: "fund")
   deposits: [Deposit!]! @derivedFrom(field: "fund")
   withdraws: [Withdraw!]! @derivedFrom(field: "fund")
   swaps: [Swap!]! @derivedFrom(field: "fund")
 }
 
-type Transaction @entity {
-  # txn hash
+type Investor @entity {
+  # investor address
   id: ID!
-  # block txn was included in
-  blockNumber: BigInt!
+  # creation
+  createdAtTimestamp: BigInt!
+  # block investor was created at
+  createdAtBlockNumber: BigInt!
+  # investor address
+  investor: Bytes!
+  # principalETH
+  principalETH: BigDecimal!
+  # principalUSD
+  principalUSD: BigDecimal!
+  # profit
+  profit: BigInt!
+  # all time fees collected derived USD
+  collectedFeesUSD: BigDecimal!
+  # volumeETH
+  volumeETH: BigDecimal!
+  # volumeETH
+  volumeUSD: BigDecimal!
+  # investorCount
+  investorCount: BigInt!
+  # snapshots of investor data
+  investorSnapshot: [InvestorDaySnapshot!]!
+  # transactions
+  deposits: [Deposit!]!
+  withdraws: [Withdraw!]!
+  swaps: [Swap!]!
+}
+
+type FundToken @entity {
+  # format: <fund address>-<token address>
+  id: ID!
   # timestamp txn was confirmed
   timestamp: BigInt!
-  # gas used during txn execution
-  gasUsed: BigInt!
-  gasPrice: BigInt!
-  # derived values
-  deposits: [Deposit!]! @derivedFrom(field: "transaction")
-  withdraws: [Withdraw!]! @derivedFrom(field: "transaction")
-  swaps: [Swap!]! @derivedFrom(field: "transaction")
+  # pointer to fundDaySnapshot
+  fundDaySnapshot: FundDaySnapshot!
+  # token belongs to fund
+  fund: String!
+  # token amount
+  amount: BigDecimal!
+  # token symbol
+  symbol: String!
+  # token name
+  name: String!
+  # token decimals
+  decimals: BigInt!
+  # derived price in ETH
+  derivedETH: BigDecimal!
+}
+
+type InvestorToken @entity {
+  # format: <investor address>-<token address>
+  id: ID!
+  # timestamp txn was confirmed
+  timestamp: BigInt!
+  # pointer to investorDaySnapshot
+  investorDaySnapshot: InvestorDaySnapshot!
+  # token belongs to investor
+  investor: String!
+  # token amount
+  amount: BigDecimal!
+  # token symbol
+  symbol: String!
+  # token name
+  name: String!
+  # token decimals
+  decimals: BigInt!
+  # derived price in ETH
+  derivedETH: BigDecimal!
+}
+
+type Subscribe @entity {
+  # transaction hash + "#" + index in mints Transaction array
+  id: ID!
+  # time of txn
+  timestamp: BigInt!
+  # fund is within
+  fund: Fund!
+  # the sender address
+  sender: Bytes
+  # txn origin
+  origin: Bytes! # the EOA that initiated the txn
+  # order within the txn
+  logIndex: BigInt
 }
 
 type Deposit @entity {
   # transaction hash + "#" + index in mints Transaction array
   id: ID!
-  # which txn the mint was included in
-  transaction: Transaction!
   # time of txn
   timestamp: BigInt!
-  # fund position is within
+  # fund is within
   fund: Fund!
-  # allow indexing by token
-  token: Token!
-  # owner of position where liquidity minted to
-  owner: Bytes!
-  # the sender address
-  sender: Bytes
+  # the investor address
+  investor: Bytes
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
+  # deposit token address
+  token: String!
   # amount of token deposit
   amount: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal
   # order within the txn
   logIndex: BigInt
+  # gas used during txn execution
+  gasUsed: BigInt!
+  gasPrice: BigInt!
 }
 
 type Withdraw @entity {
   # transaction hash + "#" + index in mints Transaction array
   id: ID!
-  # txn burn was included in
-  transaction: Transaction!
   # need this to pull recent txns for specific token or fund
   timestamp: BigInt!
-  # fund position is within
+  # fund is within
   fund: Fund!
-  # allow indexing by tokens
-  token: Token!
-  # owner of position where liquidity was burned
-  owner: Bytes
-  # the sender address
-  sender: Bytes
+  # the investor address
+  investor: Bytes
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
+  # withdraw token address
+  token: String!
   # amount of token withdraw
   amount: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal
-  # position within the transactions
-  logIndex: BigInt
 }
 
 type Swap @entity {
   # transaction hash + "#" + index in swaps Transaction array
   id: ID!
-  # pointer to transaction
-  transaction: Transaction!
   # timestamp of transaction
   timestamp: BigInt!
   # fund swap occured within
   fund: Fund!
-  # allow indexing by tokens
-  token0: Token!
-  # allow indexing by tokens
-  token1: Token!
-  # sender of the swap
-  sender: Bytes!
-  # recipient of the swap
-  recipient: Bytes!
+  # manager of fund = sender
+  manager: Bytes!
+  # investor of fund
+  investor: Bytes!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
-  # delta of token0 swapped
+  # swap token0 address
+  token0: String!
+  # swap token1 address
+  token1: String!
+  # amount of token0 swapped
   amount0: BigDecimal!
-  # delta of token1 swapped
+  # amount of token1 swapped
   amount1: BigDecimal!
   # derived info
   amountUSD: BigDecimal!
@@ -181,46 +203,8 @@ type Swap @entity {
   logIndex: BigInt
 }
 
-# Data accumulated and condensed into day stats for all of XXXFund
-type XXXFundDayData @entity {
-  # timestamp rounded to current day by dividing by 86400
-  id: ID!
-  # timestamp rounded to current day by dividing by 86400
-  date: Int!
-  # total daily volume in XXXFund derived in terms of ETH
-  volumeETH: BigDecimal!
-  # total daily volume in XXXFund derived in terms of USD
-  volumeUSD: BigDecimal!
-  # fees in USD
-  feesUSD: BigDecimal!
-  # number of daily transactions
-  txCount: BigInt!
-  # tvl in terms of USD
-  tvlUSD: BigDecimal!
-}
-
-# Data accumulated and condensed into day stats for each fund
-type FundDayData @entity {
-  # timestamp rounded to current day by dividing by 86400
-  id: ID!
-  # timestamp rounded to current day by dividing by 86400
-  date: Int!
-  # pointer to fund
-  fund: Fund!
-  # tokens
-  tokens: [Token!]!
-  # tvl derived in USD at end of period
-  tvlUSD: BigDecimal!
-  # volume in USD
-  volumeUSD: BigDecimal!
-  # fees in USD
-  feesUSD: BigDecimal!
-  # numebr of transactions during period
-  txCount: BigInt!
-}
-
-# hourly stats tracker for fund
-type FundHourData @entity {
+# daily stats tracker for fund
+type FundDaySnapshot @entity {
   # format: <fund address>-<timestamp>
   id: ID!
   # unix timestamp for start of hour
@@ -228,13 +212,21 @@ type FundHourData @entity {
   # pointer to fund
   fund: Fund!
   # tokens
-  tokens: [Token!]!
-  # tvl derived in USD at end of period
-  tvlUSD: BigDecimal!
+  tokens: [FundToken!]! @derivedFrom(field: "fundDaySnapshot")
   # volume in USD
   volumeUSD: BigDecimal!
-  # fees in USD
-  feesUSD: BigDecimal!
-  # numebr of transactions during period
-  txCount: BigInt!
+}
+
+# daily stats tracker for investor
+type InvestorDaySnapshot @entity {
+  # format: <investor address>-<timestamp>
+  id: ID!
+  # unix timestamp for start of hour
+  periodStartUnix: Int!
+  # pointer to investor
+  investor: Investor!
+  # tokens
+  tokens: [InvestorToken!]! @derivedFrom(field: "investorDaySnapshot")
+  # volume in USD
+  volumeUSD: BigDecimal!
 }
