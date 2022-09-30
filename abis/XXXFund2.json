@@ -16,13 +16,13 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_token",
+        "name": "token",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_amount",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -41,13 +41,13 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_token",
+        "name": "token",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_amount",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -66,13 +66,13 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_token",
+        "name": "token",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_amount",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -91,13 +91,13 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_token",
+        "name": "token",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_amount",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -110,7 +110,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_manager",
+        "name": "manager",
         "type": "address"
       }
     ],
@@ -166,13 +166,13 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_token",
+        "name": "token",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_amount",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -185,13 +185,13 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_token",
+        "name": "token",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_amount",
+        "name": "amount",
         "type": "uint256"
       }
     ],

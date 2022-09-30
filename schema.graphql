@@ -5,12 +5,20 @@ type Factory @entity {
   timestamp: BigInt!
   # amount of funds created
   fundCount: BigInt!
+  # amount of investor
+  investorCount: BigInt!
+  # white listed token
+  whitelistTokens: [String!]!
+  # swap router contract address
+  swapRouter: String!
+  # manager fee
+  managerFee: BigInt!
   # total volume all time in derived USD
   totalVolumeUSD: BigDecimal!
   # total volume all time in derived ETH
   totalVolumeETH: BigDecimal!
   # current owner of the factory
-  owner: ID!
+  owner: Bytes!
 }
 
 type Fund @entity {
@@ -28,8 +36,6 @@ type Fund @entity {
   principalUSD: BigDecimal!
   # profit
   profit: BigInt!
-  # all time fees collected derived USD
-  collectedFeesUSD: BigDecimal!
   # volumeETH
   volumeETH: BigDecimal!
   # volumeETH
@@ -108,9 +114,9 @@ type FundToken @entity {
   # timestamp txn was confirmed
   timestamp: BigInt!
   # token belongs to fund
-  fund: String!
+  fund: Fund!
   # token address
-  address: String!
+  token: Bytes!
   # token amount
   amount: BigDecimal!
   # pointer to fundDaySnapshot
@@ -131,9 +137,9 @@ type InvestorToken @entity {
   # timestamp txn was confirmed
   timestamp: BigInt!
   # token belongs to investor
-  investor: String!
+  investor: Investor!
   # token address
-  address: String!
+  token: Bytes!
   # token amount
   amount: BigDecimal!
   # pointer to investorDaySnapshot
@@ -153,10 +159,10 @@ type RewardToken @entity {
   id: ID!
   # timestamp txn was confirmed
   timestamp: BigInt!
-  # token belongs to manager
-  manager: String!
+  # pointer to reward
+  reward: Reward!
   # token address
-  address: String!
+  token: Bytes!
   # token amount
   amount: BigDecimal!
   # pointer to RewardDaySnapshot
@@ -220,7 +226,7 @@ type Deposit @entity {
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # deposit token address
-  token: String!
+  token: Bytes!
   # amount of token deposit
   amount: BigDecimal!
   # derived amount based on available prices of tokens
@@ -246,7 +252,7 @@ type Withdraw @entity {
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # withdraw token address
-  token: String!
+  token: Bytes!
   # amount of token withdraw
   amount: BigDecimal!
   # derived amount based on available prices of tokens
@@ -296,7 +302,7 @@ type DepositReward @entity {
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # withdraw token address
-  token: String!
+  token: Bytes!
   # amount of token withdraw
   amount: BigDecimal!
   # derived amount based on available prices of tokens
@@ -317,7 +323,7 @@ type WithdrawReward @entity {
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # withdraw token address
-  token: String!
+  token: Bytes!
   # amount of token withdraw
   amount: BigDecimal!
   # derived amount based on available prices of tokens

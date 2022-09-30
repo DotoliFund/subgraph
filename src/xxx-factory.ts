@@ -1,38 +1,59 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt, Address } from "@graphprotocol/graph-ts"
 import {
   FundCreated,
   OwnerChanged,
-  Subscribe,
+  Subscribe as SubscribeEvent,
 } from './types/XXXFactory/XXXFactory'
 import { 
   Factory,
   Fund,
   Investor,
+  Subscribe
 } from "./types/schema"
+import { 
+  FACTORY_ADDRESS,
+  FACTORY_OWNER,
+  SWAP_ROUTER_ADDRESS,
+  WHITELIST_TOKENS,
+  ZERO_BD,
+  ZERO_BI,
+  ONE_BI
+} from './utils/constants'
+
+function initFactory(): Factory {
+  const factory = new Factory(FACTORY_ADDRESS)
+  factory.fundCount = ZERO_BI
+  factory.whitelistTokens = WHITELIST_TOKENS
+  factory.managerFee = ONE_BI
+  factory.swapRouter = SWAP_ROUTER_ADDRESS
+  factory.totalVolumeETH = ZERO_BD
+  factory.totalVolumeUSD = ZERO_BD
+  factory.owner = Address.fromString(FACTORY_OWNER)
+  return factory
+}
 
 export function handleFundCreated(event: FundCreated): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
-
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
-
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
+  // load factory
+  let factory = Factory.load(FACTORY_ADDRESS)
+  if (factory === null) {
+    factory = initFactory()
   }
+  factory.fundCount = factory.fundCount.plus(ONE_BI)
+  factory.investorCount = factory.investorCount.plus(ONE_BI)
 
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
+  let fund = new Fund(event.params.fund.toHexString()) as Fund
+  fund.createdAtTimestamp = event.block.timestamp
+  fund.createdAtBlockNumber = event.block.number
+  fund.manager = event.params.manager
+  fund.principalETH = ZERO_BD
+  fund.principalUSD = ZERO_BD
+  fund.profit = ZERO_BI
+  fund.volumeETH = ZERO_BD
+  fund.volumeUSD = ZERO_BD
+  fund.investorCount = ONE_BI
 
-  // Entity fields can be set based on event parameters
-  entity.param0 = event.params.param0
-  entity.param1 = event.params.param1
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
+  fund.save()
+  factory.save()
 
   // Note: If a handler doesn't require existing field values, it is faster
   // _not_ to load the entity from the store. Instead, create it fresh with
@@ -60,7 +81,27 @@ export function handleFundCreated(event: FundCreated): void {
   // - contract.subscribedFunds(...)
 }
 
-export function handleOwnerChanged(event: OwnerChanged): void {}
-export function handleSubscribe(event: Subscribe): void {}
+export function handleOwnerChanged(event: OwnerChanged): void {
+  let factory = Factory.load(FACTORY_ADDRESS)
+  if (factory === null) {
+    factory = initFactory()
+  }
+  factory.owner = event.params.newOwner
+  factory.save()
+}
+
+export function handleSubscribe(event: SubscribeEvent): void {
+  let factory = Factory.load(FACTORY_ADDRESS)
+  if (factory !== null) {
+    factory.investorCount = factory.investorCount.plus(ONE_BI)
+  
+    let fund = Fund.load(event.params.fund.toHexString())
+    if (fund !== null) {
+      fund.investorCount = fund.investorCount.plus(ONE_BI)
+      fund.save()
+    }
+    factory.save()
+  }
+}
 
 
