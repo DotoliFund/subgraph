@@ -3,7 +3,7 @@
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "constructor"
-  },
+  },    
   {
     "anonymous": false,
     "inputs": [
@@ -27,31 +27,6 @@
       }
     ],
     "name": "DecreaseInvestorToken",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "DecreaseReward",
     "type": "event"
   },
   {
@@ -101,7 +76,7 @@
         "type": "uint256"
       }
     ],
-    "name": "IncreaseInvestorToken",
+    "name": "DepositReward",
     "type": "event"
   },
   {
@@ -110,7 +85,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "manager",
+        "name": "investor",
         "type": "address"
       },
       {
@@ -126,7 +101,7 @@
         "type": "uint256"
       }
     ],
-    "name": "IncreaseReward",
+    "name": "IncreaseInvestorToken",
     "type": "event"
   },
   {
@@ -208,10 +183,16 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
-        "name": "manager",
+        "name": "_token",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
       }
     ],
     "name": "WithdrawReward",
@@ -472,10 +453,21 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
     "name": "withdrawReward",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {

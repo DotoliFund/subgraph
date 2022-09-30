@@ -46,12 +46,14 @@ type Fund @entity {
 }
 
 type Investor @entity {
-  # investor address
+  # format: <fund address>-<investor address>
   id: ID!
   # creation
   createdAtTimestamp: BigInt!
   # block investor was created at
   createdAtBlockNumber: BigInt!
+  # fund address
+  fund: Bytes!
   # investor address
   investor: Bytes!
   # principalETH
@@ -76,17 +78,43 @@ type Investor @entity {
   swaps: [Swap!]!
 }
 
+type Reward @entity {
+  # fund address
+  id: ID!
+  # creation
+  createdAtTimestamp: BigInt!
+  # block investor was created at
+  createdAtBlockNumber: BigInt!
+  # fund address
+  fund: Bytes!
+  # principalETH
+  principalETH: BigDecimal!
+  # principalUSD
+  principalUSD: BigDecimal!
+  # volumeETH
+  volumeETH: BigDecimal!
+  # volumeETH
+  volumeUSD: BigDecimal!
+  # snapshots of reward data
+  rewardSnapshot: [RewardDaySnapshot!]!
+  # transactions
+  deposits: [DepositReward!]!
+  withdraws: [WithdrawReward!]!
+}
+
 type FundToken @entity {
   # format: <fund address>-<token address>
   id: ID!
   # timestamp txn was confirmed
   timestamp: BigInt!
-  # pointer to fundDaySnapshot
-  fundDaySnapshot: FundDaySnapshot!
   # token belongs to fund
   fund: String!
+  # token address
+  address: String!
   # token amount
   amount: BigDecimal!
+  # pointer to fundDaySnapshot
+  fundDaySnapshot: FundDaySnapshot!
   # token symbol
   symbol: String!
   # token name
@@ -102,12 +130,14 @@ type InvestorToken @entity {
   id: ID!
   # timestamp txn was confirmed
   timestamp: BigInt!
-  # pointer to investorDaySnapshot
-  investorDaySnapshot: InvestorDaySnapshot!
   # token belongs to investor
   investor: String!
+  # token address
+  address: String!
   # token amount
   amount: BigDecimal!
+  # pointer to investorDaySnapshot
+  investorDaySnapshot: InvestorDaySnapshot!
   # token symbol
   symbol: String!
   # token name
@@ -118,12 +148,55 @@ type InvestorToken @entity {
   derivedETH: BigDecimal!
 }
 
+type RewardToken @entity {
+  # format: <fund address>-<token address>
+  id: ID!
+  # timestamp txn was confirmed
+  timestamp: BigInt!
+  # token belongs to manager
+  manager: String!
+  # token address
+  address: String!
+  # token amount
+  amount: BigDecimal!
+  # pointer to RewardDaySnapshot
+  rewardDaySnapshot: RewardDaySnapshot!
+  # token symbol
+  symbol: String!
+  # token name
+  name: String!
+  # token decimals
+  decimals: BigInt!
+  # derived price in ETH
+  derivedETH: BigDecimal!
+}
+
+type Transaction @entity {
+  # txn hash
+  id: ID!
+  # block txn was included in
+  blockNumber: BigInt!
+  # timestamp txn was confirmed
+  timestamp: BigInt!
+  # gas used during txn execution
+  gasUsed: BigInt!
+  gasPrice: BigInt!
+  # derived values
+  subscribes: [Subscribe!]! @derivedFrom(field: "transaction")
+  deposits: [Deposit!]! @derivedFrom(field: "transaction")
+  withdraws: [Withdraw!]! @derivedFrom(field: "transaction")
+  depositReward: [DepositReward!]! @derivedFrom(field: "transaction")
+  withdrawReward: [WithdrawReward!]! @derivedFrom(field: "transaction")
+}
+
 type Subscribe @entity {
   # transaction hash + "#" + index in mints Transaction array
   id: ID!
+  # which txn the mint was included in
+  transaction: Transaction!
   # time of txn
   timestamp: BigInt!
-  # fund is within
+  # pointer to fund 
   fund: Fund!
   # the sender address
   sender: Bytes
@@ -136,9 +209,11 @@ type Subscribe @entity {
 type Deposit @entity {
   # transaction hash + "#" + index in mints Transaction array
   id: ID!
+  # which txn the mint was included in
+  transaction: Transaction!
   # time of txn
   timestamp: BigInt!
-  # fund is within
+  # pointer to fund 
   fund: Fund!
   # the investor address
   investor: Bytes
@@ -160,9 +235,11 @@ type Deposit @entity {
 type Withdraw @entity {
   # transaction hash + "#" + index in mints Transaction array
   id: ID!
-  # need this to pull recent txns for specific token or fund
+  # which txn the mint was included in
+  transaction: Transaction!
+  # time of txn
   timestamp: BigInt!
-  # fund is within
+  # pointer to fund 
   fund: Fund!
   # the investor address
   investor: Bytes
@@ -179,6 +256,8 @@ type Withdraw @entity {
 type Swap @entity {
   # transaction hash + "#" + index in swaps Transaction array
   id: ID!
+  # which txn the mint was included in
+  transaction: Transaction!
   # timestamp of transaction
   timestamp: BigInt!
   # fund swap occured within
@@ -203,12 +282,54 @@ type Swap @entity {
   logIndex: BigInt
 }
 
+type DepositReward @entity {
+  # transaction hash + "#" + index in mints Transaction array
+  id: ID!
+  # which txn the mint was included in
+  transaction: Transaction!
+  # time of txn
+  timestamp: BigInt!
+  # pointer to fund 
+  fund: Fund!
+  # the investor address
+  investor: Bytes
+  # txn origin
+  origin: Bytes! # the EOA that initiated the txn
+  # withdraw token address
+  token: String!
+  # amount of token withdraw
+  amount: BigDecimal!
+  # derived amount based on available prices of tokens
+  amountUSD: BigDecimal
+}
+
+type WithdrawReward @entity {
+  # transaction hash + "#" + index in mints Transaction array
+  id: ID!
+  # which txn the mint was included in
+  transaction: Transaction!
+  # time of txn
+  timestamp: BigInt!
+  # pointer to fund
+  fund: Fund!
+  # the investor address
+  investor: Bytes
+  # txn origin
+  origin: Bytes! # the EOA that initiated the txn
+  # withdraw token address
+  token: String!
+  # amount of token withdraw
+  amount: BigDecimal!
+  # derived amount based on available prices of tokens
+  amountUSD: BigDecimal
+}
+
 # daily stats tracker for fund
 type FundDaySnapshot @entity {
   # format: <fund address>-<timestamp>
   id: ID!
-  # unix timestamp for start of hour
-  periodStartUnix: Int!
+  # timestamp rounded to current day by dividing by 86400
+  date: Int!
   # pointer to fund
   fund: Fund!
   # tokens
@@ -221,12 +342,26 @@ type FundDaySnapshot @entity {
 type InvestorDaySnapshot @entity {
   # format: <investor address>-<timestamp>
   id: ID!
-  # unix timestamp for start of hour
-  periodStartUnix: Int!
+  # timestamp rounded to current day by dividing by 86400
+  date: Int!
   # pointer to investor
   investor: Investor!
   # tokens
   tokens: [InvestorToken!]! @derivedFrom(field: "investorDaySnapshot")
+  # volume in USD
+  volumeUSD: BigDecimal!
+}
+
+# daily stats tracker for investor
+type RewardDaySnapshot @entity {
+  # format: <investor address>-<timestamp>
+  id: ID!
+  # timestamp rounded to current day by dividing by 86400
+  date: Int!
+  # pointer to fund
+  fund: Fund!
+  # tokens
+  tokens: [RewardToken!]! @derivedFrom(field: "rewardDaySnapshot")
   # volume in USD
   volumeUSD: BigDecimal!
 }

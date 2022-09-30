@@ -1,11 +1,14 @@
 import { BigInt } from "@graphprotocol/graph-ts"
 import {
-  XXXFactory,
   FundCreated,
   OwnerChanged,
-  Subscribe as SubscribeEvent,
+  Subscribe,
 } from './types/XXXFactory/XXXFactory'
-import { ExampleEntity } from "./types/schema"
+import { 
+  Factory,
+  Fund,
+  Investor,
+} from "./types/schema"
 
 export function handleFundCreated(event: FundCreated): void {
   // Entities can be loaded from the store using a string ID; this ID
