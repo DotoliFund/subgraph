@@ -19,24 +19,21 @@ import {
   ZERO_BI,
   ONE_BI
 } from './utils/constants'
-
-function initFactory(): Factory {
-  const factory = new Factory(FACTORY_ADDRESS)
-  factory.fundCount = ZERO_BI
-  factory.whitelistTokens = WHITELIST_TOKENS
-  factory.managerFee = ONE_BI
-  factory.swapRouter = SWAP_ROUTER_ADDRESS
-  factory.totalVolumeETH = ZERO_BD
-  factory.totalVolumeUSD = ZERO_BD
-  factory.owner = Address.fromString(FACTORY_OWNER)
-  return factory
-}
+import { investorSnapshot } from "./utils/snapshots"
 
 export function handleFundCreated(event: FundCreated): void {
   // load factory
   let factory = Factory.load(FACTORY_ADDRESS)
   if (factory === null) {
-    factory = initFactory()
+    factory = new Factory(FACTORY_ADDRESS)
+    factory.fundCount = ZERO_BI
+    factory.investorCount = ZERO_BI
+    factory.whitelistTokens = WHITELIST_TOKENS
+    factory.swapRouter = SWAP_ROUTER_ADDRESS
+    factory.managerFee = ONE_BI
+    factory.totalVolumeETH = ZERO_BD
+    factory.totalVolumeUSD = ZERO_BD
+    factory.owner = Address.fromString(FACTORY_OWNER)
   }
   factory.fundCount = factory.fundCount.plus(ONE_BI)
   factory.investorCount = factory.investorCount.plus(ONE_BI)
@@ -47,10 +44,11 @@ export function handleFundCreated(event: FundCreated): void {
   fund.manager = event.params.manager
   fund.principalETH = ZERO_BD
   fund.principalUSD = ZERO_BD
-  fund.profit = ZERO_BI
   fund.volumeETH = ZERO_BD
   fund.volumeUSD = ZERO_BD
   fund.investorCount = ONE_BI
+  fund.profitETH = ZERO_BI
+  fund.profitUSD = ZERO_BI
 
   fund.save()
   factory.save()
@@ -83,11 +81,10 @@ export function handleFundCreated(event: FundCreated): void {
 
 export function handleOwnerChanged(event: OwnerChanged): void {
   let factory = Factory.load(FACTORY_ADDRESS)
-  if (factory === null) {
-    factory = initFactory()
+  if (factory !== null) {
+    factory.owner = event.params.newOwner
+    factory.save()
   }
-  factory.owner = event.params.newOwner
-  factory.save()
 }
 
 export function handleSubscribe(event: SubscribeEvent): void {
@@ -100,6 +97,24 @@ export function handleSubscribe(event: SubscribeEvent): void {
       fund.investorCount = fund.investorCount.plus(ONE_BI)
       fund.save()
     }
+
+    let investor = Investor.load(event.params.investor.toHexString())
+    if (investor === null) {
+      investor = new Investor(event.params.investor.toHexString())
+      investor.createdAtTimestamp = event.block.timestamp
+      investor.createdAtBlockNumber = event.block.number
+      investor.fund = event.address
+      investor.principalETH = ZERO_BD
+      investor.principalUSD = ZERO_BD
+      investor.volumeETH = ZERO_BD
+      investor.volumeUSD = ZERO_BD
+      investor.profitETH = ZERO_BI
+      investor.profitUSD = ZERO_BI
+    }
+
+    investorSnapshot(event)
+
+    investor.save()
     factory.save()
   }
 }

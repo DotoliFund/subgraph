@@ -13,6 +13,7 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
+        - Factory
         - Fund
       abis:
         - name: XXXFactory
@@ -22,6 +23,8 @@ dataSources:
           handler: handleFundCreated
         - event: Subscribe(indexed address,indexed address)
           handler: handleSubscribe
+        - event: OwnerChanged(indexed address,indexed address)
+          handler: handleOwnerChanged
       file: ./src/xxx-factory.ts
 templates:
   - kind: ethereum
@@ -35,30 +38,26 @@ templates:
       language: wasm/assemblyscript
       entities:
         - Fund
+        - Manager
         - Investor
-        - Reward
-        - Transaction
       abis:
         - name: XXXFund2
           file: ./abis/XXXFund2.json
       eventHandlers:
         - event: Initialize(address)
           handler: handleInitialize
-
-        - event: Deposit(indexed address,address,uint256)
-          handler: handleDeposit
-        - event: Withdraw(indexed address,address,uint256)
-          handler: handleWithdraw
-        - event: Swap(indexed address,address,address,uint256,uint256)
+        - event: ManagerDeposit(indexed address,address,uint256)
+          handler: handleManagerDeposit
+        - event: ManagerWithdraw(indexed address,address,uint256)
+          handler: handleManagerWithdraw
+        - event: ManagerFeeIn(indexed address,indexed address,address,uint256)
+          handler: handleManagerFeeIn
+        - event: ManagerFeeOut(indexed address,address,uint256)
+          handler: handleManagerFeeOut
+        - event: InvestorDeposit(indexed address,address,uint256)
+          handler: handleInvestorDeposit
+        - event: InvestorWithdraw(indexed address,address,uint256,uint256)
+          handler: handleInvestorWithdraw
+        - event: Swap(indexed address,indexed address,address,address,uint256,uint256)
           handler: handleSwap
-
-        - event: IncreaseInvestorToken(indexed address,address,uint256)
-          handler: handleIncreaseInvestorToken
-        - event: DecreaseInvestorToken(indexed address,address,uint256)
-          handler: handleDecreaseInvestorToken
-
-        - event: DepositReward(indexed address,address,uint256)
-          handler: handleDepositReward
-        - event: WithdrawReward(address,uint256)
-          handler: handleWithdrawReward
       file: ./src/xxx-fund2.ts

@@ -2,114 +2,112 @@ import { ZERO_BD, ZERO_BI, ONE_BI } from './constants'
 /* eslint-disable prefer-const */
 import {
   Factory,
+  XXXFund2Snapshot,
   Fund,
-  FundDaySnapshot,
-  FundToken,
+  FundSnapshot,
+  Manager,
+  ManagerSnapshot,
   Investor,
-  InvestorDaySnapshot,
-  InvestorToken,
-  Reward,
-  RewardDaySnapshot,
-  RewardToken
+  InvestorSnapshot,
 } from '../types/schema'
 import { FACTORY_ADDRESS } from './constants'
 import { ethereum } from '@graphprotocol/graph-ts'
 
-export function fundDaySnapshot(event: ethereum.Event): FundDaySnapshot {
-  let timestamp = event.block.timestamp.toI32()
-  let dayID = timestamp / 86400
-  let dayStartTimestamp = dayID * 86400
-  let dayFundID = event.address
+export function xxxfund2Snapshot(event: ethereum.Event): void {
+  let factory = Factory.load(FACTORY_ADDRESS)
+  if (factory !== null) {
+    let timestamp = event.block.timestamp.toI32()
+    let dayID = timestamp / 86400 // rounded
+    let dayStartTimestamp = dayID * 86400
+    let fund = Fund.load(event.address.toHexString())
+    if (fund !== null) {
+      let xxxfundSnapshot = XXXFund2Snapshot.load(dayID.toString())
+      if (xxxfundSnapshot === null) {
+        xxxfundSnapshot = new XXXFund2Snapshot(dayID.toString())
+        xxxfundSnapshot.date = dayStartTimestamp
+        xxxfundSnapshot.volumeUSD = ZERO_BD
+        xxxfundSnapshot.volumeETH = ZERO_BD
+        xxxfundSnapshot.fundCount = ZERO_BI
+      }
+      xxxfundSnapshot.volumeETH
+      xxxfundSnapshot.volumeUSD
+      xxxfundSnapshot.fundCount = factory.fundCount
+      xxxfundSnapshot.save()
+    }
+  }
+}
+
+export function fundSnapshot(event: ethereum.Event): void {
+  let timestamp = event.block.timestamp
+  let fundTimeID = event.address
     .toHexString()
     .concat('-')
-    .concat(dayID.toString())
+    .concat(timestamp.toString())
   let fund = Fund.load(event.address.toHexString())
   if (fund !== null) {
-    let fundDaySnapshot = FundDaySnapshot.load(dayFundID)
-    if (fundDaySnapshot === null) {
-      fundDaySnapshot = new FundDaySnapshot(dayFundID)
-      fundDaySnapshot.date = dayStartTimestamp
-      fundDaySnapshot.fund = fund.id
-      fundDaySnapshot.volumeUSD = ZERO_BD
+    let fundSnapshot = FundSnapshot.load(fundTimeID)
+    if (fundSnapshot === null) {
+      fundSnapshot = new FundSnapshot(fundTimeID)
+      fundSnapshot.timestamp = timestamp
+      fundSnapshot.fund = fund.id
+      fundSnapshot.volumeUSD = ZERO_BD
+      fundSnapshot.volumeETH = ZERO_BD
+      fundSnapshot.principalETH = ZERO_BD
+      fundSnapshot.profitETH = ZERO_BI
+      fundSnapshot.profitUSD = ZERO_BI
     }
-    //TODO FundToken
-    fundDaySnapshot.volumeUSD
-    fundDaySnapshot.save()
+    fundSnapshot.volumeUSD
+    fundSnapshot.save()
   }
-
-  return fundDaySnapshot as FundDaySnapshot
 }
 
-export function investorDaySnapshot(event: ethereum.Event): InvestorDaySnapshot {
-  let timestamp = event.block.timestamp.toI32()
-  let dayID = timestamp / 86400
-  let dayStartTimestamp = dayID * 86400
-  let dayPoolID = event.address
+export function managerSnapshot(event: ethereum.Event): void {
+  let timestamp = event.block.timestamp
+  let fundTimeID = event.address
     .toHexString()
     .concat('-')
-    .concat(dayID.toString())
+    .concat(timestamp.toString())
+  let manager = Manager.load(event.address.toHexString())
+  if (manager !== null) {
+    let managerSnapshot = ManagerSnapshot.load(fundTimeID)
+    if (managerSnapshot === null) {
+      managerSnapshot = new ManagerSnapshot(fundTimeID)
+      managerSnapshot.timestamp = timestamp
+      managerSnapshot.manager = manager.id
+      managerSnapshot.volumeUSD = ZERO_BD
+      managerSnapshot.volumeETH = ZERO_BD
+      managerSnapshot.principalETH = ZERO_BD
+      managerSnapshot.profitETH = ZERO_BI
+      managerSnapshot.profitUSD = ZERO_BI
+    }
+    managerSnapshot.volumeUSD
+    managerSnapshot.save()  
+  }
+}
+
+export function investorSnapshot(event: ethereum.Event): void {
+  let timestamp = event.block.timestamp
+  let fundTimeID = event.address
+    .toHexString()
+    .concat('-')
+    .concat(timestamp.toString())
   let investor = Investor.load(event.address.toHexString())
+  let investorSnapshot = InvestorSnapshot.load(fundTimeID)
+
   if (investor !== null) {
-    let investorDaySnapshot = InvestorDaySnapshot.load(dayPoolID)
-    if (investorDaySnapshot === null) {
-      investorDaySnapshot = new InvestorDaySnapshot(dayPoolID)
-      investorDaySnapshot.date = dayStartTimestamp
-      investorDaySnapshot.investor = investor.id
-      investorDaySnapshot.volumeUSD = ZERO_BD
+    if (investorSnapshot === null) {
+      investorSnapshot = new InvestorSnapshot(fundTimeID)
+      investorSnapshot.timestamp = timestamp
+      investorSnapshot.investor = event.address.toHexString()
+      investorSnapshot.volumeUSD = ZERO_BD
+      investorSnapshot.volumeETH = ZERO_BD
+      investorSnapshot.principalETH = ZERO_BD
+      investorSnapshot.profitETH = ZERO_BI
+      investorSnapshot.profitUSD = ZERO_BI
     }
-    //TODO InvestorToken
-    investorDaySnapshot.volumeUSD
-    investorDaySnapshot.save()
+    investorSnapshot.volumeUSD
+    investorSnapshot.save()
+
+
   }
-
-  return investorDaySnapshot as InvestorDaySnapshot
-}
-
-export function rewardDaySnapshot(event: ethereum.Event): RewardDaySnapshot {
-  let timestamp = event.block.timestamp.toI32()
-  let dayID = timestamp / 86400
-  let dayStartTimestamp = dayID * 86400
-  let dayPoolID = event.address
-    .toHexString()
-    .concat('-')
-    .concat(dayID.toString())
-  let pool = Pool.load(event.address.toHexString())
-  let poolDayData = PoolDayData.load(dayPoolID)
-  if (poolDayData === null) {
-    poolDayData = new PoolDayData(dayPoolID)
-    poolDayData.date = dayStartTimestamp
-    poolDayData.pool = pool.id
-    // things that dont get initialized always
-    poolDayData.volumeToken0 = ZERO_BD
-    poolDayData.volumeToken1 = ZERO_BD
-    poolDayData.volumeUSD = ZERO_BD
-    poolDayData.feesUSD = ZERO_BD
-    poolDayData.txCount = ZERO_BI
-    poolDayData.feeGrowthGlobal0X128 = ZERO_BI
-    poolDayData.feeGrowthGlobal1X128 = ZERO_BI
-    poolDayData.open = pool.token0Price
-    poolDayData.high = pool.token0Price
-    poolDayData.low = pool.token0Price
-    poolDayData.close = pool.token0Price
-  }
-
-  if (pool.token0Price.gt(poolDayData.high)) {
-    poolDayData.high = pool.token0Price
-  }
-  if (pool.token0Price.lt(poolDayData.low)) {
-    poolDayData.low = pool.token0Price
-  }
-
-  poolDayData.liquidity = pool.liquidity
-  poolDayData.sqrtPrice = pool.sqrtPrice
-  poolDayData.feeGrowthGlobal0X128 = pool.feeGrowthGlobal0X128
-  poolDayData.feeGrowthGlobal1X128 = pool.feeGrowthGlobal1X128
-  poolDayData.token0Price = pool.token0Price
-  poolDayData.token1Price = pool.token1Price
-  poolDayData.tick = pool.tick
-  poolDayData.tvlUSD = pool.totalValueLockedUSD
-  poolDayData.txCount = poolDayData.txCount.plus(ONE_BI)
-  poolDayData.save()
-
-  return rewardDaySnapshot as RewardDaySnapshot
 }
