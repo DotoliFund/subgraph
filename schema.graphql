@@ -28,18 +28,10 @@ type Fund @entity {
   createdAtBlockNumber: BigInt!
   # manager address
   manager: Bytes!
-  # principalETH
-  principalETH: BigDecimal!
-  # principalUSD
-  principalUSD: BigDecimal!
   # volumeETH
   volumeETH: BigDecimal!
   # volumeUSD
   volumeUSD: BigDecimal!
-  # profit ETH
-  profitETH: BigInt!
-  # profit USD
-  profitUSD: BigInt!
   # investorCount
   investorCount: BigInt!
   # snapshots of fund data

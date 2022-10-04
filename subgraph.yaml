@@ -50,8 +50,6 @@ templates:
           handler: handleManagerDeposit
         - event: ManagerWithdraw(indexed address,address,uint256)
           handler: handleManagerWithdraw
-        - event: ManagerFeeIn(indexed address,indexed address,address,uint256)
-          handler: handleManagerFeeIn
         - event: ManagerFeeOut(indexed address,address,uint256)
           handler: handleManagerFeeOut
         - event: InvestorDeposit(indexed address,address,uint256)

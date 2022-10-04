@@ -41,14 +41,9 @@ export function handleFundCreated(event: FundCreated): void {
   let fund = new Fund(event.params.fund.toHexString()) as Fund
   fund.createdAtTimestamp = event.block.timestamp
   fund.createdAtBlockNumber = event.block.number
-  fund.manager = event.params.manager
-  fund.principalETH = ZERO_BD
-  fund.principalUSD = ZERO_BD
   fund.volumeETH = ZERO_BD
   fund.volumeUSD = ZERO_BD
   fund.investorCount = ONE_BI
-  fund.profitETH = ZERO_BI
-  fund.profitUSD = ZERO_BI
 
   fund.save()
   factory.save()
