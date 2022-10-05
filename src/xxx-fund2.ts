@@ -25,30 +25,20 @@ import {
   FACTORY_ADDRESS,
   ZERO_BD,
   ZERO_BI,
+  factoryContract,
 } from './utils/constants'
 import { 
   fundSnapshot,
   managerSnapshot,
   investorSnapshot,
-  xxxfund2Snapshot,
 } from './utils/snapshots'
 import { 
   loadTransaction,
-  getAmountETH,
-  getAmountUSD,
-  getXXXFund2VolumeETH,
-  getXXXFund2VolumeUSD,
-  getFundVolumeETH,
-  getFundVolumeUSD,
-  getManagerVolumeETH,
-  getManagerVolumeUSD,
-  getManagerFeeVolumeETH,
-  getManagerFeeVolumeUSD,
-  getInvestorVolumeETH,
-  getInvestorVolumeUSD,
   getProfitETH,
   getProfitUSD,
 } from './utils'
+import { XXXFund2 as XXXFund2Contract } from './types/templates/XXXFund2/XXXFund2'
+
 
 export function handleInitialize(event: InitializeEvent): void {
   let fund = Fund.load(event.address.toHexString())
@@ -67,10 +57,10 @@ export function handleInitialize(event: InitializeEvent): void {
       manager.createdAtTimestamp = event.block.timestamp
       manager.createdAtBlockNumber = event.block.number
       manager.fund = event.address
-      manager.principalETH = ZERO_BD
-      manager.principalUSD = ZERO_BD
-      manager.volumeETH = ZERO_BD
-      manager.volumeUSD = ZERO_BD
+      manager.principalETH = ZERO_BI
+      manager.principalUSD = ZERO_BI
+      manager.volumeETH = ZERO_BI
+      manager.volumeUSD = ZERO_BI
       manager.profitETH = ZERO_BI
       manager.profitUSD = ZERO_BI
     }
@@ -79,7 +69,6 @@ export function handleInitialize(event: InitializeEvent): void {
     manager.save()
     managerSnapshot(event)
     fundSnapshot(event)
-    xxxfund2Snapshot(event)
   }
 }
 
@@ -89,24 +78,26 @@ export function handleManagerDeposit(event: ManagerDepositEvent): void {
   if (factory !== null && fund !== null) {
     let transaction = loadTransaction(event)
     let managerDeposit = new ManagerDeposit(event.address.toHexString())
+    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
+
     managerDeposit.transaction = transaction.id
     managerDeposit.timestamp = transaction.timestamp
     managerDeposit.fund = event.transaction.from.toHexString()
     managerDeposit.manager = event.params.manager
     managerDeposit.token = event.params.token
     managerDeposit.amount = event.params.amount
-    managerDeposit.amountUSD = getAmountUSD(event.params.token.toHexString(), event.params.amount)
+    const depositETH = event.params.amountETH
+    const depositUSD = event.params.amountUSD
+    managerDeposit.amountETH = depositETH
+    managerDeposit.amountUSD = depositUSD
     managerDeposit.logIndex = event.logIndex
 
     let manager = Manager.load(event.params.manager.toHexString())
     if (manager !== null) {
-      const depositETH = getAmountETH(managerDeposit.token.toHexString(), managerDeposit.amount)
-      const depositUSD = getAmountUSD(managerDeposit.token.toHexString(), managerDeposit.amount)
-
       manager.principalETH = manager.principalETH.plus(depositETH)
       manager.principalUSD = manager.principalUSD.plus(depositUSD)
-      manager.volumeETH = getManagerVolumeETH(fund.manager.toHexString())
-      manager.volumeUSD = getManagerVolumeUSD(fund.manager.toHexString())
+      manager.volumeETH = xxxfund2Contract.getManagerVolumeETH()
+      manager.volumeUSD = xxxfund2Contract.getManagerVolumeUSD()
       manager.profitETH = getProfitETH(manager.principalETH, manager.volumeETH)
       manager.profitUSD = getProfitUSD(manager.principalUSD, manager.volumeUSD)
 
@@ -123,7 +114,6 @@ export function handleManagerDeposit(event: ManagerDepositEvent): void {
 
       managerSnapshot(event)
       fundSnapshot(event)
-      xxxfund2Snapshot(event)
     }
   }
 }
@@ -171,7 +161,6 @@ export function handleManagerWithdraw(event: ManagerWithdrawEvent): void {
 
       managerSnapshot(event)
       fundSnapshot(event)
-      xxxfund2Snapshot(event)
     }
   }
 }
@@ -213,7 +202,6 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
     
       managerSnapshot(event)
       fundSnapshot(event)
-      xxxfund2Snapshot(event)
     }
   }
 }
@@ -258,7 +246,6 @@ export function handleInvestorDeposit(event: InvestorDepositEvent): void {
     
       investorSnapshot(event)
       fundSnapshot(event)
-      xxxfund2Snapshot(event)
     }
   }
 }
@@ -311,7 +298,6 @@ export function handleInvestorWithdraw(event: InvestorWithdrawEvent): void {
 
       investorSnapshot(event)
       fundSnapshot(event)
-      xxxfund2Snapshot(event)
     }
   }
 }
@@ -363,7 +349,6 @@ export function handleSwap(event: SwapEvent): void {
 
         managerSnapshot(event)
         fundSnapshot(event)
-        xxxfund2Snapshot(event)
       }
     } else {
       //investor account swap
@@ -387,7 +372,6 @@ export function handleSwap(event: SwapEvent): void {
       
         investorSnapshot(event)
         fundSnapshot(event)
-        xxxfund2Snapshot(event)
       }
     }
   }

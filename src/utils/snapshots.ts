@@ -13,30 +13,6 @@ import {
 import { FACTORY_ADDRESS } from './constants'
 import { ethereum } from '@graphprotocol/graph-ts'
 
-export function xxxfund2Snapshot(event: ethereum.Event): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
-  if (factory !== null) {
-    let timestamp = event.block.timestamp.toI32()
-    let dayID = timestamp / 86400 // rounded
-    let dayStartTimestamp = dayID * 86400
-    let fund = Fund.load(event.address.toHexString())
-    if (fund !== null) {
-      let xxxfundSnapshot = XXXFund2Snapshot.load(dayID.toString())
-      if (xxxfundSnapshot === null) {
-        xxxfundSnapshot = new XXXFund2Snapshot(dayID.toString())
-        xxxfundSnapshot.date = dayStartTimestamp
-        xxxfundSnapshot.volumeUSD = ZERO_BD
-        xxxfundSnapshot.volumeETH = ZERO_BD
-        xxxfundSnapshot.fundCount = ZERO_BI
-      }
-      xxxfundSnapshot.volumeETH
-      xxxfundSnapshot.volumeUSD
-      xxxfundSnapshot.fundCount = factory.fundCount
-      xxxfundSnapshot.save()
-    }
-  }
-}
-
 export function fundSnapshot(event: ethereum.Event): void {
   let timestamp = event.block.timestamp
   let fundTimeID = event.address

@@ -41,13 +41,13 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceETH",
+        "name": "amountETH",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceUSD",
+        "name": "amountUSD",
         "type": "uint256"
       }
     ],
@@ -84,13 +84,13 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceETH",
+        "name": "amountETH",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceUSD",
+        "name": "amountUSD",
         "type": "uint256"
       }
     ],
@@ -121,13 +121,13 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceETH",
+        "name": "amountETH",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceUSD",
+        "name": "amountUSD",
         "type": "uint256"
       }
     ],
@@ -164,13 +164,13 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceETH",
+        "name": "amountETH",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceUSD",
+        "name": "amountUSD",
         "type": "uint256"
       }
     ],
@@ -201,13 +201,13 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceETH",
+        "name": "amountETH",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceUSD",
+        "name": "amountUSD",
         "type": "uint256"
       }
     ],
@@ -238,13 +238,13 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceETH",
+        "name": "amountETH",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceUSD",
+        "name": "amountUSD",
         "type": "uint256"
       }
     ],
@@ -293,13 +293,13 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceETH",
+        "name": "amountETH",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "priceUSD",
+        "name": "amountUSD",
         "type": "uint256"
       }
     ],
@@ -431,6 +431,82 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "investor",
+        "type": "address"
+      }
+    ],
+    "name": "getInvestorVolumeETH",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "investor",
+        "type": "address"
+      }
+    ],
+    "name": "getInvestorVolumeUSD",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "getManagerFeeVolumeETH",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "getManagerFeeVolumeUSD",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getManagerTokenCount",
     "outputs": [
@@ -463,6 +539,44 @@
         "internalType": "struct IXXXFund2.Token[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "getManagerVolumeETH",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "getManagerVolumeUSD",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",

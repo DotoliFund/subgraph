@@ -29,9 +29,9 @@ type Fund @entity {
   # manager address
   manager: Bytes!
   # volumeETH
-  volumeETH: BigDecimal!
+  volumeETH: BigInt!
   # volumeUSD
-  volumeUSD: BigDecimal!
+  volumeUSD: BigInt!
   # investorCount
   investorCount: BigInt!
   # snapshots of fund data
@@ -57,21 +57,21 @@ type Manager @entity {
   # fund address
   fund: Bytes!
   # principalETH
-  principalETH: BigDecimal!
+  principalETH: BigInt!
   # principalUSD
-  principalUSD: BigDecimal!
+  principalUSD: BigInt!
   # volumeETH
-  volumeETH: BigDecimal!
+  volumeETH: BigInt!
   # volumeUSD
-  volumeUSD: BigDecimal!
+  volumeUSD: BigInt!
   # profit ETH
   profitETH: BigInt!
   # profit USD
   profitUSD: BigInt!
   # fee volume in USD
-  feeVolumeUSD: BigDecimal!
+  feeVolumeUSD: BigInt!
   # fee volume in ETH
-  feeVolumeETH: BigDecimal!
+  feeVolumeETH: BigInt!
   # snapshots of reward data
   managerSnapshot: [ManagerSnapshot!]!
   # transactions
@@ -94,13 +94,13 @@ type Investor @entity {
   # investor address
   investor: Bytes!
   # principalETH
-  principalETH: BigDecimal!
+  principalETH: BigInt!
   # principalUSD
-  principalUSD: BigDecimal!
+  principalUSD: BigInt!
   # volumeETH
-  volumeETH: BigDecimal!
+  volumeETH: BigInt!
   # volumeUSD
-  volumeUSD: BigDecimal!
+  volumeUSD: BigInt!
   # profit ETH
   profitETH: BigInt!
   # profit USD
@@ -184,7 +184,9 @@ type ManagerDeposit @entity {
   # amount of token deposit
   amount: BigInt!
   # derived amount based on available prices of tokens
-  amountUSD: BigDecimal
+  amountETH: BigInt!
+  # derived amount based on available prices of tokens
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -207,7 +209,9 @@ type ManagerWithdraw @entity {
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
-  amountUSD: BigDecimal
+  amountETH: BigInt!
+  # derived amount based on available prices of tokens
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -233,7 +237,9 @@ type ManagerFeeIn @entity {
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
-  amountUSD: BigDecimal
+  amountETH: BigInt!
+  # derived amount based on available prices of tokens
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -256,7 +262,9 @@ type ManagerFeeOut @entity {
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
-  amountUSD: BigDecimal
+  amountETH: BigInt!
+  # derived amount based on available prices of tokens
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -279,7 +287,9 @@ type InvestorDeposit @entity {
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
-  amountUSD: BigDecimal
+  amountETH: BigInt!
+  # derived amount based on available prices of tokens
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -302,7 +312,9 @@ type InvestorWithdraw @entity {
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
-  amountUSD: BigDecimal
+  amountETH: BigInt!
+  # derived amount based on available prices of tokens
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -330,8 +342,10 @@ type Swap @entity {
   amount0: BigInt!
   # amount of token1 swapped
   amount1: BigInt!
-  # derived info
-  amountUSD: BigDecimal!
+  # derived amount based on available prices of tokens
+  amountETH: BigInt!
+  # derived amount based on available prices of tokens
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn

@@ -41,8 +41,8 @@ export function handleFundCreated(event: FundCreated): void {
   let fund = new Fund(event.params.fund.toHexString()) as Fund
   fund.createdAtTimestamp = event.block.timestamp
   fund.createdAtBlockNumber = event.block.number
-  fund.volumeETH = ZERO_BD
-  fund.volumeUSD = ZERO_BD
+  fund.volumeETH = ZERO_BI
+  fund.volumeUSD = ZERO_BI
   fund.investorCount = ONE_BI
 
   fund.save()
@@ -99,10 +99,10 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.createdAtTimestamp = event.block.timestamp
       investor.createdAtBlockNumber = event.block.number
       investor.fund = event.address
-      investor.principalETH = ZERO_BD
-      investor.principalUSD = ZERO_BD
-      investor.volumeETH = ZERO_BD
-      investor.volumeUSD = ZERO_BD
+      investor.principalETH = ZERO_BI
+      investor.principalUSD = ZERO_BI
+      investor.volumeETH = ZERO_BI
+      investor.volumeUSD = ZERO_BI
       investor.profitETH = ZERO_BI
       investor.profitUSD = ZERO_BI
     }
