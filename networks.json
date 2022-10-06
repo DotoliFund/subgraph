@@ -1,5 +1,5 @@
 {
-  "rinkeby": {
+  "goerli": {
     "XXXFactory": {
       "address": "0xb92b2D530fa466f244D428bc3f2c407F454D0EBB"
     }
