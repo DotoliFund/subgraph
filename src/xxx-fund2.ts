@@ -37,6 +37,8 @@ import {
   loadTransaction,
   getProfitETH,
   getProfitUSD,
+  getProfitRatioETH,
+  getProfitRatioUSD
 } from './utils'
 import { XXXFund2 as XXXFund2Contract } from './types/templates/XXXFund2/XXXFund2'
 
@@ -64,6 +66,8 @@ export function handleInitialize(event: InitializeEvent): void {
       manager.volumeUSD = ZERO_BI
       manager.profitETH = ZERO_BI
       manager.profitUSD = ZERO_BI
+      manager.profitRatioETH = ZERO_BI
+      manager.profitRatioUSD = ZERO_BI
       manager.feeVolumeETH = ZERO_BI
       manager.feeVolumeUSD = ZERO_BI
     }
@@ -101,6 +105,8 @@ export function handleManagerDeposit(event: ManagerDepositEvent): void {
       manager.volumeUSD = xxxfund2Contract.getManagerVolumeUSD()
       manager.profitETH = getProfitETH(manager.principalETH, manager.volumeETH)
       manager.profitUSD = getProfitUSD(manager.principalUSD, manager.volumeUSD)
+      manager.profitRatioETH = getProfitRatioETH(manager.principalETH, manager.volumeETH)
+      manager.profitRatioUSD = getProfitRatioUSD(manager.principalUSD, manager.volumeUSD)
 
       fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
       fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
@@ -147,6 +153,8 @@ export function handleManagerWithdraw(event: ManagerWithdrawEvent): void {
       manager.principalUSD = manager.principalUSD.minus(managerPrincipalUSDToMinus)
       manager.profitETH = getProfitETH(manager.principalETH, manager.volumeETH)
       manager.profitUSD = getProfitUSD(manager.principalUSD, manager.volumeUSD)
+      manager.profitRatioETH = getProfitRatioETH(manager.principalETH, manager.volumeETH)
+      manager.profitRatioUSD = getProfitRatioUSD(manager.principalUSD, manager.volumeUSD)
 
       fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
       fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
@@ -185,6 +193,8 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
       manager.volumeUSD = xxxfund2Contract.getManagerVolumeUSD()
       manager.profitETH = getProfitETH(manager.principalETH, manager.volumeETH)
       manager.profitUSD = getProfitUSD(manager.principalUSD, manager.volumeUSD)
+      manager.profitRatioETH = getProfitRatioETH(manager.principalETH, manager.volumeETH)
+      manager.profitRatioUSD = getProfitRatioUSD(manager.principalUSD, manager.volumeUSD)
       manager.feeVolumeETH = xxxfund2Contract.getManagerFeeVolumeETH()
       manager.feeVolumeUSD = xxxfund2Contract.getManagerFeeVolumeUSD()
 
@@ -229,6 +239,8 @@ export function handleInvestorDeposit(event: InvestorDepositEvent): void {
       investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)
       investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
       investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
+      investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
+      investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
 
       fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
       fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
@@ -276,6 +288,8 @@ export function handleInvestorWithdraw(event: InvestorWithdrawEvent): void {
       investor.principalUSD = investor.principalUSD.minus(investorPrincipalUSDToMinus)
       investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
       investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
+      investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
+      investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
 
       manager.feeVolumeETH = xxxfund2Contract.getManagerFeeVolumeETH()
       manager.feeVolumeUSD = xxxfund2Contract.getManagerFeeVolumeUSD()
@@ -329,7 +343,9 @@ export function handleSwap(event: SwapEvent): void {
         manager.volumeUSD = xxxfund2Contract.getManagerVolumeUSD()
         manager.profitETH = getProfitETH(manager.principalETH, manager.volumeETH)
         manager.profitUSD = getProfitUSD(manager.principalUSD, manager.volumeUSD)
-  
+        manager.profitRatioETH = getProfitRatioETH(manager.principalETH, manager.volumeETH)
+        manager.profitRatioUSD = getProfitRatioUSD(manager.principalUSD, manager.volumeUSD)
+
         fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
         fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
   
@@ -351,7 +367,9 @@ export function handleSwap(event: SwapEvent): void {
         investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)
         investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
         investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
-  
+        investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
+        investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
+
         fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
         fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
   

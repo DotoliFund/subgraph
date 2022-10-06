@@ -28,10 +28,22 @@ type Fund @entity {
   createdAtBlockNumber: BigInt!
   # manager address
   manager: Bytes!
+  # principalETH
+  principalETH: BigInt!
+  # principalUSD
+  principalUSD: BigInt!
   # volumeETH
   volumeETH: BigInt!
   # volumeUSD
   volumeUSD: BigInt!
+  # profit ETH
+  profitETH: BigInt!
+  # profit USD
+  profitUSD: BigInt!
+  # profit ratio ETH
+  profitRatioETH: BigInt!
+  # profit ratio USD
+  profitRatioUSD: BigInt!
   # investorCount
   investorCount: BigInt!
   # snapshots of fund data
@@ -67,6 +79,10 @@ type Manager @entity {
   profitETH: BigInt!
   # profit USD
   profitUSD: BigInt!
+  # profit ratio ETH
+  profitRatioETH: BigInt!
+  # profit ratio USD
+  profitRatioUSD: BigInt!
   # fee volume in USD
   feeVolumeUSD: BigInt!
   # fee volume in ETH
@@ -103,6 +119,10 @@ type Investor @entity {
   profitETH: BigInt!
   # profit USD
   profitUSD: BigInt!
+  # profit ratio ETH
+  profitRatioETH: BigInt!
+  # profit ratio USD
+  profitRatioUSD: BigInt!
   # snapshots of investor data
   investorSnapshot: [InvestorSnapshot!]! @derivedFrom(field: "investor")
   # transactions

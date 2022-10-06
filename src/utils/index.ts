@@ -25,3 +25,13 @@ export function getProfitUSD(princial: BigInt, volume: BigInt): BigInt {
   let profitUSD: BigInt = ZERO_BI 
   return profitUSD
 }
+
+export function getProfitRatioETH(princial: BigInt, volume: BigInt): BigInt {
+  let profitRatioETH: BigInt = ZERO_BI 
+  return profitRatioETH
+}
+
+export function getProfitRatioUSD(princial: BigInt, volume: BigInt): BigInt {
+  let profitRatioUSD: BigInt = ZERO_BI 
+  return profitRatioUSD
+}

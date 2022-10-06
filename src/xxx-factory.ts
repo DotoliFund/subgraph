@@ -45,6 +45,10 @@ export function handleFundCreated(event: FundCreated): void {
   fund.manager = event.params.manager
   fund.volumeETH = ZERO_BI
   fund.volumeUSD = ZERO_BI
+  fund.profitETH = ZERO_BI
+  fund.profitUSD = ZERO_BI
+  fund.profitRatioETH = ZERO_BI
+  fund.profitRatioUSD = ZERO_BI
   fund.investorCount = ONE_BI
 
   fund.save()
@@ -116,6 +120,8 @@ export function handleSubscribe(event: SubscribeEvent): void {
         investor.volumeUSD = ZERO_BI
         investor.profitETH = ZERO_BI
         investor.profitUSD = ZERO_BI
+        investor.profitRatioETH = ZERO_BI
+        investor.profitRatioUSD = ZERO_BI
       }
   
       subscribe.save()
