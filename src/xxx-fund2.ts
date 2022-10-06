@@ -73,13 +73,11 @@ export function handleInitialize(event: InitializeEvent): void {
 }
 
 export function handleManagerDeposit(event: ManagerDepositEvent): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
   let fund = Fund.load(event.address.toHexString())
-  if (factory !== null && fund !== null) {
+  if (fund !== null) {
+    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
     let transaction = loadTransaction(event)
     let managerDeposit = new ManagerDeposit(event.address.toHexString())
-    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
-
     managerDeposit.transaction = transaction.id
     managerDeposit.timestamp = transaction.timestamp
     managerDeposit.fund = event.transaction.from.toHexString()
@@ -101,16 +99,12 @@ export function handleManagerDeposit(event: ManagerDepositEvent): void {
       manager.profitETH = getProfitETH(manager.principalETH, manager.volumeETH)
       manager.profitUSD = getProfitUSD(manager.principalUSD, manager.volumeUSD)
 
-      fund.volumeETH = getFundVolumeETH(event.address.toHexString())
-      fund.volumeUSD = getFundVolumeUSD(event.address.toHexString())
-
-      factory.totalVolumeETH = getXXXFund2VolumeETH()
-      factory.totalVolumeUSD = getXXXFund2VolumeUSD()
+      fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
+      fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
 
       managerDeposit.save()
       manager.save()
       fund.save()
-      factory.save()
 
       managerSnapshot(event)
       fundSnapshot(event)
@@ -119,9 +113,9 @@ export function handleManagerDeposit(event: ManagerDepositEvent): void {
 }
 
 export function handleManagerWithdraw(event: ManagerWithdrawEvent): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
   let fund = Fund.load(event.address.toHexString())
-  if (factory !== null && fund !== null) {
+  if (fund !== null) {
+    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
     let transaction = loadTransaction(event)
     let managerWithdraw = new ManagerWithdraw(event.address.toHexString())
     managerWithdraw.transaction = transaction.id
@@ -130,15 +124,16 @@ export function handleManagerWithdraw(event: ManagerWithdrawEvent): void {
     managerWithdraw.manager = event.params.manager
     managerWithdraw.token = event.params.token
     managerWithdraw.amount = event.params.amount
-    managerWithdraw.amountUSD = getAmountUSD(event.params.token.toHexString(), event.params.amount)
+    const withdrawETH = event.params.amountETH
+    const withdrawUSD = event.params.amountUSD
+    managerWithdraw.amountETH = event.params.amountETH
+    managerWithdraw.amountUSD = event.params.amountUSD
     managerWithdraw.logIndex = event.logIndex
 
     let manager = Manager.load(event.params.manager.toHexString())
     if (manager !== null) {
-      manager.volumeETH = getManagerVolumeETH(fund.manager.toHexString())
-      manager.volumeUSD = getManagerVolumeUSD(fund.manager.toHexString())
-      const withdrawETH = getAmountETH(managerWithdraw.token.toHexString(), managerWithdraw.amount)
-      const withdrawUSD = getAmountUSD(managerWithdraw.token.toHexString(), managerWithdraw.amount)
+      manager.volumeETH = xxxfund2Contract.getManagerVolumeETH()
+      manager.volumeUSD = xxxfund2Contract.getManagerVolumeUSD()
       const prevVolumeETH = manager.volumeETH.plus(withdrawETH)
       const prevVolumeUSD = manager.volumeUSD.plus(withdrawUSD)
       const managerPrincipalETHToMinus = manager.principalETH.div(manager.principalETH.plus(prevVolumeETH)).times(withdrawETH)
@@ -148,16 +143,12 @@ export function handleManagerWithdraw(event: ManagerWithdrawEvent): void {
       manager.profitETH = getProfitETH(manager.principalETH, manager.volumeETH)
       manager.profitUSD = getProfitUSD(manager.principalUSD, manager.volumeUSD)
 
-      fund.volumeETH = getFundVolumeETH(event.address.toHexString())
-      fund.volumeUSD = getFundVolumeUSD(event.address.toHexString())
-
-      factory.totalVolumeETH = getXXXFund2VolumeETH()
-      factory.totalVolumeUSD = getXXXFund2VolumeUSD()
+      fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
+      fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
 
       managerWithdraw.save()
       manager.save()
       fund.save()
-      factory.save()
 
       managerSnapshot(event)
       fundSnapshot(event)
@@ -166,9 +157,9 @@ export function handleManagerWithdraw(event: ManagerWithdrawEvent): void {
 }
 
 export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
   let fund = Fund.load(event.address.toHexString())
-  if (factory !== null && fund !== null) {
+  if (fund !== null) {
+    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
     let transaction = loadTransaction(event)
     let managerFeeOut = new ManagerFeeOut(event.address.toHexString())
     managerFeeOut.transaction = transaction.id
@@ -177,29 +168,26 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
     managerFeeOut.manager = event.params.manager
     managerFeeOut.token = event.params.token
     managerFeeOut.amount = event.params.amount
-    managerFeeOut.amountUSD = getAmountUSD(event.params.token.toHexString(), event.params.amount)
+    managerFeeOut.amountETH = event.params.amountETH
+    managerFeeOut.amountUSD = event.params.amountUSD
     managerFeeOut.logIndex = event.logIndex
 
     let manager = Manager.load(event.params.manager.toHexString())
     if (manager !== null) {
-      manager.volumeETH = getManagerVolumeETH(fund.manager.toHexString())
-      manager.volumeUSD = getManagerVolumeUSD(fund.manager.toHexString())
+      manager.volumeETH = xxxfund2Contract.getManagerVolumeETH()
+      manager.volumeUSD = xxxfund2Contract.getManagerVolumeUSD()
       manager.profitETH = getProfitETH(manager.principalETH, manager.volumeETH)
       manager.profitUSD = getProfitUSD(manager.principalUSD, manager.volumeUSD)
-      manager.feeVolumeETH = getManagerFeeVolumeETH(fund.manager.toHexString())
-      manager.feeVolumeUSD = getManagerFeeVolumeUSD(fund.manager.toHexString())
+      manager.feeVolumeETH = xxxfund2Contract.getManagerFeeVolumeETH()
+      manager.feeVolumeUSD = xxxfund2Contract.getManagerFeeVolumeUSD()
 
-      fund.volumeETH = getFundVolumeETH(event.address.toHexString())
-      fund.volumeUSD = getFundVolumeUSD(event.address.toHexString())
-
-      factory.totalVolumeETH = getXXXFund2VolumeETH()
-      factory.totalVolumeUSD = getXXXFund2VolumeUSD()
+      fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
+      fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
 
       managerFeeOut.save()
       manager.save()
       fund.save()
-      factory.save()
-    
+
       managerSnapshot(event)
       fundSnapshot(event)
     }
@@ -207,9 +195,9 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
 }
 
 export function handleInvestorDeposit(event: InvestorDepositEvent): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
   let fund = Fund.load(event.address.toHexString())
-  if (factory !== null && fund !== null) {
+  if (fund !== null) {
+    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
     let transaction = loadTransaction(event)
     let investorDeposit = new InvestorDeposit(event.address.toHexString())
     investorDeposit.transaction = transaction.id
@@ -218,31 +206,27 @@ export function handleInvestorDeposit(event: InvestorDepositEvent): void {
     investorDeposit.investor = event.params.investor
     investorDeposit.token = event.params.token
     investorDeposit.amount = event.params.amount
-    investorDeposit.amountUSD = getAmountUSD(event.params.token.toHexString(), event.params.amount)
+    const depositETH = event.params.amountETH
+    const depositUSD = event.params.amountUSD
+    investorDeposit.amountETH = event.params.amountETH
+    investorDeposit.amountUSD = event.params.amountUSD
     investorDeposit.logIndex = event.logIndex
 
     let investor = Investor.load(event.params.investor.toHexString())
     if (investor !== null) {
-      const depositETH = getAmountETH(investorDeposit.token.toHexString(), investorDeposit.amount)
-      const depositUSD = getAmountUSD(investorDeposit.token.toHexString(), investorDeposit.amount)
-      
       investor.principalETH = investor.principalETH.minus(depositETH)
       investor.principalUSD = investor.principalUSD.minus(depositUSD)
-      investor.volumeETH = getInvestorVolumeETH(event.params.investor.toHexString())
-      investor.volumeUSD = getInvestorVolumeUSD(event.params.investor.toHexString())
+      investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.address)
+      investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)
       investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
       investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
 
-      fund.volumeETH = getFundVolumeETH(event.address.toHexString())
-      fund.volumeUSD = getFundVolumeUSD(event.address.toHexString())
-
-      factory.totalVolumeETH = getXXXFund2VolumeETH()
-      factory.totalVolumeUSD = getXXXFund2VolumeUSD()
+      fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
+      fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
 
       investorDeposit.save()
       investor.save()
       fund.save()
-      factory.save()
     
       investorSnapshot(event)
       fundSnapshot(event)
@@ -251,9 +235,9 @@ export function handleInvestorDeposit(event: InvestorDepositEvent): void {
 }
 
 export function handleInvestorWithdraw(event: InvestorWithdrawEvent): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
   let fund = Fund.load(event.address.toHexString())
-  if (factory !== null && fund !== null) {
+  if (fund !== null) {
+    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
     let transaction = loadTransaction(event)
     let investorWithdraw = new InvestorWithdraw(event.address.toHexString())
     investorWithdraw.transaction = transaction.id
@@ -262,16 +246,17 @@ export function handleInvestorWithdraw(event: InvestorWithdrawEvent): void {
     investorWithdraw.investor = event.params.investor
     investorWithdraw.token = event.params.token
     investorWithdraw.amount = event.params.amount
-    investorWithdraw.amountUSD = getAmountUSD(event.params.token.toHexString(), event.params.amount)
+    const withdrawETH = event.params.amountETH
+    const withdrawUSD = event.params.amountUSD
+    investorWithdraw.amountETH = withdrawETH
+    investorWithdraw.amountUSD = withdrawUSD
     investorWithdraw.logIndex = event.logIndex
 
     let investor = Investor.load(event.params.investor.toHexString())
     let manager = Manager.load(fund.manager.toHexString())
     if (investor !== null && manager !== null) {
-      investor.volumeETH = getInvestorVolumeETH(event.params.investor.toHexString())
-      investor.volumeUSD = getInvestorVolumeUSD(event.params.investor.toHexString())
-      const withdrawETH = getAmountETH(investorWithdraw.token.toHexString(), investorWithdraw.amount)
-      const withdrawUSD = getAmountUSD(investorWithdraw.token.toHexString(), investorWithdraw.amount)
+      investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.address)
+      investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)
       const prevVolumeETH = investor.volumeETH.plus(withdrawETH)
       const prevVolumeUSD = investor.volumeUSD.plus(withdrawUSD)
       const investorPrincipalETHToMinus = investor.principalETH.div(investor.principalETH.plus(prevVolumeETH)).times(withdrawETH)
@@ -281,20 +266,16 @@ export function handleInvestorWithdraw(event: InvestorWithdrawEvent): void {
       investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
       investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
 
-      manager.feeVolumeETH = getManagerFeeVolumeETH(fund.manager.toHexString())
-      manager.feeVolumeUSD = getManagerFeeVolumeUSD(fund.manager.toHexString())
+      manager.feeVolumeETH = xxxfund2Contract.getManagerFeeVolumeETH()
+      manager.feeVolumeUSD = xxxfund2Contract.getManagerFeeVolumeUSD()
 
-      fund.volumeETH = getFundVolumeETH(event.address.toHexString())
-      fund.volumeUSD = getFundVolumeUSD(event.address.toHexString())
-
-      factory.totalVolumeETH = getXXXFund2VolumeETH()
-      factory.totalVolumeUSD = getXXXFund2VolumeUSD()
+      fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
+      fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
 
       investorWithdraw.save()
       investor.save()
       manager.save()
       fund.save()
-      factory.save()
 
       investorSnapshot(event)
       fundSnapshot(event)
@@ -303,9 +284,9 @@ export function handleInvestorWithdraw(event: InvestorWithdrawEvent): void {
 }
 
 export function handleSwap(event: SwapEvent): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
   let fund = Fund.load(event.address.toHexString())
-  if (factory !== null && fund !== null) {
+  if (fund !== null) {
+    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
     const manager = event.params.manager
     const investor = event.params.investor
     const tokenIn = event.params.tokenIn.toHexString()
@@ -324,28 +305,25 @@ export function handleSwap(event: SwapEvent): void {
     swap.token1 = tokenOut
     swap.amount0 = amountIn
     swap.amount1 = amountOut
-    swap.amountUSD = getAmountUSD(tokenIn, amountIn)
+    swap.amountETH = event.params.amountETH
+    swap.amountUSD = event.params.amountUSD
     swap.logIndex = event.logIndex
 
     if (manager == investor) {
       //manager account swap
       let manager = Manager.load(event.params.manager.toHexString())
       if (manager !== null) {
-        manager.volumeETH = getManagerVolumeETH(fund.manager.toHexString())
-        manager.volumeUSD = getManagerVolumeUSD(fund.manager.toHexString())
+        manager.volumeETH = xxxfund2Contract.getManagerVolumeETH()
+        manager.volumeUSD = xxxfund2Contract.getManagerVolumeUSD()
         manager.profitETH = getProfitETH(manager.principalETH, manager.volumeETH)
         manager.profitUSD = getProfitUSD(manager.principalUSD, manager.volumeUSD)
   
-        fund.volumeETH = getFundVolumeETH(event.address.toHexString())
-        fund.volumeUSD = getFundVolumeUSD(event.address.toHexString())
-  
-        factory.totalVolumeETH = getXXXFund2VolumeETH()
-        factory.totalVolumeUSD = getXXXFund2VolumeUSD()
+        fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
+        fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
   
         swap.save()
         manager.save()
         fund.save()
-        factory.save()
 
         managerSnapshot(event)
         fundSnapshot(event)
@@ -354,21 +332,17 @@ export function handleSwap(event: SwapEvent): void {
       //investor account swap
       let investor = Investor.load(event.params.investor.toHexString())
       if (investor !== null) {
-        investor.volumeETH = getInvestorVolumeETH(event.params.investor.toHexString())
-        investor.volumeUSD = getInvestorVolumeUSD(event.params.investor.toHexString())
+        investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.address)
+        investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)
         investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
         investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
   
-        fund.volumeETH = getFundVolumeETH(event.address.toHexString())
-        fund.volumeUSD = getFundVolumeUSD(event.address.toHexString())
-  
-        factory.totalVolumeETH = getXXXFund2VolumeETH()
-        factory.totalVolumeUSD = getXXXFund2VolumeUSD()
+        fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
+        fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
   
         swap.save()
         investor.save()
         fund.save()
-        factory.save()
       
         investorSnapshot(event)
         fundSnapshot(event)
