@@ -20,6 +20,7 @@ import {
   ONE_BI
 } from './utils/constants'
 import { investorSnapshot } from "./utils/snapshots"
+import { loadTransaction } from "./utils"
 
 export function handleFundCreated(event: FundCreated): void {
   // load factory
@@ -41,6 +42,7 @@ export function handleFundCreated(event: FundCreated): void {
   let fund = new Fund(event.params.fund.toHexString()) as Fund
   fund.createdAtTimestamp = event.block.timestamp
   fund.createdAtBlockNumber = event.block.number
+  fund.manager = event.params.manager
   fund.volumeETH = ZERO_BI
   fund.volumeUSD = ZERO_BI
   fund.investorCount = ONE_BI
@@ -91,27 +93,35 @@ export function handleSubscribe(event: SubscribeEvent): void {
     if (fund !== null) {
       fund.investorCount = fund.investorCount.plus(ONE_BI)
       fund.save()
+
+      let transaction = loadTransaction(event)
+      let subscribe = new Subscribe(event.address.toHexString())
+      subscribe.transaction = transaction.id
+      subscribe.timestamp = transaction.timestamp
+      subscribe.fund = fund.id
+      subscribe.investor = event.params.investor
+      subscribe.origin = event.transaction.from
+      subscribe.logIndex = event.logIndex
+
+      let investor = Investor.load(event.params.investor.toHexString())
+      if (investor === null) {
+        investor = new Investor(event.params.investor.toHexString())
+        investor.createdAtTimestamp = event.block.timestamp
+        investor.createdAtBlockNumber = event.block.number
+        investor.fund = event.address
+        investor.investor = event.params.investor
+        investor.principalETH = ZERO_BI
+        investor.principalUSD = ZERO_BI
+        investor.volumeETH = ZERO_BI
+        investor.volumeUSD = ZERO_BI
+        investor.profitETH = ZERO_BI
+        investor.profitUSD = ZERO_BI
+      }
+  
+      subscribe.save()
+      investor.save()
+      investorSnapshot(event)
+      factory.save()
     }
-
-    let investor = Investor.load(event.params.investor.toHexString())
-    if (investor === null) {
-      investor = new Investor(event.params.investor.toHexString())
-      investor.createdAtTimestamp = event.block.timestamp
-      investor.createdAtBlockNumber = event.block.number
-      investor.fund = event.address
-      investor.principalETH = ZERO_BI
-      investor.principalUSD = ZERO_BI
-      investor.volumeETH = ZERO_BI
-      investor.volumeUSD = ZERO_BI
-      investor.profitETH = ZERO_BI
-      investor.profitUSD = ZERO_BI
-    }
-
-    investorSnapshot(event)
-
-    investor.save()
-    factory.save()
   }
 }
-
-

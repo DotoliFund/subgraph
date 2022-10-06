@@ -37,14 +37,13 @@ type Fund @entity {
   # snapshots of fund data
   fundSnapshot: [FundSnapshot!]! @derivedFrom(field: "fund")
   # transactions
-  subscribe: [Subscribe!]!
-  managerDeposits: [ManagerDeposit!]!
-  managerWithdraws: [ManagerWithdraw!]!
-  managerFeeIns: [ManagerFeeIn!]!
-  managerFeeOuts: [ManagerFeeOut!]!
-  investorDeposits: [InvestorDeposit!]!
-  investorWithdraws: [InvestorWithdraw!]!
-  swaps: [Swap!]!
+  subscribes: [Subscribe!]! @derivedFrom(field: "fund")
+  managerDeposits: [ManagerDeposit!]! @derivedFrom(field: "fund")
+  managerWithdraws: [ManagerWithdraw!]! @derivedFrom(field: "fund")
+  managerFeeOuts: [ManagerFeeOut!]! @derivedFrom(field: "fund")
+  investorDeposits: [InvestorDeposit!]! @derivedFrom(field: "fund")
+  investorWithdraws: [InvestorWithdraw!]! @derivedFrom(field: "fund")
+  swaps: [Swap!]! @derivedFrom(field: "fund")
 }
 
 type Manager @entity {
@@ -73,13 +72,12 @@ type Manager @entity {
   # fee volume in ETH
   feeVolumeETH: BigInt!
   # snapshots of reward data
-  managerSnapshot: [ManagerSnapshot!]!
+  managerSnapshot: [ManagerSnapshot!]! @derivedFrom(field: "manager")
   # transactions
-  managerDeposits: [ManagerDeposit!]!
-  managerWithdraws: [ManagerWithdraw!]!
-  managerFeeIns: [ManagerFeeIn!]!
-  managerFeeOuts: [ManagerFeeOut!]!
-  swaps: [Swap!]!
+  managerDeposits: [ManagerDeposit!]! @derivedFrom(field: "manager")
+  managerWithdraws: [ManagerWithdraw!]! @derivedFrom(field: "manager")
+  managerFeeOuts: [ManagerFeeOut!]! @derivedFrom(field: "manager")
+  swaps: [Swap!]! @derivedFrom(field: "manager")
 }
 
 type Investor @entity {
@@ -106,11 +104,11 @@ type Investor @entity {
   # profit USD
   profitUSD: BigInt!
   # snapshots of investor data
-  investorSnapshot: [InvestorSnapshot!]!
+  investorSnapshot: [InvestorSnapshot!]! @derivedFrom(field: "investor")
   # transactions
-  investorDeposits: [InvestorDeposit!]!
-  investorWithdraws: [InvestorWithdraw!]!
-  swaps: [Swap!]!
+  investorDeposits: [InvestorDeposit!]! @derivedFrom(field: "investor")
+  investorWithdraws: [InvestorWithdraw!]! @derivedFrom(field: "investor")
+  swaps: [Swap!]! @derivedFrom(field: "investor")
 }
 
 type Transaction @entity {
@@ -129,7 +127,6 @@ type Transaction @entity {
   subscribes: [Subscribe!]! @derivedFrom(field: "transaction")
   managerDeposits: [ManagerDeposit!]! @derivedFrom(field: "transaction")
   managerWithdraws: [ManagerWithdraw!]! @derivedFrom(field: "transaction")
-  managerFeeIns: [ManagerFeeIn!]! @derivedFrom(field: "transaction")
   managerFeeOuts: [ManagerFeeOut!]! @derivedFrom(field: "transaction")
   investorDeposits: [InvestorDeposit!]! @derivedFrom(field: "transaction")
   investorWithdraws: [InvestorWithdraw!]! @derivedFrom(field: "transaction")
@@ -158,10 +155,10 @@ type Subscribe @entity {
   transaction: Transaction!
   # time of txn
   timestamp: BigInt!
-  # pointer to fund 
+  # pointer to Fund 
   fund: Fund!
-  # the sender address
-  sender: Bytes
+  # investor address
+  investor: Bytes!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -175,10 +172,10 @@ type ManagerDeposit @entity {
   transaction: Transaction!
   # time of txn
   timestamp: BigInt!
-  # pointer to fund 
+  # pointer to Fund 
   fund: Fund!
-  # the manager address
-  manager: Bytes
+  # pointer to Manager 
+  manager: Manager!
   # deposit token address
   token: Bytes!
   # amount of token deposit
@@ -200,38 +197,10 @@ type ManagerWithdraw @entity {
   transaction: Transaction!
   # time of txn
   timestamp: BigInt!
-  # pointer to fund 
+  # pointer to Fund 
   fund: Fund!
-  # the manager address
-  manager: Bytes
-  # withdraw token address
-  token: Bytes!
-  # amount of token withdraw
-  amount: BigInt!
-  # derived amount based on available prices of tokens
-  amountETH: BigInt!
-  # derived amount based on available prices of tokens
-  amountUSD: BigInt!
-  # txn origin
-  origin: Bytes! # the EOA that initiated the txn
-  # order within the txn
-  logIndex: BigInt
-}
-
-
-type ManagerFeeIn @entity {
-  # transaction hash
-  id: ID!
-  # which txn was included in
-  transaction: Transaction!
-  # time of txn
-  timestamp: BigInt!
-  # pointer to fund 
-  fund: Fund!
-  # the investor address
-  investor: Bytes
-  # the manager address
-  manager: Bytes
+  # pointer to Manager 
+  manager: Manager!
   # withdraw token address
   token: Bytes!
   # amount of token withdraw
@@ -253,10 +222,10 @@ type ManagerFeeOut @entity {
   transaction: Transaction!
   # time of txn
   timestamp: BigInt!
-  # pointer to fund 
+  # pointer to Fund 
   fund: Fund!
-  # the manager address
-  manager: Bytes
+  # pointer to Manager 
+  manager: Manager!
   # withdraw token address
   token: Bytes!
   # amount of token withdraw
@@ -278,10 +247,10 @@ type InvestorDeposit @entity {
   transaction: Transaction!
   # time of txn
   timestamp: BigInt!
-  # pointer to fund 
+  # pointer to Fund 
   fund: Fund!
-  # the investor address
-  investor: Bytes
+  # pointer to investor
+  investor: Investor!
   # withdraw token address
   token: Bytes!
   # amount of token withdraw
@@ -305,8 +274,8 @@ type InvestorWithdraw @entity {
   timestamp: BigInt!
   # pointer to fund 
   fund: Fund!
-  # the investor address
-  investor: Bytes
+  # pointer to investor
+  investor: Investor!
   # withdraw token address
   token: Bytes!
   # amount of token withdraw
@@ -330,10 +299,10 @@ type Swap @entity {
   timestamp: BigInt!
   # fund swap occured within
   fund: Fund!
-  # manager of fund = sender
-  manager: Bytes!
-  # investor of fund
-  investor: Bytes!
+  # pointer to Manager 
+  manager: Manager!
+  # pointer to investor
+  investor: Investor!
   # swap token0 address
   token0: String!
   # swap token1 address
@@ -389,28 +358,6 @@ type FundSnapshot @entity {
   profitUSD: BigInt!
 }
 
-# daily stats tracker for investor
-type InvestorSnapshot @entity {
-  # format: <investor address>-<timestamp>
-  id: ID!
-  # timestamp
-  timestamp: BigInt!
-  # pointer to investor
-  investor: Investor!
-  # volume in USD
-  volumeUSD: BigDecimal!
-  # volumeETH
-  volumeETH: BigDecimal!
-  # principal USD
-  principalUSD: BigDecimal!
-  # principal ETH
-  principalETH: BigDecimal!
-  # profit ETH
-  profitETH: BigInt!
-  # profit USD
-  profitUSD: BigInt!
-}
-
 # daily stats tracker for manager
 type ManagerSnapshot @entity {
   # format: <investor address>-<timestamp>
@@ -432,7 +379,29 @@ type ManagerSnapshot @entity {
   # profit USD
   profitUSD: BigInt!
   # fee volume in USD
-  feeVolumeUSD: BigDecimal!
+  feeVolumeUSD: BigInt!
   # fee volume in ETH
-  feeVolumeETH: BigDecimal!
+  feeVolumeETH: BigInt!
+}
+
+# daily stats tracker for investor
+type InvestorSnapshot @entity {
+  # format: <investor address>-<timestamp>
+  id: ID!
+  # timestamp
+  timestamp: BigInt!
+  # pointer to investor
+  investor: Investor!
+  # volume in USD
+  volumeUSD: BigDecimal!
+  # volumeETH
+  volumeETH: BigDecimal!
+  # principal USD
+  principalUSD: BigDecimal!
+  # principal ETH
+  principalETH: BigDecimal!
+  # profit ETH
+  profitETH: BigInt!
+  # profit USD
+  profitUSD: BigInt!
 }
