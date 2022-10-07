@@ -2,7 +2,6 @@ import { ZERO_BD, ZERO_BI, ONE_BI } from './constants'
 /* eslint-disable prefer-const */
 import {
   Factory,
-  XXXFund2Snapshot,
   Fund,
   FundSnapshot,
   Manager,

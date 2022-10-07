@@ -318,21 +318,6 @@ type Swap @entity {
   logIndex: BigInt
 }
 
-# daily stats tracker for XXXfund2
-type XXXFund2Snapshot @entity {
-  # timestamp rounded to current day by dividing by 86400
-  id: ID!
-  # timestamp rounded to current day by dividing by 86400
-  date: Int!
-  # volume in USD
-  volumeUSD: BigDecimal!
-  # volumeETH
-  volumeETH: BigDecimal!
-  # fund count
-  fundCount: BigInt!
-}
-
-
 # daily stats tracker for fund
 type FundSnapshot @entity {
   # format: <fund address>-<timestamp>
