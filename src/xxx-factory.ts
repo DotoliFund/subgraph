@@ -99,10 +99,10 @@ export function handleSubscribe(event: SubscribeEvent): void {
       fund.save()
 
       let transaction = loadTransaction(event)
-      let subscribe = new Subscribe(event.address.toHexString())
+      let subscribe = new Subscribe(event.params.fund.toString() + '-' + event.params.investor.toString())
       subscribe.transaction = transaction.id
       subscribe.timestamp = transaction.timestamp
-      subscribe.fund = fund.id
+      subscribe.fund = event.params.fund
       subscribe.investor = event.params.investor
       subscribe.origin = event.transaction.from
       subscribe.logIndex = event.logIndex
@@ -126,7 +126,7 @@ export function handleSubscribe(event: SubscribeEvent): void {
   
       subscribe.save()
       investor.save()
-      investorSnapshot(event)
+      investorSnapshot(event.address, event.params.investor, event)
       factory.save()
     }
   }

@@ -46,16 +46,6 @@ type Fund @entity {
   profitRatioUSD: BigInt!
   # investorCount
   investorCount: BigInt!
-  # snapshots of fund data
-  fundSnapshot: [FundSnapshot!]! @derivedFrom(field: "fund")
-  # transactions
-  subscribes: [Subscribe!]! @derivedFrom(field: "fund")
-  managerDeposits: [ManagerDeposit!]! @derivedFrom(field: "fund")
-  managerWithdraws: [ManagerWithdraw!]! @derivedFrom(field: "fund")
-  managerFeeOuts: [ManagerFeeOut!]! @derivedFrom(field: "fund")
-  investorDeposits: [InvestorDeposit!]! @derivedFrom(field: "fund")
-  investorWithdraws: [InvestorWithdraw!]! @derivedFrom(field: "fund")
-  swaps: [Swap!]! @derivedFrom(field: "fund")
 }
 
 type Manager @entity {
@@ -87,13 +77,6 @@ type Manager @entity {
   feeVolumeUSD: BigInt!
   # fee volume in ETH
   feeVolumeETH: BigInt!
-  # snapshots of reward data
-  managerSnapshot: [ManagerSnapshot!]! @derivedFrom(field: "manager")
-  # transactions
-  managerDeposits: [ManagerDeposit!]! @derivedFrom(field: "manager")
-  managerWithdraws: [ManagerWithdraw!]! @derivedFrom(field: "manager")
-  managerFeeOuts: [ManagerFeeOut!]! @derivedFrom(field: "manager")
-  swaps: [Swap!]! @derivedFrom(field: "manager")
 }
 
 type Investor @entity {
@@ -123,12 +106,6 @@ type Investor @entity {
   profitRatioETH: BigInt!
   # profit ratio USD
   profitRatioUSD: BigInt!
-  # snapshots of investor data
-  investorSnapshot: [InvestorSnapshot!]! @derivedFrom(field: "investor")
-  # transactions
-  investorDeposits: [InvestorDeposit!]! @derivedFrom(field: "investor")
-  investorWithdraws: [InvestorWithdraw!]! @derivedFrom(field: "investor")
-  swaps: [Swap!]! @derivedFrom(field: "investor")
 }
 
 type Transaction @entity {
@@ -161,7 +138,7 @@ type Initialize @entity {
   # time of txn
   timestamp: BigInt!
   # the manager address
-  manager: Bytes
+  manager: Bytes!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -169,14 +146,14 @@ type Initialize @entity {
 }
 
 type Subscribe @entity {
-  # transaction hash
+  # <fund address>-<investor address>
   id: ID!
   # which txn the mint was included in
   transaction: Transaction!
   # time of txn
   timestamp: BigInt!
   # pointer to Fund 
-  fund: Fund!
+  fund: Bytes!
   # investor address
   investor: Bytes!
   # txn origin
@@ -193,9 +170,9 @@ type ManagerDeposit @entity {
   # time of txn
   timestamp: BigInt!
   # pointer to Fund 
-  fund: Fund!
+  fund: Bytes!
   # pointer to Manager 
-  manager: Manager!
+  manager: Bytes!
   # deposit token address
   token: Bytes!
   # amount of token deposit
@@ -218,9 +195,9 @@ type ManagerWithdraw @entity {
   # time of txn
   timestamp: BigInt!
   # pointer to Fund 
-  fund: Fund!
+  fund: Bytes!
   # pointer to Manager 
-  manager: Manager!
+  manager: Bytes!
   # withdraw token address
   token: Bytes!
   # amount of token withdraw
@@ -243,9 +220,9 @@ type ManagerFeeOut @entity {
   # time of txn
   timestamp: BigInt!
   # pointer to Fund 
-  fund: Fund!
+  fund: Bytes!
   # pointer to Manager 
-  manager: Manager!
+  manager: Bytes!
   # withdraw token address
   token: Bytes!
   # amount of token withdraw
@@ -268,9 +245,9 @@ type InvestorDeposit @entity {
   # time of txn
   timestamp: BigInt!
   # pointer to Fund 
-  fund: Fund!
+  fund: Bytes!
   # pointer to investor
-  investor: Investor!
+  investor: Bytes!
   # withdraw token address
   token: Bytes!
   # amount of token withdraw
@@ -293,9 +270,9 @@ type InvestorWithdraw @entity {
   # time of txn
   timestamp: BigInt!
   # pointer to fund 
-  fund: Fund!
+  fund: Bytes!
   # pointer to investor
-  investor: Investor!
+  investor: Bytes!
   # withdraw token address
   token: Bytes!
   # amount of token withdraw
@@ -318,11 +295,11 @@ type Swap @entity {
   # timestamp of transaction
   timestamp: BigInt!
   # fund swap occured within
-  fund: Fund!
+  fund: Bytes!
   # pointer to Manager 
-  manager: Manager!
+  manager: Bytes!
   # pointer to investor
-  investor: Investor!
+  investor: Bytes!
   # swap token0 address
   token0: String!
   # swap token1 address
@@ -363,7 +340,7 @@ type FundSnapshot @entity {
   # timestamp
   timestamp: BigInt!
   # pointer to fund
-  fund: Fund!
+  fund: Bytes!
   # volume in USD
   volumeUSD: BigDecimal!
   # volumeETH
@@ -380,12 +357,14 @@ type FundSnapshot @entity {
 
 # daily stats tracker for manager
 type ManagerSnapshot @entity {
-  # format: <investor address>-<timestamp>
+  # format: <manager address>-<timestamp>
   id: ID!
   # timestamp
   timestamp: BigInt!
+  # pointer to fund
+  fund: Bytes!
   # pointer to manager
-  manager: Manager!
+  manager: Bytes!
   # volume in USD
   volumeUSD: BigDecimal!
   # volumeETH
@@ -410,8 +389,10 @@ type InvestorSnapshot @entity {
   id: ID!
   # timestamp
   timestamp: BigInt!
+  # pointer to fund
+  fund: Bytes!
   # pointer to investor
-  investor: Investor!
+  investor: Bytes!
   # volume in USD
   volumeUSD: BigDecimal!
   # volumeETH

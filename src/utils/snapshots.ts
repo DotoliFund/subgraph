@@ -11,7 +11,7 @@ import {
   InvestorSnapshot,
 } from '../types/schema'
 import { FACTORY_ADDRESS } from './constants'
-import { ethereum } from '@graphprotocol/graph-ts'
+import { Bytes, ethereum } from '@graphprotocol/graph-ts'
 
 export function fundSnapshot(event: ethereum.Event): void {
   let timestamp = event.block.timestamp
@@ -25,7 +25,7 @@ export function fundSnapshot(event: ethereum.Event): void {
     if (fundSnapshot === null) {
       fundSnapshot = new FundSnapshot(fundTimeID)
       fundSnapshot.timestamp = timestamp
-      fundSnapshot.fund = fund.id
+      fundSnapshot.fund = event.address
       fundSnapshot.volumeUSD = ZERO_BD
       fundSnapshot.volumeETH = ZERO_BD
       fundSnapshot.principalETH = ZERO_BD
@@ -38,7 +38,11 @@ export function fundSnapshot(event: ethereum.Event): void {
   }
 }
 
-export function managerSnapshot(event: ethereum.Event): void {
+export function managerSnapshot(
+  fundAddress: Bytes, 
+  managerAddress: Bytes, 
+  event: ethereum.Event
+): void {
   let timestamp = event.block.timestamp
   let fundTimeID = event.address
     .toHexString()
@@ -50,7 +54,8 @@ export function managerSnapshot(event: ethereum.Event): void {
     if (managerSnapshot === null) {
       managerSnapshot = new ManagerSnapshot(fundTimeID)
       managerSnapshot.timestamp = timestamp
-      managerSnapshot.manager = manager.id
+      managerSnapshot.fund = fundAddress
+      managerSnapshot.manager = managerAddress
       managerSnapshot.volumeUSD = ZERO_BD
       managerSnapshot.volumeETH = ZERO_BD
       managerSnapshot.principalETH = ZERO_BD
@@ -65,7 +70,11 @@ export function managerSnapshot(event: ethereum.Event): void {
   }
 }
 
-export function investorSnapshot(event: ethereum.Event): void {
+export function investorSnapshot(
+  fundAddress: Bytes, 
+  investorAddress: Bytes, 
+  event: ethereum.Event
+): void {
   let timestamp = event.block.timestamp
   let fundTimeID = event.address
     .toHexString()
@@ -78,7 +87,8 @@ export function investorSnapshot(event: ethereum.Event): void {
     if (investorSnapshot === null) {
       investorSnapshot = new InvestorSnapshot(fundTimeID)
       investorSnapshot.timestamp = timestamp
-      investorSnapshot.investor = event.address.toHexString()
+      investorSnapshot.fund = fundAddress
+      investorSnapshot.investor = investorAddress
       investorSnapshot.volumeUSD = ZERO_BD
       investorSnapshot.volumeETH = ZERO_BD
       investorSnapshot.principalETH = ZERO_BD
