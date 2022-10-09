@@ -31,6 +31,9 @@ export function fundSnapshot(event: ethereum.Event): void {
       fundSnapshot.principalUSD = ZERO_BD
       fundSnapshot.profitETH = ZERO_BI
       fundSnapshot.profitUSD = ZERO_BI
+      fundSnapshot.profitRatioETH = ZERO_BI
+      fundSnapshot.profitRatioUSD = ZERO_BI
+      fundSnapshot.investorCount = ZERO_BI
     }
     fundSnapshot.volumeUSD
     fundSnapshot.save()
@@ -61,6 +64,8 @@ export function managerSnapshot(
       managerSnapshot.principalUSD = ZERO_BD
       managerSnapshot.profitETH = ZERO_BI
       managerSnapshot.profitUSD = ZERO_BI
+      managerSnapshot.profitRatioETH = ZERO_BI
+      managerSnapshot.profitRatioUSD = ZERO_BI
       managerSnapshot.feeVolumeETH = ZERO_BI
       managerSnapshot.feeVolumeUSD = ZERO_BI
     }
@@ -94,10 +99,10 @@ export function investorSnapshot(
       investorSnapshot.principalUSD = ZERO_BD
       investorSnapshot.profitETH = ZERO_BI
       investorSnapshot.profitUSD = ZERO_BI
+      investorSnapshot.profitRatioETH = ZERO_BI
+      investorSnapshot.profitRatioUSD = ZERO_BI
     }
     investorSnapshot.volumeUSD
     investorSnapshot.save()
-
-
   }
 }

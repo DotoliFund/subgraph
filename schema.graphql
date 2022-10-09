@@ -338,6 +338,12 @@ type FundSnapshot @entity {
   profitETH: BigInt!
   # profit USD
   profitUSD: BigInt!
+  # profit ratio ETH
+  profitRatioETH: BigInt!
+  # profit ratio USD
+  profitRatioUSD: BigInt!
+  # investorCount
+  investorCount: BigInt!
 }
 
 # daily stats tracker for manager
@@ -362,6 +368,10 @@ type ManagerSnapshot @entity {
   profitETH: BigInt!
   # profit USD
   profitUSD: BigInt!
+  # profit ratio ETH
+  profitRatioETH: BigInt!
+  # profit ratio USD
+  profitRatioUSD: BigInt!
   # fee volume in USD
   feeVolumeUSD: BigInt!
   # fee volume in ETH
@@ -378,16 +388,20 @@ type InvestorSnapshot @entity {
   fund: Bytes!
   # pointer to investor
   investor: Bytes!
-  # volume in USD
-  volumeUSD: BigDecimal!
-  # volumeETH
-  volumeETH: BigDecimal!
   # principal USD
   principalUSD: BigDecimal!
   # principal ETH
   principalETH: BigDecimal!
+  # volume in USD
+  volumeUSD: BigDecimal!
+  # volumeETH
+  volumeETH: BigDecimal!
   # profit ETH
   profitETH: BigInt!
   # profit USD
   profitUSD: BigInt!
+  # profit ratio ETH
+  profitRatioETH: BigInt!
+  # profit ratio USD
+  profitRatioUSD: BigInt!
 }
