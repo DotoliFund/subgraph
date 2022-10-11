@@ -326,14 +326,14 @@ type FundSnapshot @entity {
   timestamp: BigInt!
   # pointer to fund
   fund: Bytes!
-  # volume in USD
-  volumeUSD: BigDecimal!
-  # volumeETH
-  volumeETH: BigDecimal!
   # principal USD
   principalUSD: BigDecimal!
   # principal ETH
   principalETH: BigDecimal!
+  # volume in USD
+  volumeUSD: BigDecimal!
+  # volumeETH
+  volumeETH: BigDecimal!
   # profit ETH
   profitETH: BigInt!
   # profit USD
