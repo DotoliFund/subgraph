@@ -73,10 +73,10 @@ type Manager @entity {
   profitRatioETH: BigInt!
   # profit ratio USD
   profitRatioUSD: BigInt!
-  # fee volume in USD
-  feeVolumeUSD: BigInt!
   # fee volume in ETH
   feeVolumeETH: BigInt!
+  # fee volume in USD
+  feeVolumeUSD: BigInt!
 }
 
 type Investor @entity {
@@ -318,6 +318,22 @@ type Swap @entity {
   logIndex: BigInt
 }
 
+# daily stats tracker for XXX
+type XXXSnapshot @entity {
+  # txn hash
+  id: ID!
+  # timestamp
+  timestamp: BigInt!
+  # volume in USD
+  volumeUSD: BigDecimal!
+  # volumeETH
+  volumeETH: BigDecimal!
+  # fundCount
+  fundCount: BigInt!
+  # investorCount
+  investorCount: BigInt!
+}
+
 # daily stats tracker for fund
 type FundSnapshot @entity {
   # format: <fund address>-<timestamp>
@@ -356,14 +372,14 @@ type ManagerSnapshot @entity {
   fund: Bytes!
   # pointer to manager
   manager: Bytes!
-  # volume in USD
-  volumeUSD: BigDecimal!
-  # volumeETH
-  volumeETH: BigDecimal!
   # principal USD
   principalUSD: BigDecimal!
   # principal ETH
   principalETH: BigDecimal!
+  # volume in USD
+  volumeUSD: BigDecimal!
+  # volumeETH
+  volumeETH: BigDecimal!
   # profit ETH
   profitETH: BigInt!
   # profit USD
@@ -372,10 +388,10 @@ type ManagerSnapshot @entity {
   profitRatioETH: BigInt!
   # profit ratio USD
   profitRatioUSD: BigInt!
-  # fee volume in USD
-  feeVolumeUSD: BigInt!
   # fee volume in ETH
   feeVolumeETH: BigInt!
+  # fee volume in USD
+  feeVolumeUSD: BigInt!
 }
 
 # daily stats tracker for investor
