@@ -44,7 +44,7 @@ import { XXXFund2 as XXXFund2Contract } from './types/templates/XXXFund2/XXXFund
 
 
 export function handleInitialize(event: InitializeEvent): void {
-  let fund = Fund.load(event.address.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString())
   if (fund !== null) {
     let transaction = loadTransaction(event)
     let initialize = new Initialize(event.address.toHexString())
@@ -59,7 +59,7 @@ export function handleInitialize(event: InitializeEvent): void {
       manager = new Manager(event.params.manager.toHexString())
       manager.createdAtTimestamp = event.block.timestamp
       manager.createdAtBlockNumber = event.block.number
-      manager.fund = event.address
+      manager.fund = event.params.fund
       manager.principalETH = ZERO_BI
       manager.principalUSD = ZERO_BI
       manager.volumeETH = ZERO_BI
@@ -74,20 +74,20 @@ export function handleInitialize(event: InitializeEvent): void {
 
     initialize.save()
     manager.save()
-    managerSnapshot(event.address, event.params.manager, event)
+    managerSnapshot(event.params.fund, event.params.manager, event)
     fundSnapshot(event)
   }
 }
 
 export function handleManagerDeposit(event: ManagerDepositEvent): void {
-  let fund = Fund.load(event.address.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString())
   if (fund !== null) {
-    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
+    const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
     let transaction = loadTransaction(event)
     let managerDeposit = new ManagerDeposit(event.address.toHexString())
     managerDeposit.transaction = transaction.id
     managerDeposit.timestamp = transaction.timestamp
-    managerDeposit.fund = event.address
+    managerDeposit.fund = event.params.fund
     managerDeposit.manager = event.params.manager
     managerDeposit.token = event.params.token
     managerDeposit.amount = event.params.amount
@@ -116,21 +116,21 @@ export function handleManagerDeposit(event: ManagerDepositEvent): void {
       manager.save()
       fund.save()
 
-      managerSnapshot(event.address, event.params.manager, event)
+      managerSnapshot(event.params.fund, event.params.manager, event)
       fundSnapshot(event)
     }
   }
 }
 
 export function handleManagerWithdraw(event: ManagerWithdrawEvent): void {
-  let fund = Fund.load(event.address.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString())
   if (fund !== null) {
-    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
+    const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
     let transaction = loadTransaction(event)
     let managerWithdraw = new ManagerWithdraw(event.address.toHexString())
     managerWithdraw.transaction = transaction.id
     managerWithdraw.timestamp = transaction.timestamp
-    managerWithdraw.fund = event.address
+    managerWithdraw.fund = event.params.fund
     managerWithdraw.manager = event.params.manager
     managerWithdraw.token = event.params.token
     managerWithdraw.amount = event.params.amount
@@ -163,21 +163,21 @@ export function handleManagerWithdraw(event: ManagerWithdrawEvent): void {
       manager.save()
       fund.save()
 
-      managerSnapshot(event.address, event.params.manager, event)
+      managerSnapshot(event.params.fund, event.params.manager, event)
       fundSnapshot(event)
     }
   }
 }
 
 export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
-  let fund = Fund.load(event.address.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString())
   if (fund !== null) {
-    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
+    const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
     let transaction = loadTransaction(event)
     let managerFeeOut = new ManagerFeeOut(event.address.toHexString())
     managerFeeOut.transaction = transaction.id
     managerFeeOut.timestamp = transaction.timestamp
-    managerFeeOut.fund = event.address
+    managerFeeOut.fund = event.params.fund
     managerFeeOut.manager = event.params.manager
     managerFeeOut.token = event.params.token
     managerFeeOut.amount = event.params.amount
@@ -204,21 +204,21 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
       manager.save()
       fund.save()
 
-      managerSnapshot(event.address, event.params.manager, event)
+      managerSnapshot(event.params.fund, event.params.manager, event)
       fundSnapshot(event)
     }
   }
 }
 
 export function handleInvestorDeposit(event: InvestorDepositEvent): void {
-  let fund = Fund.load(event.address.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString())
   if (fund !== null) {
-    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
+    const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
     let transaction = loadTransaction(event)
     let investorDeposit = new InvestorDeposit(event.address.toHexString())
     investorDeposit.transaction = transaction.id
     investorDeposit.timestamp = transaction.timestamp
-    investorDeposit.fund = event.address
+    investorDeposit.fund = event.params.fund
     investorDeposit.investor = event.params.investor
     investorDeposit.token = event.params.token
     investorDeposit.amount = event.params.amount
@@ -247,21 +247,21 @@ export function handleInvestorDeposit(event: InvestorDepositEvent): void {
       investor.save()
       fund.save()
 
-      investorSnapshot(event.address, event.params.investor, event)
+      investorSnapshot(event.params.fund, event.params.investor, event)
       fundSnapshot(event)
     }
   }
 }
 
 export function handleInvestorWithdraw(event: InvestorWithdrawEvent): void {
-  let fund = Fund.load(event.address.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString())
   if (fund !== null) {
-    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
+    const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
     let transaction = loadTransaction(event)
     let investorWithdraw = new InvestorWithdraw(event.address.toHexString())
     investorWithdraw.transaction = transaction.id
     investorWithdraw.timestamp = transaction.timestamp
-    investorWithdraw.fund = event.address
+    investorWithdraw.fund = event.params.fund
     investorWithdraw.investor = event.params.investor
     investorWithdraw.token = event.params.token
     investorWithdraw.amount = event.params.amount
@@ -299,16 +299,16 @@ export function handleInvestorWithdraw(event: InvestorWithdrawEvent): void {
       manager.save()
       fund.save()
 
-      investorSnapshot(event.address, event.params.investor, event)
+      investorSnapshot(event.params.fund, event.params.investor, event)
       fundSnapshot(event)
     }
   }
 }
 
 export function handleSwap(event: SwapEvent): void {
-  let fund = Fund.load(event.address.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString())
   if (fund !== null) {
-    const xxxfund2Contract = XXXFund2Contract.bind(event.address)
+    const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
     const manager = event.params.manager
     const investor = event.params.investor
     const tokenIn = event.params.tokenIn.toHexString()
@@ -320,7 +320,7 @@ export function handleSwap(event: SwapEvent): void {
     let swap = new Swap(event.address.toHexString())
     swap.transaction = transaction.id
     swap.timestamp = transaction.timestamp
-    swap.fund =  event.address
+    swap.fund =  event.params.fund
     swap.manager = event.params.manager
     swap.investor = event.params.investor
     swap.token0 = tokenIn
@@ -350,7 +350,7 @@ export function handleSwap(event: SwapEvent): void {
         manager.save()
         fund.save()
 
-        managerSnapshot(event.address, event.params.manager, event)
+        managerSnapshot(event.params.fund, event.params.manager, event)
         fundSnapshot(event)
       }
     } else {
@@ -371,7 +371,7 @@ export function handleSwap(event: SwapEvent): void {
         investor.save()
         fund.save()
       
-        investorSnapshot(event.address, event.params.investor, event)
+        investorSnapshot(event.params.fund, event.params.investor, event)
         fundSnapshot(event)
       }
     }

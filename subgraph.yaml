@@ -44,18 +44,18 @@ templates:
         - name: XXXFund2
           file: ./abis/XXXFund2.json
       eventHandlers:
-        - event: Initialize(address)
+        - event: Initialize(indexed address,address)
           handler: handleInitialize
-        - event: ManagerDeposit(indexed address,address,uint256,uint256,uint256)
+        - event: ManagerDeposit(indexed address,indexed address,address,uint256,uint256,uint256)
           handler: handleManagerDeposit
-        - event: ManagerWithdraw(indexed address,address,uint256,uint256,uint256)
+        - event: ManagerWithdraw(indexed address,indexed address,address,uint256,uint256,uint256)
           handler: handleManagerWithdraw
-        - event: ManagerFeeOut(indexed address,address,uint256,uint256,uint256)
+        - event: ManagerFeeOut(indexed address,indexed address,address,uint256,uint256,uint256)
           handler: handleManagerFeeOut
-        - event: InvestorDeposit(indexed address,address,uint256,uint256,uint256)
+        - event: InvestorDeposit(indexed address,indexed address,address,uint256,uint256,uint256)
           handler: handleInvestorDeposit
-        - event: InvestorWithdraw(indexed address,address,uint256,uint256,uint256,uint256)
+        - event: InvestorWithdraw(indexed address,indexed address,address,uint256,uint256,uint256,uint256)
           handler: handleInvestorWithdraw
-        - event: Swap(indexed address,indexed address,address,address,uint256,uint256,uint256,uint256)
+        - event: Swap(indexed address,indexed address,indexed address,address,address,uint256,uint256,uint256,uint256)
           handler: handleSwap
       file: ./src/xxx-fund2.ts

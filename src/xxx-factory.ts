@@ -111,10 +111,10 @@ export function handleSubscribe(event: SubscribeEvent): void {
 
       let investor = Investor.load(event.params.investor.toHexString())
       if (investor === null) {
-        investor = new Investor(event.params.investor.toHexString())
+        investor = new Investor(event.params.fund.toHexString() + '-' + event.params.investor.toHexString())
         investor.createdAtTimestamp = event.block.timestamp
         investor.createdAtBlockNumber = event.block.number
-        investor.fund = event.address
+        investor.fund = event.params.fund
         investor.investor = event.params.investor
         investor.principalETH = ZERO_BI
         investor.principalUSD = ZERO_BI
@@ -128,7 +128,7 @@ export function handleSubscribe(event: SubscribeEvent): void {
   
       subscribe.save()
       investor.save()
-      investorSnapshot(event.address, event.params.investor, event)
+      investorSnapshot(event.params.fund, event.params.investor, event)
       factory.save()
     }
   }
