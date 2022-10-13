@@ -115,6 +115,7 @@ export function handleSubscribe(event: SubscribeEvent): void {
         investor.createdAtTimestamp = event.block.timestamp
         investor.createdAtBlockNumber = event.block.number
         investor.fund = event.params.fund
+        investor.manager = event.params.manager
         investor.investor = event.params.investor
         investor.principalETH = ZERO_BI
         investor.principalUSD = ZERO_BI
@@ -128,7 +129,7 @@ export function handleSubscribe(event: SubscribeEvent): void {
   
       subscribe.save()
       investor.save()
-      investorSnapshot(event.params.fund, event.params.investor, event)
+      investorSnapshot(event.params.fund, event.params.manager, event.params.investor, event)
       factory.save()
     }
   }

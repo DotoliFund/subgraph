@@ -4,27 +4,26 @@ import {
   Factory,
   Fund,
   FundSnapshot,
-  Manager,
-  ManagerSnapshot,
   Investor,
   InvestorSnapshot,
 } from '../types/schema'
 import { FACTORY_ADDRESS } from './constants'
 import { Bytes, ethereum } from '@graphprotocol/graph-ts'
 
-export function fundSnapshot(event: ethereum.Event): void {
+export function fundSnapshot(fundAddress: Bytes, managerAddress: Bytes, event: ethereum.Event): void {
   let timestamp = event.block.timestamp
-  let fundTimeID = event.address
+  let fundTimeID = fundAddress
     .toHexString()
     .concat('-')
     .concat(timestamp.toString())
-  let fund = Fund.load(event.address.toHexString())
+  let fund = Fund.load(fundAddress.toHexString())
   if (fund !== null) {
     let fundSnapshot = FundSnapshot.load(fundTimeID)
     if (fundSnapshot === null) {
       fundSnapshot = new FundSnapshot(fundTimeID)
       fundSnapshot.timestamp = timestamp
-      fundSnapshot.fund = event.address
+      fundSnapshot.fund = fundAddress
+      fundSnapshot.manager = managerAddress
       fundSnapshot.principalETH = ZERO_BD
       fundSnapshot.principalUSD = ZERO_BD
       fundSnapshot.volumeUSD = ZERO_BD
@@ -40,51 +39,18 @@ export function fundSnapshot(event: ethereum.Event): void {
   }
 }
 
-export function managerSnapshot(
-  fundAddress: Bytes, 
-  managerAddress: Bytes, 
-  event: ethereum.Event
-): void {
-  let timestamp = event.block.timestamp
-  let fundTimeID = event.address
-    .toHexString()
-    .concat('-')
-    .concat(timestamp.toString())
-  let manager = Manager.load(event.address.toHexString())
-  if (manager !== null) {
-    let managerSnapshot = ManagerSnapshot.load(fundTimeID)
-    if (managerSnapshot === null) {
-      managerSnapshot = new ManagerSnapshot(fundTimeID)
-      managerSnapshot.timestamp = timestamp
-      managerSnapshot.fund = fundAddress
-      managerSnapshot.manager = managerAddress
-      managerSnapshot.principalETH = ZERO_BD
-      managerSnapshot.principalUSD = ZERO_BD
-      managerSnapshot.volumeUSD = ZERO_BD
-      managerSnapshot.volumeETH = ZERO_BD
-      managerSnapshot.profitETH = ZERO_BI
-      managerSnapshot.profitUSD = ZERO_BI
-      managerSnapshot.profitRatioETH = ZERO_BI
-      managerSnapshot.profitRatioUSD = ZERO_BI
-      managerSnapshot.feeVolumeETH = ZERO_BI
-      managerSnapshot.feeVolumeUSD = ZERO_BI
-    }
-    managerSnapshot.volumeUSD
-    managerSnapshot.save()  
-  }
-}
-
 export function investorSnapshot(
   fundAddress: Bytes, 
+  managerAddress: Bytes, 
   investorAddress: Bytes, 
   event: ethereum.Event
 ): void {
   let timestamp = event.block.timestamp
-  let fundTimeID = event.address
+  let fundTimeID = investorAddress
     .toHexString()
     .concat('-')
     .concat(timestamp.toString())
-  let investor = Investor.load(event.address.toHexString())
+  let investor = Investor.load(fundAddress.toString() + '-' + investorAddress.toString())
   let investorSnapshot = InvestorSnapshot.load(fundTimeID)
 
   if (investor !== null) {
@@ -92,6 +58,7 @@ export function investorSnapshot(
       investorSnapshot = new InvestorSnapshot(fundTimeID)
       investorSnapshot.timestamp = timestamp
       investorSnapshot.fund = fundAddress
+      investorSnapshot.manager = managerAddress
       investorSnapshot.investor = investorAddress
       investorSnapshot.principalETH = ZERO_BD
       investorSnapshot.principalUSD = ZERO_BD
