@@ -16,27 +16,25 @@ export function fundSnapshot(fundAddress: Bytes, managerAddress: Bytes, event: e
     .toHexString()
     .concat('-')
     .concat(timestamp.toString())
-  let fund = Fund.load(fundAddress.toHexString())
-  if (fund !== null) {
-    let fundSnapshot = FundSnapshot.load(fundTimeID)
-    if (fundSnapshot === null) {
-      fundSnapshot = new FundSnapshot(fundTimeID)
-      fundSnapshot.timestamp = timestamp
-      fundSnapshot.fund = fundAddress
-      fundSnapshot.manager = managerAddress
-      fundSnapshot.principalETH = ZERO_BD
-      fundSnapshot.principalUSD = ZERO_BD
-      fundSnapshot.volumeUSD = ZERO_BD
-      fundSnapshot.volumeETH = ZERO_BD
-      fundSnapshot.profitETH = ZERO_BI
-      fundSnapshot.profitUSD = ZERO_BI
-      fundSnapshot.profitRatioETH = ZERO_BI
-      fundSnapshot.profitRatioUSD = ZERO_BI
-      fundSnapshot.investorCount = ZERO_BI
-    }
-    fundSnapshot.volumeUSD
-    fundSnapshot.save()
+    
+  let fundSnapshot = FundSnapshot.load(fundTimeID)
+  if (fundSnapshot === null) {
+    fundSnapshot = new FundSnapshot(fundTimeID)
+    fundSnapshot.timestamp = timestamp
+    fundSnapshot.fund = fundAddress
+    fundSnapshot.manager = managerAddress
+    fundSnapshot.principalETH = ZERO_BD
+    fundSnapshot.principalUSD = ZERO_BD
+    fundSnapshot.volumeUSD = ZERO_BD
+    fundSnapshot.volumeETH = ZERO_BD
+    fundSnapshot.profitETH = ZERO_BI
+    fundSnapshot.profitUSD = ZERO_BI
+    fundSnapshot.profitRatioETH = ZERO_BI
+    fundSnapshot.profitRatioUSD = ZERO_BI
+    fundSnapshot.investorCount = ZERO_BI
   }
+  fundSnapshot.volumeUSD
+  fundSnapshot.save()
 }
 
 export function investorSnapshot(
@@ -50,26 +48,23 @@ export function investorSnapshot(
     .toHexString()
     .concat('-')
     .concat(timestamp.toString())
-  let investor = Investor.load(fundAddress.toString() + '-' + investorAddress.toString())
-  let investorSnapshot = InvestorSnapshot.load(fundTimeID)
 
-  if (investor !== null) {
-    if (investorSnapshot === null) {
-      investorSnapshot = new InvestorSnapshot(fundTimeID)
-      investorSnapshot.timestamp = timestamp
-      investorSnapshot.fund = fundAddress
-      investorSnapshot.manager = managerAddress
-      investorSnapshot.investor = investorAddress
-      investorSnapshot.principalETH = ZERO_BD
-      investorSnapshot.principalUSD = ZERO_BD
-      investorSnapshot.volumeUSD = ZERO_BD
-      investorSnapshot.volumeETH = ZERO_BD
-      investorSnapshot.profitETH = ZERO_BI
-      investorSnapshot.profitUSD = ZERO_BI
-      investorSnapshot.profitRatioETH = ZERO_BI
-      investorSnapshot.profitRatioUSD = ZERO_BI
-    }
-    investorSnapshot.volumeUSD
-    investorSnapshot.save()
+  let investorSnapshot = InvestorSnapshot.load(fundTimeID)
+  if (investorSnapshot === null) {
+    investorSnapshot = new InvestorSnapshot(fundTimeID)
+    investorSnapshot.timestamp = timestamp
+    investorSnapshot.fund = fundAddress
+    investorSnapshot.manager = managerAddress
+    investorSnapshot.investor = investorAddress
+    investorSnapshot.principalETH = ZERO_BD
+    investorSnapshot.principalUSD = ZERO_BD
+    investorSnapshot.volumeUSD = ZERO_BD
+    investorSnapshot.volumeETH = ZERO_BD
+    investorSnapshot.profitETH = ZERO_BI
+    investorSnapshot.profitUSD = ZERO_BI
+    investorSnapshot.profitRatioETH = ZERO_BI
+    investorSnapshot.profitRatioUSD = ZERO_BI
   }
+  //TODO : set data
+  investorSnapshot.save()
 }

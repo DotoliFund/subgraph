@@ -98,7 +98,11 @@ export function handleDeposit(event: DepositEvent): void {
     investorDeposit.origin = event.transaction.from
     investorDeposit.logIndex = event.logIndex
 
-    let investor = Investor.load(event.params.investor.toHexString())
+    const investorID = 
+      event.params.fund.toHexString().toUpperCase() 
+      + '-' 
+      + event.params.investor.toHexString().toUpperCase()
+    let investor = Investor.load(investorID)
     if (investor !== null) {
       investor.principalETH = investor.principalETH.minus(depositETH)
       investor.principalUSD = investor.principalUSD.minus(depositUSD)
@@ -141,7 +145,11 @@ export function handleWithdraw(event: WithdrawEvent): void {
     investorWithdraw.origin = event.transaction.from
     investorWithdraw.logIndex = event.logIndex
 
-    let investor = Investor.load(event.params.investor.toHexString())
+    const investorID = 
+      event.params.fund.toHexString().toUpperCase() 
+      + '-' 
+      + event.params.investor.toHexString().toUpperCase()
+    let investor = Investor.load(investorID)
     if (investor !== null) {
       investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.address)
       investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)
@@ -195,7 +203,11 @@ export function handleSwap(event: SwapEvent): void {
     swap.logIndex = event.logIndex
     
     //investor account swap
-    let investor = Investor.load(event.params.investor.toHexString())
+    const investorID = 
+      event.params.fund.toHexString().toUpperCase() 
+      + '-' 
+      + event.params.investor.toHexString().toUpperCase()
+    let investor = Investor.load(investorID)
     if (investor !== null) {
       investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.address)
       investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)

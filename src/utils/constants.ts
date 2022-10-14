@@ -3,8 +3,8 @@ import { BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 import { XXXFactory as FactoryContract } from '../types/XXXFactory/XXXFactory'
 
 //owner is timelock contract
-export const FACTORY_OWNER = '0xE1C3B345ffacB241CB203e8454FFe8F49fFCc728'
-export const FACTORY_ADDRESS = '0x645333C1EB5acE016777efD6f1c3c5a843797876'
+export const FACTORY_OWNER = '0x0203A2F161909893d06C0e3cCb386D7E0919E887'
+export const FACTORY_ADDRESS = '0x087B5e35D3Ae235Bf65326B1a5f1925482E8767c'
 export const SWAP_ROUTER_ADDRESS = '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export const WHITELIST_TOKENS = [
