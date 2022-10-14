@@ -39,7 +39,7 @@ export function handleFundCreated(event: FundCreated): void {
   factory.fundCount = factory.fundCount.plus(ONE_BI)
   factory.investorCount = factory.investorCount.plus(ONE_BI)
 
-  let fund = new Fund(event.params.fund.toHexString()) as Fund
+  let fund = new Fund(event.params.fund.toHexString())
   fund.createdAtTimestamp = event.block.timestamp
   fund.createdAtBlockNumber = event.block.number
   fund.manager = event.params.manager
@@ -51,8 +51,32 @@ export function handleFundCreated(event: FundCreated): void {
   fund.profitUSD = ZERO_BI
   fund.profitRatioETH = ZERO_BI
   fund.profitRatioUSD = ZERO_BI
-  fund.investorCount = ONE_BI
+  fund.investorCount = ZERO_BI
 
+  const investorID = 
+    event.params.fund.toHexString().toUpperCase() 
+    + '-' 
+    + event.params.manager.toHexString().toUpperCase()
+  let investor = Investor.load(investorID)
+  if (investor === null) {
+    investor = new Investor(investorID)
+    investor.createdAtTimestamp = event.block.timestamp
+    investor.createdAtBlockNumber = event.block.number
+    investor.fund = event.params.fund
+    investor.manager = event.params.manager
+    investor.investor = event.params.manager
+    investor.principalETH = ZERO_BI
+    investor.principalUSD = ZERO_BI
+    investor.volumeETH = ZERO_BI
+    investor.volumeUSD = ZERO_BI
+    investor.profitETH = ZERO_BI
+    investor.profitUSD = ZERO_BI
+    investor.profitRatioETH = ZERO_BI
+    investor.profitRatioUSD = ZERO_BI
+  }
+
+  investor.save()
+  investorSnapshot(event.params.fund, event.params.manager, event.params.manager, event)
   fund.save()
   factory.save()
 
@@ -98,10 +122,13 @@ export function handleSubscribe(event: SubscribeEvent): void {
     let fund = Fund.load(event.params.fund.toHexString())
     if (fund !== null) {
       fund.investorCount = fund.investorCount.plus(ONE_BI)
-      fund.save()
 
+      const subscribeID = 
+        event.params.fund.toHexString().toUpperCase() 
+        + '-'
+        + event.params.investor.toHexString().toUpperCase()
       let transaction = loadTransaction(event)
-      let subscribe = new Subscribe(event.params.fund.toString() + '-' + event.params.investor.toString())
+      let subscribe = new Subscribe(subscribeID)
       subscribe.transaction = transaction.id
       subscribe.timestamp = transaction.timestamp
       subscribe.fund = event.params.fund
@@ -109,12 +136,17 @@ export function handleSubscribe(event: SubscribeEvent): void {
       subscribe.origin = event.transaction.from
       subscribe.logIndex = event.logIndex
 
-      let investor = Investor.load(event.params.investor.toHexString())
+      const investorID = 
+        event.params.fund.toHexString().toUpperCase() 
+        + '-' 
+        + event.params.investor.toHexString().toUpperCase()
+      let investor = Investor.load(investorID)
       if (investor === null) {
-        investor = new Investor(event.params.fund.toHexString() + '-' + event.params.investor.toHexString())
+        investor = new Investor(investorID)
         investor.createdAtTimestamp = event.block.timestamp
         investor.createdAtBlockNumber = event.block.number
         investor.fund = event.params.fund
+        investor.manager = event.params.manager
         investor.investor = event.params.investor
         investor.principalETH = ZERO_BI
         investor.principalUSD = ZERO_BI
@@ -125,10 +157,11 @@ export function handleSubscribe(event: SubscribeEvent): void {
         investor.profitRatioETH = ZERO_BI
         investor.profitRatioUSD = ZERO_BI
       }
-  
-      subscribe.save()
+      
       investor.save()
-      investorSnapshot(event.params.fund, event.params.investor, event)
+      investorSnapshot(event.params.fund, event.params.manager, event.params.investor, event)
+      subscribe.save()
+      fund.save()
       factory.save()
     }
   }
