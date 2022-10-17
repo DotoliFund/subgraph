@@ -86,32 +86,12 @@ type Transaction @entity {
   blockNumber: BigInt!
   # timestamp txn was confirmed
   timestamp: BigInt!
-  # fund address
-  fund: Bytes!
-  # investor address
-  investor: Bytes!
   # derived values
-  initializes: [Initialize!]! @derivedFrom(field: "transaction")
   subscribes: [Subscribe!]! @derivedFrom(field: "transaction")
   managerFeeOuts: [ManagerFeeOut!]! @derivedFrom(field: "transaction")
   deposits: [Deposit!]! @derivedFrom(field: "transaction")
   withdraws: [Withdraw!]! @derivedFrom(field: "transaction")
   swaps: [Swap!]! @derivedFrom(field: "transaction")
-}
-
-type Initialize @entity {
-  # transaction hash
-  id: ID!
-  # which txn the mint was included in
-  transaction: Transaction!
-  # time of txn
-  timestamp: BigInt!
-  # the manager address
-  manager: Bytes!
-  # txn origin
-  origin: Bytes! # the EOA that initiated the txn
-  # order within the txn
-  logIndex: BigInt
 }
 
 type Subscribe @entity {

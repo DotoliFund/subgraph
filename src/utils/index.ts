@@ -10,8 +10,6 @@ export function loadTransaction(event: ethereum.Event): Transaction {
   }
   transaction.blockNumber = event.block.number
   transaction.timestamp = event.block.timestamp
-  transaction.fund = event.address
-  transaction.investor = Address.fromString(ADDRESS_ZERO)
   transaction.save()
   return transaction as Transaction
 }
