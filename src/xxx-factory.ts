@@ -21,6 +21,7 @@ import {
 } from './utils/constants'
 import { investorSnapshot } from "./utils/snapshots"
 import { loadTransaction } from "./utils"
+import { XXXFund2 as FundTemplate } from './types/templates'
 
 export function handleFundCreated(event: FundCreated): void {
   // load factory
@@ -78,6 +79,8 @@ export function handleFundCreated(event: FundCreated): void {
   investor.save()
   investorSnapshot(event.params.fund, event.params.manager, event.params.manager, event)
   fund.save()
+  // create the tracked contract based on the template
+  FundTemplate.create(event.params.fund)
   factory.save()
 
   // Note: If a handler doesn't require existing field values, it is faster
