@@ -129,7 +129,7 @@ type ManagerFeeOut @entity {
   # derived amount based on available prices of tokens
   amountETH: BigInt!
   # derived amount based on available prices of tokens
-  amountUSD: BigInt!
+  ethPriceUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -154,7 +154,7 @@ type Deposit @entity {
   # derived amount based on available prices of tokens
   amountETH: BigInt!
   # derived amount based on available prices of tokens
-  amountUSD: BigInt!
+  ethPriceUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -179,7 +179,7 @@ type Withdraw @entity {
   # derived amount based on available prices of tokens
   amountETH: BigInt!
   # derived amount based on available prices of tokens
-  amountUSD: BigInt!
+  ethPriceUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -210,7 +210,7 @@ type Swap @entity {
   # derived amount based on available prices of tokens
   amountETH: BigInt!
   # derived amount based on available prices of tokens
-  amountUSD: BigInt!
+  ethPriceUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn

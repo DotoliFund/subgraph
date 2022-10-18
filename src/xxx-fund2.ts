@@ -48,7 +48,7 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
     managerFeeOut.token = event.params.token
     managerFeeOut.amount = event.params.amount
     managerFeeOut.amountETH = event.params.amountETH
-    managerFeeOut.amountUSD = event.params.amountUSD
+    managerFeeOut.ethPriceUSD = event.params.ethPriceUSD
     managerFeeOut.origin = event.transaction.from
     managerFeeOut.logIndex = event.logIndex
 
@@ -74,9 +74,9 @@ export function handleDeposit(event: DepositEvent): void {
     deposit.token = event.params.token
     deposit.amount = event.params.amount
     const depositETH = event.params.amountETH
-    const depositUSD = event.params.amountUSD
+    const ethPriceUSD = event.params.ethPriceUSD
     deposit.amountETH = depositETH
-    deposit.amountUSD = depositUSD
+    deposit.ethPriceUSD = ethPriceUSD
     deposit.origin = event.transaction.from
     deposit.logIndex = event.logIndex
 
@@ -87,7 +87,7 @@ export function handleDeposit(event: DepositEvent): void {
     let investor = Investor.load(investorID)
     if (investor !== null) {
       investor.principalETH = investor.principalETH.minus(depositETH)
-      investor.principalUSD = investor.principalUSD.minus(depositUSD)
+      investor.principalUSD = investor.principalUSD.minus(ethPriceUSD)
       investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.address)
       investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)
       investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
@@ -120,9 +120,9 @@ export function handleWithdraw(event: WithdrawEvent): void {
     withdraw.token = event.params.token
     withdraw.amount = event.params.amount
     const withdrawETH = event.params.amountETH
-    const withdrawUSD = event.params.amountUSD
+    const ethPriceUSD = event.params.ethPriceUSD
     withdraw.amountETH = withdrawETH
-    withdraw.amountUSD = withdrawUSD
+    withdraw.ethPriceUSD = ethPriceUSD
     withdraw.origin = event.transaction.from
     withdraw.logIndex = event.logIndex
 
@@ -188,7 +188,7 @@ export function handleSwap(event: SwapEvent): void {
     swap.amount0 = amountIn
     swap.amount1 = amountOut
     swap.amountETH = event.params.amountETH
-    swap.amountUSD = event.params.amountUSD
+    swap.ethPriceUSD = event.params.ethPriceUSD
     swap.origin = event.transaction.from
     swap.logIndex = event.logIndex
     

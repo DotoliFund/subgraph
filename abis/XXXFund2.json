@@ -46,7 +46,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amountUSD",
+        "name": "ethPriceUSD",
         "type": "uint256"
       }
     ],
@@ -114,7 +114,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amountUSD",
+        "name": "ethPriceUSD",
         "type": "uint256"
       }
     ],
@@ -157,7 +157,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amountUSD",
+        "name": "ethPriceUSD",
         "type": "uint256"
       }
     ],
@@ -218,7 +218,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amountUSD",
+        "name": "ethPriceUSD",
         "type": "uint256"
       }
     ],
@@ -273,7 +273,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amountUSD",
+        "name": "ethPriceUSD",
         "type": "uint256"
       }
     ],
