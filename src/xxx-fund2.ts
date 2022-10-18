@@ -40,7 +40,7 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   if (fund !== null) {
     const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
     let transaction = loadTransaction(event)
-    let managerFeeOut = new ManagerFeeOut(event.address.toHexString())
+    let managerFeeOut = new ManagerFeeOut(event.transaction.hash.toHexString())
     managerFeeOut.transaction = transaction.id
     managerFeeOut.timestamp = transaction.timestamp
     managerFeeOut.fund = event.params.fund
@@ -88,8 +88,8 @@ export function handleDeposit(event: DepositEvent): void {
     if (investor !== null) {
       investor.principalETH = investor.principalETH.minus(depositETH)
       investor.principalUSD = investor.principalUSD.minus(ethPriceUSD)
-      investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.address)
-      investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)
+      investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.params.investor)
+      investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.params.investor)
       investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
       investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
       investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
@@ -112,7 +112,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
   if (fund !== null) {
     const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
     let transaction = loadTransaction(event)
-    let withdraw = new Withdraw(event.address.toHexString())
+    let withdraw = new Withdraw(event.transaction.hash.toHexString())
     withdraw.transaction = transaction.id
     withdraw.timestamp = transaction.timestamp
     withdraw.fund = event.params.fund
@@ -132,8 +132,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
       + event.params.investor.toHexString().toUpperCase()
     let investor = Investor.load(investorID)
     if (investor !== null) {
-      // investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.address)
-      // investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)
+      // investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.params.investor)
+      // investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.params.investor)
       // const prevVolumeETH = investor.volumeETH.plus(withdrawETH)
       // const prevVolumeUSD = investor.volumeUSD.plus(withdrawUSD)
       // const investorPrincipalETHToMinus = investor.principalETH.div(investor.principalETH.plus(prevVolumeETH)).times(withdrawETH)
@@ -145,8 +145,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
       // investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
       // investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
 
-      investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.address)
-      investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)
+      investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.params.investor)
+      investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.params.investor)
       investor.principalETH = investor.principalETH
       investor.principalUSD = investor.principalUSD
       investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
@@ -177,7 +177,7 @@ export function handleSwap(event: SwapEvent): void {
     const amountOut = event.params.amountOut
 
     let transaction = loadTransaction(event)
-    let swap = new Swap(event.address.toHexString())
+    let swap = new Swap(event.transaction.hash.toHexString())
     swap.transaction = transaction.id
     swap.timestamp = transaction.timestamp
     swap.fund =  event.params.fund
@@ -199,8 +199,8 @@ export function handleSwap(event: SwapEvent): void {
       + event.params.investor.toHexString().toUpperCase()
     let investor = Investor.load(investorID)
     if (investor !== null) {
-      investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.address)
-      investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.address)
+      investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.params.investor)
+      investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.params.investor)
       investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
       investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
       investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
