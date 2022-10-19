@@ -11,10 +11,10 @@ type Factory @entity {
   swapRouter: String!
   # manager fee
   managerFee: BigInt!
-  # total volume all time in derived USD
-  totalVolumeUSD: BigDecimal!
   # total volume all time in derived ETH
-  totalVolumeETH: BigDecimal!
+  totalVolumeETH: BigInt!
+  # total volume all time in derived USD
+  totalVolumeUSD: BigInt!
   # current owner of the factory
   owner: Bytes!
 }
@@ -46,6 +46,10 @@ type Fund @entity {
   profitRatioUSD: BigInt!
   # investorCount
   investorCount: BigInt!
+  # manager fee volumeETH
+  feeVolumeETH: BigInt!
+  # manager fee volumeUSD
+  feeVolumeUSD: BigInt!
 }
 
 type Investor @entity {
@@ -127,9 +131,9 @@ type ManagerFeeOut @entity {
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
-  amountETH: BigInt!
+  amountETH: BigDecimal!
   # derived amount based on available prices of tokens
-  ethPriceUSD: BigInt!
+  amountUSD: BigDecimal!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -154,7 +158,7 @@ type Deposit @entity {
   # derived amount based on available prices of tokens
   amountETH: BigInt!
   # derived amount based on available prices of tokens
-  ethPriceUSD: BigInt!
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -177,9 +181,9 @@ type Withdraw @entity {
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
-  amountETH: BigInt!
+  amountETH: BigDecimal!
   # derived amount based on available prices of tokens
-  ethPriceUSD: BigInt!
+  amountUSD: BigDecimal!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -208,29 +212,33 @@ type Swap @entity {
   # amount of token1 swapped
   amount1: BigInt!
   # derived amount based on available prices of tokens
-  amountETH: BigInt!
+  amountETH: BigDecimal!
   # derived amount based on available prices of tokens
-  ethPriceUSD: BigInt!
+  amountUSD: BigDecimal!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
   logIndex: BigInt
 }
 
-# daily stats tracker for XXX
-type XXXSnapshot @entity {
+# daily stats tracker for XXXFund2
+type XXXFund2Snapshot @entity {
   # txn hash
   id: ID!
   # timestamp
   timestamp: BigInt!
-  # volume in USD
-  volumeUSD: BigDecimal!
-  # volumeETH
-  volumeETH: BigDecimal!
-  # fundCount
+  # amount of funds created
   fundCount: BigInt!
-  # investorCount
+  # amount of investor
   investorCount: BigInt!
+  # white listed token
+  whitelistTokens: [String!]!
+  # manager fee
+  managerFee: BigInt!
+  # total volume all time in derived ETH
+  totalVolumeETH: BigDecimal!
+  # total volume all time in derived USD
+  totalVolumeUSD: BigDecimal!
 }
 
 # daily stats tracker for fund
@@ -243,14 +251,14 @@ type FundSnapshot @entity {
   fund: Bytes!
   # pointer to Manager 
   manager: Bytes!
-  # principal USD
-  principalUSD: BigDecimal!
   # principal ETH
-  principalETH: BigDecimal!
+  principalETH: BigInt!
+  # principal USD
+  principalUSD: BigInt!
+  # volume in ETH
+  volumeETH: BigInt!
   # volume in USD
-  volumeUSD: BigDecimal!
-  # volumeETH
-  volumeETH: BigDecimal!
+  volumeUSD: BigInt!
   # profit ETH
   profitETH: BigInt!
   # profit USD
@@ -261,6 +269,10 @@ type FundSnapshot @entity {
   profitRatioUSD: BigInt!
   # investorCount
   investorCount: BigInt!
+  # manager fee volumeETH
+  feeVolumeETH: BigInt!
+  # manager fee volumeUSD
+  feeVolumeUSD: BigInt!
 }
 
 # daily stats tracker for investor
@@ -275,14 +287,14 @@ type InvestorSnapshot @entity {
   manager: Bytes!
   # pointer to investor
   investor: Bytes!
-  # principal USD
-  principalUSD: BigDecimal!
   # principal ETH
-  principalETH: BigDecimal!
+  principalETH: BigInt!
+  # principal USD
+  principalUSD: BigInt!
+  # volume in ETH
+  volumeETH: BigInt!
   # volume in USD
-  volumeUSD: BigDecimal!
-  # volumeETH
-  volumeETH: BigDecimal!
+  volumeUSD: BigInt!
   # profit ETH
   profitETH: BigInt!
   # profit USD

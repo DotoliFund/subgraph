@@ -33,8 +33,9 @@ export function handleFundCreated(event: FundCreated): void {
     factory.whitelistTokens = WHITELIST_TOKENS
     factory.swapRouter = SWAP_ROUTER_ADDRESS
     factory.managerFee = ONE_BI
-    factory.totalVolumeETH = ZERO_BD
-    factory.totalVolumeUSD = ZERO_BD
+    factory.totalVolumeETH = ZERO_BI
+    factory.totalVolumeUSD = ZERO_BI
+    factory.totalVolumeUSD = ZERO_BI
     factory.owner = Address.fromString(FACTORY_OWNER)
   }
   factory.fundCount = factory.fundCount.plus(ONE_BI)
@@ -53,6 +54,8 @@ export function handleFundCreated(event: FundCreated): void {
   fund.profitRatioETH = ZERO_BI
   fund.profitRatioUSD = ZERO_BI
   fund.investorCount = ZERO_BI
+  fund.feeVolumeETH = ZERO_BI
+  fund.feeVolumeUSD = ZERO_BI
 
   const investorID = 
     event.params.fund.toHexString().toUpperCase() 

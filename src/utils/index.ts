@@ -20,7 +20,7 @@ export function getProfitETH(princial: BigInt, volume: BigInt): BigInt {
 }
 
 export function getProfitUSD(princial: BigInt, volume: BigInt): BigInt {
-  let profitUSD: BigInt = ZERO_BI 
+  let profitUSD: BigInt = ZERO_BI
   return profitUSD
 }
 

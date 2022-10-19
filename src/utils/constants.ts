@@ -22,4 +22,7 @@ export let ZERO_BD = BigDecimal.fromString('0')
 export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
+export const WETH_DECIMAL = new BigInt(10**18).toBigDecimal()
+export const USDC_DECIMAL = new BigInt(10**6).toBigDecimal()
+
 export let factoryContract = FactoryContract.bind(Address.fromString(FACTORY_ADDRESS))
