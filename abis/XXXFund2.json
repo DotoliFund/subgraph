@@ -42,6 +42,12 @@
         "internalType": "uint256",
         "name": "amountETH",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "ethPriceUSD",
+        "type": "uint256"
       }
     ],
     "name": "Deposit",
@@ -104,6 +110,12 @@
         "internalType": "uint256",
         "name": "amountETH",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "ethPriceUSD",
+        "type": "uint256"
       }
     ],
     "name": "ManagerFeeIn",
@@ -140,6 +152,12 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "amountETH",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "ethPriceUSD",
         "type": "uint256"
       }
     ],
@@ -196,6 +214,12 @@
         "internalType": "uint256",
         "name": "amountETH",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "ethPriceUSD",
+        "type": "uint256"
       }
     ],
     "name": "Swap",
@@ -244,6 +268,12 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "amountETH",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "ethPriceUSD",
         "type": "uint256"
       }
     ],
@@ -349,19 +379,6 @@
   },
   {
     "inputs": [],
-    "name": "getETHPriceInUSD",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "getFeeTokens",
     "outputs": [
       {
@@ -405,6 +422,32 @@
         "internalType": "struct IToken.Token[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getFundVolumeETH",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "volumeETH",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getFundVolumeUSD",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "volumeUSD",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -473,11 +516,30 @@
         "type": "address"
       }
     ],
-    "name": "getInvestorTotalValueLockedETH",
+    "name": "getInvestorVolumeETH",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "volumeETH",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "investor",
+        "type": "address"
+      }
+    ],
+    "name": "getInvestorVolumeUSD",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "volumeUSD",
         "type": "uint256"
       }
     ],
@@ -486,11 +548,24 @@
   },
   {
     "inputs": [],
-    "name": "getManagerFeeTotalValueLockedETH",
+    "name": "getManagerFeeVolumeETH",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "volumeETH",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getManagerFeeVolumeUSD",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "volumeUSD",
         "type": "uint256"
       }
     ],
