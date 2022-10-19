@@ -33,9 +33,9 @@ type Fund @entity {
   # principalUSD
   principalUSD: BigInt!
   # volumeETH
-  volumeETH: BigInt!
+  volumeETH: BigDecimal!
   # volumeUSD
-  volumeUSD: BigInt!
+  volumeUSD: BigDecimal!
   # profit ETH
   profitETH: BigInt!
   # profit USD
@@ -46,6 +46,10 @@ type Fund @entity {
   profitRatioUSD: BigInt!
   # investorCount
   investorCount: BigInt!
+  # fee volumeETH
+  feeVolumeETH: BigInt!
+  # fee volumeUSD
+  feeVolumeUSD: BigInt!
 }
 
 type Investor @entity {
@@ -129,7 +133,7 @@ type ManagerFeeOut @entity {
   # derived amount based on available prices of tokens
   amountETH: BigInt!
   # derived amount based on available prices of tokens
-  ethPriceUSD: BigInt!
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -154,7 +158,7 @@ type Deposit @entity {
   # derived amount based on available prices of tokens
   amountETH: BigInt!
   # derived amount based on available prices of tokens
-  ethPriceUSD: BigInt!
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -179,7 +183,7 @@ type Withdraw @entity {
   # derived amount based on available prices of tokens
   amountETH: BigInt!
   # derived amount based on available prices of tokens
-  ethPriceUSD: BigInt!
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -210,7 +214,7 @@ type Swap @entity {
   # derived amount based on available prices of tokens
   amountETH: BigInt!
   # derived amount based on available prices of tokens
-  ethPriceUSD: BigInt!
+  amountUSD: BigInt!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -261,6 +265,10 @@ type FundSnapshot @entity {
   profitRatioUSD: BigInt!
   # investorCount
   investorCount: BigInt!
+  # fee volumeETH
+  feeVolumeETH: BigInt!
+  # fee volumeUSD
+  feeVolumeUSD: BigInt!
 }
 
 # daily stats tracker for investor

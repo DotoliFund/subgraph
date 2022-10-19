@@ -1,4 +1,4 @@
-import { BigInt, Address } from "@graphprotocol/graph-ts"
+import { BigInt, Address, BigDecimal } from "@graphprotocol/graph-ts"
 import {
   ManagerFeeOut as ManagerFeeOutEvent,
   Deposit as DepositEvent,
@@ -19,7 +19,8 @@ import {
   ZERO_BD,
   ZERO_BI,
   factoryContract,
-  ADDRESS_ZERO
+  ADDRESS_ZERO,
+  ONE_BD
 } from './utils/constants'
 import { 
   fundSnapshot,
@@ -39,6 +40,7 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   let fund = Fund.load(event.params.fund.toHexString())
   if (fund !== null) {
     const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
+    const ethPriceInUSD = new BigDecimal(xxxfund2Contract.getETHPriceInUSD()).div(new BigInt(10**6).toBigDecimal())
     let transaction = loadTransaction(event)
     let managerFeeOut = new ManagerFeeOut(event.transaction.hash.toHexString())
     managerFeeOut.transaction = transaction.id
@@ -48,12 +50,12 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
     managerFeeOut.token = event.params.token
     managerFeeOut.amount = event.params.amount
     managerFeeOut.amountETH = event.params.amountETH
-    managerFeeOut.ethPriceUSD = event.params.ethPriceUSD
+    managerFeeOut.amountUSD = new BigInt(1234)
     managerFeeOut.origin = event.transaction.from
     managerFeeOut.logIndex = event.logIndex
 
-    fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
-    fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
+    fund.volumeETH = new BigDecimal(xxxfund2Contract.getManagerFeeTotalValueLockedETH()).div(new BigInt(10**18).toBigDecimal())
+    fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
 
     managerFeeOut.save()
     fund.save()
@@ -74,9 +76,9 @@ export function handleDeposit(event: DepositEvent): void {
     deposit.token = event.params.token
     deposit.amount = event.params.amount
     const depositETH = event.params.amountETH
-    const ethPriceUSD = event.params.ethPriceUSD
+    const ethPriceUSD = xxxfund2Contract.getETHPriceInUSD()
     deposit.amountETH = depositETH
-    deposit.ethPriceUSD = ethPriceUSD
+    deposit.amountUSD = ethPriceUSD
     deposit.origin = event.transaction.from
     deposit.logIndex = event.logIndex
 
@@ -88,15 +90,15 @@ export function handleDeposit(event: DepositEvent): void {
     if (investor !== null) {
       investor.principalETH = investor.principalETH.minus(depositETH)
       investor.principalUSD = investor.principalUSD.minus(ethPriceUSD)
-      investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.params.investor)
-      investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.params.investor)
+      investor.volumeETH = xxxfund2Contract.getInvestorTotalValueLockedETH(event.params.investor)
+      investor.volumeUSD = xxxfund2Contract.getETHPriceInUSD()
       investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
       investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
       investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
       investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
 
-      fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
-      fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
+      fund.volumeETH = ONE_BD
+      fund.volumeUSD = ONE_BD
 
       deposit.save()
       investor.save()
@@ -120,9 +122,9 @@ export function handleWithdraw(event: WithdrawEvent): void {
     withdraw.token = event.params.token
     withdraw.amount = event.params.amount
     const withdrawETH = event.params.amountETH
-    const ethPriceUSD = event.params.ethPriceUSD
+    const ethPriceUSD = xxxfund2Contract.getETHPriceInUSD()
     withdraw.amountETH = withdrawETH
-    withdraw.ethPriceUSD = ethPriceUSD
+    withdraw.amountUSD = ethPriceUSD
     withdraw.origin = event.transaction.from
     withdraw.logIndex = event.logIndex
 
@@ -145,8 +147,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
       // investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
       // investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
 
-      investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.params.investor)
-      investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.params.investor)
+      investor.volumeETH = xxxfund2Contract.getInvestorTotalValueLockedETH(event.params.investor)
+      investor.volumeUSD = xxxfund2Contract.getInvestorTotalValueLockedETH(event.params.investor)
       investor.principalETH = investor.principalETH
       investor.principalUSD = investor.principalUSD
       investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
@@ -154,8 +156,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
       investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
       investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
 
-      fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
-      fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
+      fund.volumeETH = ONE_BD
+      fund.volumeUSD = ONE_BD
 
       withdraw.save()
       investor.save()
@@ -188,7 +190,7 @@ export function handleSwap(event: SwapEvent): void {
     swap.amount0 = amountIn
     swap.amount1 = amountOut
     swap.amountETH = event.params.amountETH
-    swap.ethPriceUSD = event.params.ethPriceUSD
+    swap.amountUSD = xxxfund2Contract.getETHPriceInUSD()
     swap.origin = event.transaction.from
     swap.logIndex = event.logIndex
     
@@ -199,15 +201,15 @@ export function handleSwap(event: SwapEvent): void {
       + event.params.investor.toHexString().toUpperCase()
     let investor = Investor.load(investorID)
     if (investor !== null) {
-      investor.volumeETH = xxxfund2Contract.getInvestorVolumeETH(event.params.investor)
-      investor.volumeUSD = xxxfund2Contract.getInvestorVolumeUSD(event.params.investor)
+      investor.volumeETH = xxxfund2Contract.getInvestorTotalValueLockedETH(event.params.investor)
+      investor.volumeUSD = xxxfund2Contract.getInvestorTotalValueLockedETH(event.params.investor)
       investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
       investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
       investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
       investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
 
-      fund.volumeETH = xxxfund2Contract.getFundVolumeETH()
-      fund.volumeUSD = xxxfund2Contract.getFundVolumeUSD()
+      fund.volumeETH = ONE_BD
+      fund.volumeUSD = ONE_BD
       
       swap.save()
       investor.save()

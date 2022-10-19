@@ -46,13 +46,15 @@ export function handleFundCreated(event: FundCreated): void {
   fund.manager = event.params.manager
   fund.principalETH = ZERO_BI
   fund.principalUSD = ZERO_BI
-  fund.volumeETH = ZERO_BI
-  fund.volumeUSD = ZERO_BI
+  fund.volumeETH = ZERO_BD
+  fund.volumeUSD = ZERO_BD
   fund.profitETH = ZERO_BI
   fund.profitUSD = ZERO_BI
   fund.profitRatioETH = ZERO_BI
   fund.profitRatioUSD = ZERO_BI
   fund.investorCount = ZERO_BI
+  fund.feeVolumeETH = ZERO_BI
+  fund.feeVolumeUSD = ZERO_BI
 
   const investorID = 
     event.params.fund.toHexString().toUpperCase() 
