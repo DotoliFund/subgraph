@@ -2,6 +2,7 @@ import { ZERO_BD, ZERO_BI, ONE_BI } from './constants'
 /* eslint-disable prefer-const */
 import {
   Factory,
+  XXXFund2Snapshot,
   Fund,
   FundSnapshot,
   Investor,
@@ -10,7 +11,28 @@ import {
 import { FACTORY_ADDRESS } from './constants'
 import { Bytes, ethereum } from '@graphprotocol/graph-ts'
 
+export function xxxfund2Snapshot(event: ethereum.Event): void {
+  let factory = Factory.load(FACTORY_ADDRESS)
+  if (!factory) return 
+
+  let xxxfund2Snapshot = XXXFund2Snapshot.load(event.block.timestamp.toString())
+  if (xxxfund2Snapshot === null) {
+    xxxfund2Snapshot = new XXXFund2Snapshot(event.block.timestamp.toString())
+    xxxfund2Snapshot.timestamp = event.block.timestamp
+    xxxfund2Snapshot.fundCount = factory.fundCount
+    xxxfund2Snapshot.investorCount = factory.investorCount
+    xxxfund2Snapshot.whitelistTokens = factory.whitelistTokens
+    xxxfund2Snapshot.managerFee = factory.managerFee
+    xxxfund2Snapshot.totalVolumeETH = factory.totalVolumeETH
+    xxxfund2Snapshot.totalVolumeUSD = factory.totalVolumeUSD
+  }
+  xxxfund2Snapshot.save()
+}
+
 export function fundSnapshot(fundAddress: Bytes, managerAddress: Bytes, event: ethereum.Event): void {
+  let fund = Fund.load(fundAddress.toHexString())
+  if (!fund) return 
+
   let timestamp = event.block.timestamp
   let fundTimeID = fundAddress
     .toHexString()
@@ -25,15 +47,15 @@ export function fundSnapshot(fundAddress: Bytes, managerAddress: Bytes, event: e
     fundSnapshot.manager = managerAddress
     fundSnapshot.principalETH = ZERO_BD
     fundSnapshot.principalUSD = ZERO_BD
-    fundSnapshot.volumeUSD = ZERO_BD
-    fundSnapshot.volumeETH = ZERO_BD
-    fundSnapshot.profitETH = ZERO_BI
-    fundSnapshot.profitUSD = ZERO_BI
-    fundSnapshot.profitRatioETH = ZERO_BI
-    fundSnapshot.profitRatioUSD = ZERO_BI
+    fundSnapshot.volumeETH = fund.volumeETH
+    fundSnapshot.volumeUSD = fund.volumeUSD
+    fundSnapshot.profitETH = ZERO_BD
+    fundSnapshot.profitUSD = ZERO_BD
+    fundSnapshot.profitRatioETH = ZERO_BD
+    fundSnapshot.profitRatioUSD = ZERO_BD
     fundSnapshot.investorCount = ZERO_BI
-    fundSnapshot.feeVolumeETH = ZERO_BI
-    fundSnapshot.feeVolumeUSD = ZERO_BI
+    fundSnapshot.feeVolumeETH = fund.feeVolumeETH
+    fundSnapshot.feeVolumeUSD = fund.feeVolumeUSD
   }
   fundSnapshot.save()
 }
@@ -44,6 +66,14 @@ export function investorSnapshot(
   investorAddress: Bytes, 
   event: ethereum.Event
 ): void {
+  const investorID = 
+  fundAddress.toHexString().toUpperCase() 
+    + '-' 
+    + investorAddress.toHexString().toUpperCase()
+
+  let investor = Investor.load(investorID)
+  if (!investor) return 
+
   let timestamp = event.block.timestamp
   let fundTimeID = investorAddress
     .toHexString()
@@ -59,13 +89,12 @@ export function investorSnapshot(
     investorSnapshot.investor = investorAddress
     investorSnapshot.principalETH = ZERO_BD
     investorSnapshot.principalUSD = ZERO_BD
-    investorSnapshot.volumeUSD = ZERO_BD
-    investorSnapshot.volumeETH = ZERO_BD
-    investorSnapshot.profitETH = ZERO_BI
-    investorSnapshot.profitUSD = ZERO_BI
-    investorSnapshot.profitRatioETH = ZERO_BI
-    investorSnapshot.profitRatioUSD = ZERO_BI
+    investorSnapshot.volumeETH = investor.volumeETH
+    investorSnapshot.volumeUSD = investor.volumeUSD
+    investorSnapshot.profitETH = ZERO_BD
+    investorSnapshot.profitUSD = ZERO_BD
+    investorSnapshot.profitRatioETH = ZERO_BD
+    investorSnapshot.profitRatioUSD = ZERO_BD
   }
-  //TODO : set data
   investorSnapshot.save()
 }

@@ -14,22 +14,31 @@ export function loadTransaction(event: ethereum.Event): Transaction {
   return transaction as Transaction
 }
 
-export function getProfitETH(princial: BigInt, volume: BigInt): BigInt {
-  let profitETH: BigInt = ZERO_BI 
+export function getProfitETH(princial: BigDecimal, volume: BigDecimal): BigDecimal {
+  let profitETH: BigDecimal = ZERO_BD
   return profitETH
 }
 
-export function getProfitUSD(princial: BigInt, volume: BigInt): BigInt {
-  let profitUSD: BigInt = ZERO_BI 
+export function getProfitUSD(princial: BigDecimal, volume: BigDecimal): BigDecimal {
+  let profitUSD: BigDecimal = ZERO_BD 
   return profitUSD
 }
 
-export function getProfitRatioETH(princial: BigInt, volume: BigInt): BigInt {
-  let profitRatioETH: BigInt = ZERO_BI 
+export function getProfitRatioETH(princial: BigDecimal, volume: BigDecimal): BigDecimal {
+  let profitRatioETH: BigDecimal = ZERO_BD 
   return profitRatioETH
 }
 
-export function getProfitRatioUSD(princial: BigInt, volume: BigInt): BigInt {
-  let profitRatioUSD: BigInt = ZERO_BI 
+export function getProfitRatioUSD(princial: BigDecimal, volume: BigDecimal): BigDecimal {
+  let profitRatioUSD: BigDecimal = ZERO_BD 
   return profitRatioUSD
+}
+
+// return 0 if denominator is 0 in division
+export function safeDiv(amount0: BigDecimal, amount1: BigDecimal): BigDecimal {
+  if (amount1.equals(ZERO_BD)) {
+    return ZERO_BD
+  } else {
+    return amount0.div(amount1)
+  }
 }

@@ -29,27 +29,27 @@ type Fund @entity {
   # manager address
   manager: Bytes!
   # principalETH
-  principalETH: BigInt!
+  principalETH: BigDecimal!
   # principalUSD
-  principalUSD: BigInt!
+  principalUSD: BigDecimal!
   # volumeETH
   volumeETH: BigDecimal!
   # volumeUSD
   volumeUSD: BigDecimal!
   # profit ETH
-  profitETH: BigInt!
+  profitETH: BigDecimal!
   # profit USD
-  profitUSD: BigInt!
+  profitUSD: BigDecimal!
   # profit ratio ETH
-  profitRatioETH: BigInt!
+  profitRatioETH: BigDecimal!
   # profit ratio USD
-  profitRatioUSD: BigInt!
+  profitRatioUSD: BigDecimal!
   # investorCount
   investorCount: BigInt!
   # fee volumeETH
-  feeVolumeETH: BigInt!
+  feeVolumeETH: BigDecimal!
   # fee volumeUSD
-  feeVolumeUSD: BigInt!
+  feeVolumeUSD: BigDecimal!
 }
 
 type Investor @entity {
@@ -66,21 +66,21 @@ type Investor @entity {
   # investor address
   investor: Bytes!
   # principalETH
-  principalETH: BigInt!
+  principalETH: BigDecimal!
   # principalUSD
-  principalUSD: BigInt!
+  principalUSD: BigDecimal!
   # volumeETH
-  volumeETH: BigInt!
+  volumeETH: BigDecimal!
   # volumeUSD
-  volumeUSD: BigInt!
+  volumeUSD: BigDecimal!
   # profit ETH
-  profitETH: BigInt!
+  profitETH: BigDecimal!
   # profit USD
-  profitUSD: BigInt!
+  profitUSD: BigDecimal!
   # profit ratio ETH
-  profitRatioETH: BigInt!
+  profitRatioETH: BigDecimal!
   # profit ratio USD
-  profitRatioUSD: BigInt!
+  profitRatioUSD: BigDecimal!
 }
 
 type Transaction @entity {
@@ -131,9 +131,9 @@ type ManagerFeeOut @entity {
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
-  amountETH: BigInt!
+  amountETH: BigDecimal!
   # derived amount based on available prices of tokens
-  amountUSD: BigInt!
+  amountUSD: BigDecimal!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -156,9 +156,9 @@ type Deposit @entity {
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
-  amountETH: BigInt!
+  amountETH: BigDecimal!
   # derived amount based on available prices of tokens
-  amountUSD: BigInt!
+  amountUSD: BigDecimal!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -181,9 +181,9 @@ type Withdraw @entity {
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
-  amountETH: BigInt!
+  amountETH: BigDecimal!
   # derived amount based on available prices of tokens
-  amountUSD: BigInt!
+  amountUSD: BigDecimal!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -212,9 +212,9 @@ type Swap @entity {
   # amount of token1 swapped
   amount1: BigInt!
   # derived amount based on available prices of tokens
-  amountETH: BigInt!
+  amountETH: BigDecimal!
   # derived amount based on available prices of tokens
-  amountUSD: BigInt!
+  amountUSD: BigDecimal!
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # order within the txn
@@ -222,19 +222,23 @@ type Swap @entity {
 }
 
 # daily stats tracker for XXX
-type XXXSnapshot @entity {
+type XXXFund2Snapshot @entity {
   # txn hash
   id: ID!
   # timestamp
   timestamp: BigInt!
-  # volume in USD
-  volumeUSD: BigDecimal!
-  # volumeETH
-  volumeETH: BigDecimal!
-  # fundCount
+  # amount of funds created
   fundCount: BigInt!
-  # investorCount
+  # amount of investor
   investorCount: BigInt!
+  # white listed token
+  whitelistTokens: [String!]!
+  # manager fee
+  managerFee: BigInt!
+  # total volume all time in derived ETH
+  totalVolumeETH: BigDecimal!
+  # total volume all time in derived USD
+  totalVolumeUSD: BigDecimal!
 }
 
 # daily stats tracker for fund
@@ -256,19 +260,19 @@ type FundSnapshot @entity {
   # volumeETH
   volumeETH: BigDecimal!
   # profit ETH
-  profitETH: BigInt!
+  profitETH: BigDecimal!
   # profit USD
-  profitUSD: BigInt!
+  profitUSD: BigDecimal!
   # profit ratio ETH
-  profitRatioETH: BigInt!
+  profitRatioETH: BigDecimal!
   # profit ratio USD
-  profitRatioUSD: BigInt!
+  profitRatioUSD: BigDecimal!
   # investorCount
   investorCount: BigInt!
   # fee volumeETH
-  feeVolumeETH: BigInt!
+  feeVolumeETH: BigDecimal!
   # fee volumeUSD
-  feeVolumeUSD: BigInt!
+  feeVolumeUSD: BigDecimal!
 }
 
 # daily stats tracker for investor
@@ -292,11 +296,11 @@ type InvestorSnapshot @entity {
   # volumeETH
   volumeETH: BigDecimal!
   # profit ETH
-  profitETH: BigInt!
+  profitETH: BigDecimal!
   # profit USD
-  profitUSD: BigInt!
+  profitUSD: BigDecimal!
   # profit ratio ETH
-  profitRatioETH: BigInt!
+  profitRatioETH: BigDecimal!
   # profit ratio USD
-  profitRatioUSD: BigInt!
+  profitRatioUSD: BigDecimal!
 }
