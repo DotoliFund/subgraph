@@ -191,12 +191,15 @@ export function handleWithdraw(event: WithdrawEvent): void {
     fund.feeVolumeETH = BigDecimal.fromString(feeTvlETH.toString()).div(WETH_DECIMAL)
     fund.feeVolumeUSD = fund.feeVolumeETH.times(deETHPriceInUSD)
 
-    // const prevVolumeETH = investor.volumeETH.plus(deWithdrawETH)
-    // const prevVolumeUSD = investor.volumeUSD.plus(withdrawUSD)
-    // const investorPrincipalETHToMinus = investor.principalETH.div(investor.principalETH.plus(prevVolumeETH)).times(withdrawETH)
-    // const investorPrincipalUSDToMinus = investor.principalUSD.div(investor.principalUSD.plus(prevVolumeUSD)).times(withdrawUSD)
-    investor.principalETH = ZERO_BD//investor.principalETH.minus(investorPrincipalETHToMinus)
-    investor.principalUSD = ZERO_BD//investor.principalUSD.minus(investorPrincipalUSDToMinus)
+    const prevVolumeETH = investor.volumeETH.plus(withdraw.amountETH)
+    const prevVolumeUSD = investor.volumeUSD.plus(withdraw.amountUSD)
+    const withdrawRatioETH = ONE_BD.minus(withdraw.amountETH.div(prevVolumeETH))
+    const withdrawRatioUSD = ONE_BD.minus(withdraw.amountUSD.div(prevVolumeUSD))
+    // const principalETHToMinus = investor.principalETH.div(investor.principalETH.plus(prevVolumeETH)).times(withdraw.amountETH)
+    // const principalUSDToMinus = investor.principalUSD.div(investor.principalUSD.plus(prevVolumeUSD)).times(withdraw.amountUSD)
+    investor.principalETH = investor.principalETH.times(withdrawRatioETH)
+    investor.principalUSD = investor.principalUSD.times(withdrawRatioUSD)
+    // investor.principalETH = investor.principalETH.minus(principalETHToMinus)
     investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
     investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
     investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
@@ -257,7 +260,7 @@ export function handleSwap(event: SwapEvent): void {
     + '-' 
     + event.params.investor.toHexString().toUpperCase()
   let investor = Investor.load(investorID)
-  
+
   if (investor !== null) {
     factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
