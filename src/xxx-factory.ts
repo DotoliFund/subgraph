@@ -44,6 +44,7 @@ export function handleFundCreated(event: FundCreated): void {
   fund.createdAtTimestamp = event.block.timestamp
   fund.createdAtBlockNumber = event.block.number
   fund.manager = event.params.manager
+  fund.investorCount = ZERO_BI
   fund.principalETH = ZERO_BD
   fund.principalUSD = ZERO_BD
   fund.volumeETH = ZERO_BD
@@ -52,7 +53,6 @@ export function handleFundCreated(event: FundCreated): void {
   fund.profitUSD = ZERO_BD
   fund.profitRatioETH = ZERO_BD
   fund.profitRatioUSD = ZERO_BD
-  fund.investorCount = ZERO_BI
   fund.feeVolumeETH = ZERO_BD
   fund.feeVolumeUSD = ZERO_BD
 

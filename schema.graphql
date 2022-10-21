@@ -28,6 +28,8 @@ type Fund @entity {
   createdAtBlockNumber: BigInt!
   # manager address
   manager: Bytes!
+  # investorCount
+  investorCount: BigInt!
   # principalETH
   principalETH: BigDecimal!
   # principalUSD
@@ -44,8 +46,6 @@ type Fund @entity {
   profitRatioETH: BigDecimal!
   # profit ratio USD
   profitRatioUSD: BigDecimal!
-  # investorCount
-  investorCount: BigInt!
   # fee volumeETH
   feeVolumeETH: BigDecimal!
   # fee volumeUSD
@@ -251,6 +251,8 @@ type FundSnapshot @entity {
   fund: Bytes!
   # pointer to Manager 
   manager: Bytes!
+  # investorCount
+  investorCount: BigInt!
   # principal ETH
   principalETH: BigDecimal!
   # principal USD
@@ -267,8 +269,6 @@ type FundSnapshot @entity {
   profitRatioETH: BigDecimal!
   # profit ratio USD
   profitRatioUSD: BigDecimal!
-  # investorCount
-  investorCount: BigInt!
   # fee volumeETH
   feeVolumeETH: BigDecimal!
   # fee volumeUSD
