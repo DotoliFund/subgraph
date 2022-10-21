@@ -45,8 +45,8 @@ export function fundSnapshot(fundAddress: Bytes, managerAddress: Bytes, event: e
     fundSnapshot.timestamp = timestamp
     fundSnapshot.fund = fundAddress
     fundSnapshot.manager = managerAddress
-    fundSnapshot.principalETH = ZERO_BD
-    fundSnapshot.principalUSD = ZERO_BD
+    fundSnapshot.principalETH = fund.principalETH
+    fundSnapshot.principalUSD = fund.principalUSD
     fundSnapshot.volumeETH = fund.volumeETH
     fundSnapshot.volumeUSD = fund.volumeUSD
     fundSnapshot.profitETH = ZERO_BD
@@ -87,8 +87,8 @@ export function investorSnapshot(
     investorSnapshot.fund = fundAddress
     investorSnapshot.manager = managerAddress
     investorSnapshot.investor = investorAddress
-    investorSnapshot.principalETH = ZERO_BD
-    investorSnapshot.principalUSD = ZERO_BD
+    investorSnapshot.principalETH = investor.principalETH
+    investorSnapshot.principalUSD = investor.principalUSD
     investorSnapshot.volumeETH = investor.volumeETH
     investorSnapshot.volumeUSD = investor.volumeUSD
     investorSnapshot.profitETH = ZERO_BD

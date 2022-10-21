@@ -11,10 +11,10 @@ type Factory @entity {
   swapRouter: String!
   # manager fee
   managerFee: BigInt!
-  # total volume all time in derived USD
-  totalVolumeUSD: BigDecimal!
   # total volume all time in derived ETH
   totalVolumeETH: BigDecimal!
+  # total volume all time in derived USD
+  totalVolumeUSD: BigDecimal!
   # current owner of the factory
   owner: Bytes!
 }
@@ -251,14 +251,14 @@ type FundSnapshot @entity {
   fund: Bytes!
   # pointer to Manager 
   manager: Bytes!
-  # principal USD
-  principalUSD: BigDecimal!
   # principal ETH
   principalETH: BigDecimal!
-  # volume in USD
-  volumeUSD: BigDecimal!
+  # principal USD
+  principalUSD: BigDecimal!
   # volumeETH
   volumeETH: BigDecimal!
+  # volume in USD
+  volumeUSD: BigDecimal!
   # profit ETH
   profitETH: BigDecimal!
   # profit USD
@@ -287,14 +287,14 @@ type InvestorSnapshot @entity {
   manager: Bytes!
   # pointer to investor
   investor: Bytes!
-  # principal USD
-  principalUSD: BigDecimal!
   # principal ETH
   principalETH: BigDecimal!
-  # volume in USD
-  volumeUSD: BigDecimal!
+  # principal USD
+  principalUSD: BigDecimal!
   # volumeETH
   volumeETH: BigDecimal!
+  # volume in USD
+  volumeUSD: BigDecimal!
   # profit ETH
   profitETH: BigDecimal!
   # profit USD
