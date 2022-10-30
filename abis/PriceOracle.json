@@ -1,0 +1,126 @@
+[
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "factory",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "weth",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "usd",
+				"type": "address"
+			}
+		],
+		"name": "getETHPriceInUSD",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"internalType": "uint128",
+				"name": "amountIn",
+				"type": "uint128"
+			},
+			{
+				"internalType": "address",
+				"name": "weth",
+				"type": "address"
+			}
+		],
+		"name": "getPriceETH",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"internalType": "uint128",
+				"name": "amountIn",
+				"type": "uint128"
+			},
+			{
+				"internalType": "address",
+				"name": "usd",
+				"type": "address"
+			}
+		],
+		"name": "getPriceUSD",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "usd",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "weth",
+				"type": "address"
+			}
+		],
+		"name": "getUSDPriceInETH",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]

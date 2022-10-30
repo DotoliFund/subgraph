@@ -14,10 +14,10 @@ import {
   FACTORY_ADDRESS,
   FACTORY_OWNER,
   SWAP_ROUTER_ADDRESS,
-  WHITELIST_TOKENS,
   ZERO_BD,
   ZERO_BI,
-  ONE_BI
+  ONE_BI,
+  ADDRESS_ZERO
 } from './utils/constants'
 import { fundSnapshot, investorSnapshot, xxxfund2Snapshot } from "./utils/snapshots"
 import { loadTransaction } from "./utils"
@@ -30,12 +30,12 @@ export function handleFundCreated(event: FundCreated): void {
     factory = new Factory(FACTORY_ADDRESS)
     factory.fundCount = ZERO_BI
     factory.investorCount = ZERO_BI
-    factory.whitelistTokens = WHITELIST_TOKENS
-    factory.swapRouter = SWAP_ROUTER_ADDRESS
-    factory.managerFee = ONE_BI
+    factory.whitelistTokens = []
+    factory.swapRouter = ADDRESS_ZERO
+    factory.managerFee = ZERO_BI
     factory.totalVolumeETH = ZERO_BD
     factory.totalVolumeUSD = ZERO_BD
-    factory.owner = Address.fromString(FACTORY_OWNER)
+    factory.owner = Address.fromString(ADDRESS_ZERO)
   }
   factory.fundCount = factory.fundCount.plus(ONE_BI)
   factory.investorCount = factory.investorCount.plus(ONE_BI)

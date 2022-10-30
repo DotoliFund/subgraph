@@ -16,13 +16,18 @@ import {
 } from "./types/schema"
 import { 
   FACTORY_ADDRESS,
+  PRICEORACLE_ADDRESS,
+  WETH9,
+  USDC,
   ZERO_BD,
   ZERO_BI,
   factoryContract,
   ADDRESS_ZERO,
   ONE_BD,
   WETH_DECIMAL,
-  USDC_DECIMAL
+  WETH_INT,
+  USDC_DECIMAL,
+  USDC_INT
 } from './utils/constants'
 import { 
   fundSnapshot,
@@ -37,8 +42,12 @@ import {
   getProfitRatioUSD,
   safeDiv
 } from './utils'
-import { XXXFund2 as XXXFund2Contract } from './types/templates/XXXFund2/XXXFund2'
-
+import { 
+  getPriceETH,
+  getPriceUSD,
+  getInvestorTvlETH,
+  getManagerFeeTvlETH
+} from './utils/pricing'
 
 export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
@@ -46,9 +55,7 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   let fund = Fund.load(event.params.fund.toHexString())
   if (!fund) return
 
-  const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
-  const deUSD = BigDecimal.fromString(USDC_DECIMAL.toString())
-  const ethPriceInUSD = new BigDecimal(xxxfund2Contract.getETHPriceInUSD()).div(deUSD)
+  const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
 
   factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
   fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
@@ -61,13 +68,13 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   managerFeeOut.manager = event.params.manager
   managerFeeOut.token = event.params.token
   managerFeeOut.amount = event.params.amount
-  managerFeeOut.amountETH = new BigDecimal(event.params.amountETH).div(WETH_DECIMAL)
+  const deFeeOutAmountETH = getPriceETH(event.params.token, event.params.amount, Address.fromString(WETH9))
+  managerFeeOut.amountETH = deFeeOutAmountETH
   managerFeeOut.amountUSD = managerFeeOut.amountETH.times(ethPriceInUSD)
   managerFeeOut.origin = event.transaction.from
   managerFeeOut.logIndex = event.logIndex
 
-  fund.feeVolumeETH = new BigDecimal(xxxfund2Contract.getManagerFeeTotalValueLockedETH()).div(WETH_DECIMAL)
-  fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
+  fund.feeVolumeUSD = getManagerFeeTvlETH(event.params.fund)
   fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
   fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
   factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
@@ -86,9 +93,7 @@ export function handleDeposit(event: DepositEvent): void {
   let fund = Fund.load(event.params.fund.toHexString())
   if (!fund) return
 
-  const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
-  const deUSD = BigDecimal.fromString(USDC_DECIMAL.toString())
-  const deETHPriceInUSD = new BigDecimal(xxxfund2Contract.getETHPriceInUSD()).div(deUSD)
+  const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
 
   let transaction = loadTransaction(event)
   let deposit = new Deposit(event.transaction.hash.toHexString())
@@ -98,10 +103,10 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.investor = event.params.investor
   deposit.token = event.params.token
   deposit.amount = event.params.amount
-  const depositAmountETH = event.params.amountETH
-  const deDepositAmountETH = BigDecimal.fromString(depositAmountETH.toString()).div(WETH_DECIMAL)
-  deposit.amountETH = deDepositAmountETH
-  deposit.amountUSD = deDepositAmountETH.times(deETHPriceInUSD)
+  //const depositAmountETH = BigDecimal.fromString('1')
+  const depositAmountETH = getPriceETH(event.params.token, event.params.amount, Address.fromString(WETH9))
+  deposit.amountETH = depositAmountETH
+  deposit.amountUSD = depositAmountETH.times(ethPriceInUSD)
   deposit.origin = event.transaction.from
   deposit.logIndex = event.logIndex
 
@@ -118,16 +123,14 @@ export function handleDeposit(event: DepositEvent): void {
     fund.principalETH = fund.principalETH.minus(investor.principalETH)
     fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
 
-    const investorTvlETH = xxxfund2Contract.getInvestorTotalValueLockedETH(event.params.investor).toString()
-    investor.volumeETH = BigDecimal.fromString(investorTvlETH).div(WETH_DECIMAL)
-    investor.volumeUSD = investor.volumeETH.times(deETHPriceInUSD)
+    investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
+    investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
 
-    const feeTvlETH = xxxfund2Contract.getManagerFeeTotalValueLockedETH()
-    fund.feeVolumeETH = BigDecimal.fromString(feeTvlETH.toString()).div(WETH_DECIMAL)
-    fund.feeVolumeUSD = fund.feeVolumeETH.times(deETHPriceInUSD)
+    fund.feeVolumeETH = getManagerFeeTvlETH(event.params.fund)
+    fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
-    investor.principalETH = investor.principalETH.plus(deDepositAmountETH)
-    investor.principalUSD = investor.principalUSD.plus(deDepositAmountETH.times(deETHPriceInUSD))
+    investor.principalETH = investor.principalETH.plus(depositAmountETH)
+    investor.principalUSD = investor.principalUSD.plus(depositAmountETH.times(ethPriceInUSD))
     investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
     investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
     investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
@@ -137,9 +140,9 @@ export function handleDeposit(event: DepositEvent): void {
     fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
-    fund.volumeUSD = fund.volumeETH.times(deETHPriceInUSD)
+    fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
-    factory.totalVolumeUSD = factory.totalVolumeETH.times(deETHPriceInUSD)
+    factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     deposit.save()
     investor.save()
@@ -157,9 +160,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
   let fund = Fund.load(event.params.fund.toHexString())
   if (!fund) return
 
-  const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
-  const deUSD = BigDecimal.fromString(USDC_DECIMAL.toString())
-  const deETHPriceInUSD = new BigDecimal(xxxfund2Contract.getETHPriceInUSD()).div(deUSD)
+  const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
 
   let transaction = loadTransaction(event)
   let withdraw = new Withdraw(event.transaction.hash.toHexString())
@@ -169,10 +170,9 @@ export function handleWithdraw(event: WithdrawEvent): void {
   withdraw.investor = event.params.investor
   withdraw.token = event.params.token
   withdraw.amount = event.params.amount
-  const withdrawAmountETH = event.params.amountETH
-  const deWithdrawAmountETH = BigDecimal.fromString(withdrawAmountETH.toString()).div(WETH_DECIMAL)
-  withdraw.amountETH = deWithdrawAmountETH
-  withdraw.amountUSD = deWithdrawAmountETH.times(deETHPriceInUSD)
+  const withdrawAmountETH = getPriceETH(event.params.token, event.params.amount, Address.fromString(WETH9))
+  withdraw.amountETH = withdrawAmountETH
+  withdraw.amountUSD = withdrawAmountETH.times(ethPriceInUSD)
   withdraw.origin = event.transaction.from
   withdraw.logIndex = event.logIndex
 
@@ -189,13 +189,11 @@ export function handleWithdraw(event: WithdrawEvent): void {
     fund.principalETH = fund.principalETH.minus(investor.principalETH)
     fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
 
-    const investorTvlETH = xxxfund2Contract.getInvestorTotalValueLockedETH(event.params.investor).toString()
-    investor.volumeETH = BigDecimal.fromString(investorTvlETH).div(WETH_DECIMAL)
-    investor.volumeUSD = investor.volumeETH.times(deETHPriceInUSD)
+    investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
+    investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
 
-    const feeTvlETH = xxxfund2Contract.getManagerFeeTotalValueLockedETH()
-    fund.feeVolumeETH = BigDecimal.fromString(feeTvlETH.toString()).div(WETH_DECIMAL)
-    fund.feeVolumeUSD = fund.feeVolumeETH.times(deETHPriceInUSD)
+    fund.feeVolumeETH = getManagerFeeTvlETH(event.params.fund)
+    fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
     const prevVolumeETH = investor.volumeETH.plus(withdraw.amountETH)
     const prevVolumeUSD = investor.volumeUSD.plus(withdraw.amountUSD)
@@ -212,9 +210,9 @@ export function handleWithdraw(event: WithdrawEvent): void {
     fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
-    fund.volumeUSD = fund.volumeETH.times(deETHPriceInUSD)
+    fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
-    factory.totalVolumeUSD = factory.totalVolumeETH.times(deETHPriceInUSD)
+    factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     withdraw.save()
     investor.save()
@@ -232,9 +230,7 @@ export function handleSwap(event: SwapEvent): void {
   let fund = Fund.load(event.params.fund.toHexString())
   if (!fund) return
 
-  const xxxfund2Contract = XXXFund2Contract.bind(event.params.fund)
-  const deUSD = BigDecimal.fromString(USDC_DECIMAL.toString())
-  const deETHPriceInUSD = new BigDecimal(xxxfund2Contract.getETHPriceInUSD()).div(deUSD)
+  const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
 
   const tokenIn = event.params.tokenIn.toHexString()
   const tokenOut = event.params.tokenOut.toHexString()
@@ -252,10 +248,10 @@ export function handleSwap(event: SwapEvent): void {
   swap.token1 = tokenOut
   swap.amount0 = amountIn
   swap.amount1 = amountOut
-  const swapAmountETH = event.params.amountETH
+  const swapAmountETH = getPriceETH(event.params.tokenOut, event.params.amountOut, Address.fromString(WETH9))
   const deSwapAmountETH = BigDecimal.fromString(swapAmountETH.toString()).div(WETH_DECIMAL)
   swap.amountETH = deSwapAmountETH
-  swap.amountUSD = deSwapAmountETH.times(deETHPriceInUSD)
+  swap.amountUSD = deSwapAmountETH.times(ethPriceInUSD)
   swap.origin = event.transaction.from
   swap.logIndex = event.logIndex
   
@@ -271,13 +267,11 @@ export function handleSwap(event: SwapEvent): void {
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
 
-    const investorTvlETH = xxxfund2Contract.getInvestorTotalValueLockedETH(event.params.investor).toString()
-    investor.volumeETH = BigDecimal.fromString(investorTvlETH).div(WETH_DECIMAL)
-    investor.volumeUSD = investor.volumeETH.times(deETHPriceInUSD)
+    investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
+    investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
 
-    const feeTvlETH = xxxfund2Contract.getManagerFeeTotalValueLockedETH()
-    fund.feeVolumeETH = BigDecimal.fromString(feeTvlETH.toString()).div(WETH_DECIMAL)
-    fund.feeVolumeUSD = fund.feeVolumeETH.times(deETHPriceInUSD)
+    fund.feeVolumeETH = getManagerFeeTvlETH(event.params.fund)
+    fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
     investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
     investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
@@ -286,9 +280,9 @@ export function handleSwap(event: SwapEvent): void {
 
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
-    fund.volumeUSD = fund.volumeETH.times(deETHPriceInUSD)
+    fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
-    factory.totalVolumeUSD = factory.totalVolumeETH.times(deETHPriceInUSD)
+    factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     swap.save()
     investor.save()

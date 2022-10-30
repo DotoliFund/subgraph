@@ -36,12 +36,6 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountETH",
-        "type": "uint256"
       }
     ],
     "name": "Deposit",
@@ -98,12 +92,6 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountETH",
-        "type": "uint256"
       }
     ],
     "name": "ManagerFeeIn",
@@ -134,12 +122,6 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountETH",
         "type": "uint256"
       }
     ],
@@ -190,12 +172,6 @@
         "internalType": "uint256",
         "name": "amountOut",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountETH",
-        "type": "uint256"
       }
     ],
     "name": "Swap",
@@ -238,12 +214,6 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "feeAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountETH",
         "type": "uint256"
       }
     ],
@@ -461,19 +431,6 @@
   },
   {
     "inputs": [],
-    "name": "getETHPriceInUSD",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "getFeeTokens",
     "outputs": [
       {
@@ -547,38 +504,6 @@
         "internalType": "struct IToken.Token[]",
         "name": "",
         "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "investor",
-        "type": "address"
-      }
-    ],
-    "name": "getInvestorTotalValueLockedETH",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getManagerFeeTotalValueLockedETH",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
