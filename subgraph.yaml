@@ -6,7 +6,7 @@ dataSources:
     name: XXXFactory
     network: goerli
     source:
-      address: "0xA36F0adaa04C33c062b231D2F49e45a2b4E80f7e"
+      address: "0x5AE83c66c9a9714C4644e89EaBE671CA1408C4E4"
       abi: XXXFactory
     mapping:
       kind: ethereum/events
@@ -44,6 +44,8 @@ templates:
           file: ./abis/XXXFund2.json
         - name: PriceOracle
           file: ./abis/PriceOracle.json
+        - name: NonfungiblePositionManager
+          file: ./abis/NonfungiblePositionManager.json
       eventHandlers:
         - event: ManagerFeeOut(indexed address,indexed address,address,uint256)
           handler: handleManagerFeeOut
@@ -53,4 +55,12 @@ templates:
           handler: handleWithdraw
         - event: Swap(indexed address,indexed address,indexed address,address,address,uint256,uint256)
           handler: handleSwap
+        - event: MintNewPosition(indexed address,indexed address,indexed address,uint256,address,address,uint256,uint256)
+          handler: handleMintNewPosition
+        - event: IncreaseLiquidity(indexed address,indexed address,indexed address,uint256,address,address,uint256,uint256)
+          handler: handleIncreaseLiquidity
+        - event: CollectPositionFee(indexed address,indexed address,indexed address,uint256,address,address,uint256,uint256)
+          handler: handleCollectPositionFee
+        - event: DecreaseLiquidity(indexed address,indexed address,indexed address,uint256,address,address,uint256,uint256)
+          handler: handleDecreaseLiquidity
       file: ./src/xxx-fund2.ts
