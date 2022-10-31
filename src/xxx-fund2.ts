@@ -56,10 +56,6 @@ import {
   getManagerFeeTvlETH
 } from './utils/pricing'
 
-function updateFundState(event: ethereum.Event) {
-
-}
-
 export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
@@ -549,8 +545,6 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   decreaseLiquidity.logIndex = event.logIndex
 
   decreaseLiquidity.save()
-
-  updateFundState(event)
 
   const investorID = 
     event.params.fund.toHexString().toUpperCase() 
