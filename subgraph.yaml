@@ -46,10 +46,10 @@ templates:
           file: ./abis/PriceOracle.json
         - name: NonfungiblePositionManager
           file: ./abis/NonfungiblePositionManager.json
+        - name: UniswapV3Factory
+          file: ./abis/UniswapV3Factory.json
         - name: UniswapV3PoolState
           file: ./abis/UniswapV3PoolState.json
-        - name: ERC20
-          file: ./abis/ERC20.json
       eventHandlers:
         - event: ManagerFeeOut(indexed address,indexed address,address,uint256)
           handler: handleManagerFeeOut

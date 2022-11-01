@@ -1,4 +1,4 @@
-import { BigInt, Address, BigDecimal, ethereum } from "@graphprotocol/graph-ts"
+import { Address } from "@graphprotocol/graph-ts"
 import {
   ManagerFeeOut as ManagerFeeOutEvent,
   Deposit as DepositEvent,
@@ -24,18 +24,10 @@ import {
 } from "./types/schema"
 import { 
   FACTORY_ADDRESS,
-  PRICEORACLE_ADDRESS,
   WETH9,
   USDC,
-  ZERO_BD,
-  ZERO_BI,
-  factoryContract,
-  ADDRESS_ZERO,
   ONE_BD,
-  WETH_DECIMAL,
   WETH_INT,
-  USDC_DECIMAL,
-  USDC_INT
 } from './utils/constants'
 import { 
   fundSnapshot,
