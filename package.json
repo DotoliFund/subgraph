@@ -20,5 +20,7 @@
     "prettier": "^1.18.2",
     "typescript": "^3.5.2"
   },
-  "devDependencies": { "matchstick-as": "0.5.0" }
+  "devDependencies": {
+    "matchstick-as": "^0.5.0"
+  }
 }
