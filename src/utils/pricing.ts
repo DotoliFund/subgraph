@@ -12,7 +12,6 @@ import {
     ADDRESS_ZERO,
     LIQUIDITY_ORACLE_ADDRESS
 } from './constants'
-// import { getLiquidityVolumeETH } from './pool'
 import { PriceOracle } from '../types/templates/XXXFund2/PriceOracle'
 import { LiquidityOracle } from '../types/templates/XXXFund2/LiquidityOracle'
 import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
