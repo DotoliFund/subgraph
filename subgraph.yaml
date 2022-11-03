@@ -6,7 +6,7 @@ dataSources:
     name: XXXFactory
     network: goerli
     source:
-      address: "0x9893EfA6BaA5D4580207f5D7B102E7eFB88c9F30"
+      address: "0x55FF4A753cC48df835aF48940942d0F2a4996c8c"
       abi: XXXFactory
     mapping:
       kind: ethereum/events
