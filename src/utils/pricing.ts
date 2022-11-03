@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { BigInt, BigDecimal, Address, ethereum } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal, Address, log } from '@graphprotocol/graph-ts'
 import {
     PRICE_ORACLE_ADDRESS,
     WETH9,
@@ -13,7 +13,7 @@ import {
     LIQUIDITY_ORACLE_ADDRESS
 } from './constants'
 import { PriceOracle } from '../types/templates/XXXFund2/PriceOracle'
-import { LiquidityOracle } from '../types/templates/XXXFund2/LiquidityOracle'
+import { LiquidityOracle  } from '../types/templates/XXXFund2/LiquidityOracle'
 import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
 
 export function getPriceETH(token: Address, amountIn: BigInt, weth: Address): BigDecimal {
@@ -31,56 +31,52 @@ export function getPriceUSD(token: Address, amountIn: BigInt, usd: Address): Big
 }
 
 export function getInvestorTvlETH(fund: Address, investor: Address): BigDecimal {
+  const xxxFund2 = XXXFund2.bind(fund)
   const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
   const liquidityOracle = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
-  const xxxFund2 = XXXFund2.bind(fund)
 
-  const investorTvlETH = ZERO_BD
+  let investorTvlETH = ZERO_BD
 
   // not liquidity volume
   const investorTokens = xxxFund2.getInvestorTokens(investor)
   for (let i=0; i<investorTokens.length; i++) {
-    const token = investorTokens[i]
-    const tokenAddress = token.tokenAddress
-    const amount = token.amount
-    const tokenVolumeETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-    
-    investorTvlETH.plus(BigDecimal.fromString(tokenVolumeETH.toString()))
+    const tokenAddress = investorTokens[i].tokenAddress
+    const amount = investorTokens[i].amount
+    const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
+    const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
+    investorTvlETH = investorTvlETH.plus(deAmountETH)
   }
 
   // // liquidity volume
   // const investorTokenIds = xxxFund2.getPositionTokenIds(investor)
   // for (let i=0; i<investorTokenIds.length; i++) {
   //   const tokenId = investorTokenIds[i]
-
   //   const positionTokenAmount = liquidityOracle.getPositionTokenAmount(tokenId)
-
+  
   //   const token0 = positionTokenAmount.getToken0()
   //   const token1 = positionTokenAmount.getToken1()
   //   const amount0 = positionTokenAmount.getAmount0()
   //   const amount1 = positionTokenAmount.getAmount1()
+
   //   const token0VolumeETH = priceOracle.getPriceETH(token0, amount0, Address.fromString(WETH9))
   //   const token1VolumeETH = priceOracle.getPriceETH(token1, amount1, Address.fromString(WETH9))
-    
-  //   investorTvlETH.plus(BigDecimal.fromString(token0VolumeETH.plus(token1VolumeETH).toString()))  
+  //   investorTvlETH = investorTvlETH.plus(new BigDecimal(token0VolumeETH.plus(token1VolumeETH)))  
   // }
 
-  return investorTvlETH.div(WETH_DECIMAL)
+  return investorTvlETH
 }
 
 export function getManagerFeeTvlETH(fund: Address): BigDecimal {
-  const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
   const xxxFund2 = XXXFund2.bind(fund)
   const feeTokens = xxxFund2.getFeeTokens()
 
-  const feeTvlETH = ZERO_BD
+  let feeTvlETH = ZERO_BD
   for (let i=0; i<feeTokens.length; i++) {
     const token = feeTokens[i]
     const tokenAddress = token.tokenAddress
     const amount = token.amount
-    const tokenVolumeETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-    const deTokenVolumeETH = BigDecimal.fromString(tokenVolumeETH.toString())
-    feeTvlETH.plus(deTokenVolumeETH)
+    const amountETH = getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
+    feeTvlETH = feeTvlETH.plus(amountETH)
   }
-  return feeTvlETH.div(WETH_DECIMAL)
+  return feeTvlETH
 }

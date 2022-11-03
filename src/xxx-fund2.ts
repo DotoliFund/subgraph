@@ -1,4 +1,4 @@
-import { Address } from "@graphprotocol/graph-ts"
+import { Address, BigDecimal } from "@graphprotocol/graph-ts"
 import {
   ManagerFeeOut as ManagerFeeOutEvent,
   Deposit as DepositEvent,
