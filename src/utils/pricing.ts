@@ -47,21 +47,30 @@ export function getInvestorTvlETH(fund: Address, investor: Address): BigDecimal 
     investorTvlETH = investorTvlETH.plus(deAmountETH)
   }
 
-  // // liquidity volume
-  // const investorTokenIds = xxxFund2.getPositionTokenIds(investor)
-  // for (let i=0; i<investorTokenIds.length; i++) {
-  //   const tokenId = investorTokenIds[i]
-  //   const positionTokenAmount = liquidityOracle.getPositionTokenAmount(tokenId)
+  // liquidity volume
+  const investorTokenIds = xxxFund2.getPositionTokenIds(investor)
+  for (let i=0; i<investorTokenIds.length; i++) {
+    const tokenId = investorTokenIds[i]
+    const positionTokenAmount = liquidityOracle.getPositionTokenAmount(tokenId)
   
-  //   const token0 = positionTokenAmount.getToken0()
-  //   const token1 = positionTokenAmount.getToken1()
-  //   const amount0 = positionTokenAmount.getAmount0()
-  //   const amount1 = positionTokenAmount.getAmount1()
+    const token0 = positionTokenAmount.getToken0()
+    const token1 = positionTokenAmount.getToken1()
+    const amount0 = positionTokenAmount.getAmount0()
+    const amount1 = positionTokenAmount.getAmount1()
+    log.debug('token0 : {}, amount0 : {}', [token0.toHexString(), amount0.toString()])
+    log.debug('token1 : {}, amount1 : {}', [token1.toHexString(), amount1.toString()])
 
-  //   const token0VolumeETH = priceOracle.getPriceETH(token0, amount0, Address.fromString(WETH9))
-  //   const token1VolumeETH = priceOracle.getPriceETH(token1, amount1, Address.fromString(WETH9))
-  //   investorTvlETH = investorTvlETH.plus(new BigDecimal(token0VolumeETH.plus(token1VolumeETH)))  
-  // }
+    const token0VolumeETH = priceOracle.getPriceETH(token0, amount0, Address.fromString(WETH9))
+    const token1VolumeETH = priceOracle.getPriceETH(token1, amount1, Address.fromString(WETH9))
+    const deVolumeETH = new BigDecimal(token0VolumeETH.plus(token1VolumeETH)).div(WETH_DECIMAL)
+    investorTvlETH = investorTvlETH.plus(deVolumeETH) 
+    
+    log.debug('token0VolumeETH : {}, token1VolumeETH : {}', [
+      token0VolumeETH.toString(), 
+      token1VolumeETH.toString()
+    ])
+    log.debug('investorTvlETH : {}', [investorTvlETH.toString()])
+  }
 
   return investorTvlETH
 }

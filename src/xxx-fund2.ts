@@ -1,4 +1,4 @@
-import { Address, BigDecimal } from "@graphprotocol/graph-ts"
+import { Address, log } from "@graphprotocol/graph-ts"
 import {
   ManagerFeeOut as ManagerFeeOutEvent,
   Deposit as DepositEvent,
@@ -339,6 +339,7 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
 
+    log.info('handler : {} ', ['handleMintNewPosition'])
     investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
     investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
 
@@ -409,6 +410,7 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
 
+    log.info('handler : {} ', ['handleIncreaseLiquidity'])
     investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
     investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
 
@@ -479,6 +481,7 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
 
+    log.info('handler : {} ', ['handleCollectPositionFee'])
     investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
     investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
 
@@ -549,8 +552,10 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
 
+    log.debug('handleDecreaseLiquidity before : {} ', ['-'])
     investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
     investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
+    log.debug('handleDecreaseLiquidity after : {} ', ['-'])
 
     fund.feeVolumeETH = getManagerFeeTvlETH(event.params.fund)
     fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
