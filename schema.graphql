@@ -128,6 +128,8 @@ type ManagerFeeOut @entity {
   manager: Bytes!
   # withdraw token address
   token: Bytes!
+  # token symbol
+  tokenSymbol: String!
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
@@ -153,6 +155,8 @@ type Deposit @entity {
   investor: Bytes!
   # withdraw token address
   token: Bytes!
+  # token symbol
+  tokenSymbol: String!
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
@@ -178,6 +182,8 @@ type Withdraw @entity {
   investor: Bytes!
   # withdraw token address
   token: Bytes!
+  # token symbol
+  tokenSymbol: String!
   # amount of token withdraw
   amount: BigInt!
   # derived amount based on available prices of tokens
@@ -207,6 +213,10 @@ type Swap @entity {
   token0: String!
   # swap token1 address
   token1: String!
+  # token0 symbol
+  token0Symbol: String!
+  # token1 symbol
+  token1Symbol: String!
   # amount of token0 swapped
   amount0: BigInt!
   # amount of token1 swapped
@@ -238,6 +248,10 @@ type MintNewPosition @entity {
   token0: String!
   # mint token1 address
   token1: String!
+  # token0 symbol
+  token0Symbol: String!
+  # token1 symbol
+  token1Symbol: String!
   # amount of token0 minted
   amount0: BigInt!
   # amount of token1 minted
@@ -269,6 +283,10 @@ type IncreaseLiquidity @entity {
   token0: String!
   # increase liquidity token1 address
   token1: String!
+  # token0 symbol
+  token0Symbol: String!
+  # token1 symbol
+  token1Symbol: String!
   # amount of token0 increased
   amount0: BigInt!
   # amount of token1 increased
@@ -300,6 +318,10 @@ type CollectPositionFee @entity {
   token0: String!
   # collect fee token1 address
   token1: String!
+  # token0 symbol
+  token0Symbol: String!
+  # token1 symbol
+  token1Symbol: String!
   # amount of token0 collected
   amount0: BigInt!
   # amount of token1 collected
@@ -331,6 +353,10 @@ type DecreaseLiquidity @entity {
   token0: String!
   # decrease liquidity token1 address
   token1: String!
+  # token0 symbol
+  token0Symbol: String!
+  # token1 symbol
+  token1Symbol: String!
   # amount of token0 decreased
   amount0: BigInt!
   # amount of token1 decreased

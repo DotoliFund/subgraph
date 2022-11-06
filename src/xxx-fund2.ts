@@ -47,6 +47,7 @@ import {
   getInvestorTvlETH,
   getManagerFeeTvlETH
 } from './utils/pricing'
+import { ERC20 } from './types/templates/XXXFund2/ERC20'
 
 export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
@@ -66,6 +67,7 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   managerFeeOut.fund = event.params.fund
   managerFeeOut.manager = event.params.manager
   managerFeeOut.token = event.params.token
+  managerFeeOut.tokenSymbol = ERC20.bind(event.params.token).symbol()
   managerFeeOut.amount = event.params.amount
   const feeOutAmountETH = getPriceETH(event.params.token, event.params.amount, Address.fromString(WETH9))
   managerFeeOut.amountETH = feeOutAmountETH
@@ -102,6 +104,7 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.fund = event.params.fund
   deposit.investor = event.params.investor
   deposit.token = event.params.token
+  deposit.tokenSymbol = ERC20.bind(event.params.token).symbol()
   deposit.amount = event.params.amount
   const depositAmountETH = getPriceETH(event.params.token, event.params.amount, Address.fromString(WETH9))
   deposit.amountETH = depositAmountETH
@@ -169,6 +172,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
   withdraw.fund = event.params.fund
   withdraw.investor = event.params.investor
   withdraw.token = event.params.token
+  withdraw.tokenSymbol = ERC20.bind(event.params.token).symbol()
   withdraw.amount = event.params.amount
   const withdrawAmountETH = getPriceETH(event.params.token, event.params.amount, Address.fromString(WETH9))
   withdraw.amountETH = withdrawAmountETH
@@ -247,9 +251,11 @@ export function handleSwap(event: SwapEvent): void {
   swap.investor = event.params.investor
   swap.token0 = tokenIn
   swap.token1 = tokenOut
+  swap.token0Symbol = ERC20.bind(event.params.tokenIn).symbol()
+  swap.token1Symbol = ERC20.bind(event.params.tokenOut).symbol()
   swap.amount0 = amountIn
   swap.amount1 = amountOut
-  const swapAmountETH = getPriceETH(event.params.tokenOut, event.params.amountOut, Address.fromString(WETH9))
+  const swapAmountETH = getPriceETH(event.params.tokenOut, amountOut, Address.fromString(WETH9))
   swap.amountETH = swapAmountETH
   swap.amountUSD = swapAmountETH.times(ethPriceInUSD)
   swap.origin = event.transaction.from
@@ -317,10 +323,12 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   mintNewPosition.investor = event.params.investor
   mintNewPosition.token0 = token0
   mintNewPosition.token1 = token1
+  mintNewPosition.token0Symbol = ERC20.bind(event.params.token0).symbol()
+  mintNewPosition.token1Symbol = ERC20.bind(event.params.token1).symbol()
   mintNewPosition.amount0 = amount0
   mintNewPosition.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0, Address.fromString(WETH9))
-  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1, Address.fromString(WETH9))
+  const token0AmountETH = getPriceETH(event.params.token0, amount0, Address.fromString(WETH9))
+  const token1AmountETH = getPriceETH(event.params.token1, amount1, Address.fromString(WETH9))
   mintNewPosition.amountETH = token0AmountETH.plus(token1AmountETH)
   mintNewPosition.amountUSD = mintNewPosition.amountETH.times(ethPriceInUSD)
   mintNewPosition.origin = event.transaction.from
@@ -339,7 +347,6 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
 
-    log.info('handler : {} ', ['handleMintNewPosition'])
     investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
     investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
 
@@ -388,10 +395,12 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   increaseLiquidity.investor = event.params.investor
   increaseLiquidity.token0 = token0
   increaseLiquidity.token1 = token1
+  increaseLiquidity.token0Symbol = ERC20.bind(event.params.token0).symbol()
+  increaseLiquidity.token1Symbol = ERC20.bind(event.params.token1).symbol()
   increaseLiquidity.amount0 = amount0
   increaseLiquidity.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0, Address.fromString(WETH9))
-  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1, Address.fromString(WETH9))
+  const token0AmountETH = getPriceETH(event.params.token0, amount0, Address.fromString(WETH9))
+  const token1AmountETH = getPriceETH(event.params.token1, amount1, Address.fromString(WETH9))
   increaseLiquidity.amountETH = token0AmountETH.plus(token1AmountETH)
   increaseLiquidity.amountUSD = increaseLiquidity.amountETH.times(ethPriceInUSD)
   increaseLiquidity.origin = event.transaction.from
@@ -410,7 +419,6 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
 
-    log.info('handler : {} ', ['handleIncreaseLiquidity'])
     investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
     investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
 
@@ -459,10 +467,12 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   collectPositionFee.investor = event.params.investor
   collectPositionFee.token0 = token0
   collectPositionFee.token1 = token1
+  collectPositionFee.token0Symbol = ERC20.bind(event.params.token0).symbol()
+  collectPositionFee.token1Symbol = ERC20.bind(event.params.token1).symbol()
   collectPositionFee.amount0 = amount0
   collectPositionFee.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0, Address.fromString(WETH9))
-  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1, Address.fromString(WETH9))
+  const token0AmountETH = getPriceETH(event.params.token0, amount0, Address.fromString(WETH9))
+  const token1AmountETH = getPriceETH(event.params.token1, amount1, Address.fromString(WETH9))
   collectPositionFee.amountETH = token0AmountETH.plus(token1AmountETH)
   collectPositionFee.amountUSD = collectPositionFee.amountETH.times(ethPriceInUSD)
   collectPositionFee.origin = event.transaction.from
@@ -481,7 +491,6 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
 
-    log.info('handler : {} ', ['handleCollectPositionFee'])
     investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
     investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
 
@@ -530,10 +539,12 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   decreaseLiquidity.investor = event.params.investor
   decreaseLiquidity.token0 = token0
   decreaseLiquidity.token1 = token1
+  decreaseLiquidity.token0Symbol = ERC20.bind(event.params.token0).symbol()
+  decreaseLiquidity.token1Symbol = ERC20.bind(event.params.token1).symbol()
   decreaseLiquidity.amount0 = amount0
   decreaseLiquidity.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0, Address.fromString(WETH9))
-  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1, Address.fromString(WETH9))
+  const token0AmountETH = getPriceETH(event.params.token0, amount0, Address.fromString(WETH9))
+  const token1AmountETH = getPriceETH(event.params.token1, amount1, Address.fromString(WETH9))
   decreaseLiquidity.amountETH = token0AmountETH.plus(token1AmountETH)
   decreaseLiquidity.amountUSD = decreaseLiquidity.amountETH.times(ethPriceInUSD)
   decreaseLiquidity.origin = event.transaction.from
@@ -552,10 +563,8 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
 
-    log.debug('handleDecreaseLiquidity before : {} ', ['-'])
     investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
     investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
-    log.debug('handleDecreaseLiquidity after : {} ', ['-'])
 
     fund.feeVolumeETH = getManagerFeeTvlETH(event.params.fund)
     fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
