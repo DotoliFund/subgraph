@@ -131,7 +131,7 @@ type ManagerFeeOut @entity {
   # token symbol
   tokenSymbol: String!
   # amount of token withdraw
-  amount: BigInt!
+  amount: BigDecimal!
   # derived amount based on available prices of tokens
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
@@ -158,7 +158,7 @@ type Deposit @entity {
   # token symbol
   tokenSymbol: String!
   # amount of token withdraw
-  amount: BigInt!
+  amount: BigDecimal!
   # derived amount based on available prices of tokens
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
@@ -185,7 +185,7 @@ type Withdraw @entity {
   # token symbol
   tokenSymbol: String!
   # amount of token withdraw
-  amount: BigInt!
+  amount: BigDecimal!
   # derived amount based on available prices of tokens
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
@@ -218,9 +218,9 @@ type Swap @entity {
   # token1 symbol
   token1Symbol: String!
   # amount of token0 swapped
-  amount0: BigInt!
+  amount0: BigDecimal!
   # amount of token1 swapped
-  amount1: BigInt!
+  amount1: BigDecimal!
   # derived amount based on available prices of tokens
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
@@ -253,9 +253,9 @@ type MintNewPosition @entity {
   # token1 symbol
   token1Symbol: String!
   # amount of token0 minted
-  amount0: BigInt!
+  amount0: BigDecimal!
   # amount of token1 minted
-  amount1: BigInt!
+  amount1: BigDecimal!
   # derived amount based on available prices of tokens
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
@@ -288,9 +288,9 @@ type IncreaseLiquidity @entity {
   # token1 symbol
   token1Symbol: String!
   # amount of token0 increased
-  amount0: BigInt!
+  amount0: BigDecimal!
   # amount of token1 increased
-  amount1: BigInt!
+  amount1: BigDecimal!
   # derived amount based on available prices of tokens
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
@@ -323,9 +323,9 @@ type CollectPositionFee @entity {
   # token1 symbol
   token1Symbol: String!
   # amount of token0 collected
-  amount0: BigInt!
+  amount0: BigDecimal!
   # amount of token1 collected
-  amount1: BigInt!
+  amount1: BigDecimal!
   # derived amount based on available prices of tokens
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
@@ -358,9 +358,9 @@ type DecreaseLiquidity @entity {
   # token1 symbol
   token1Symbol: String!
   # amount of token0 decreased
-  amount0: BigInt!
+  amount0: BigDecimal!
   # amount of token1 decreased
-  amount1: BigInt!
+  amount1: BigDecimal!
   # derived amount based on available prices of tokens
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens

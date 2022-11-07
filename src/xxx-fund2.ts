@@ -1,4 +1,4 @@
-import { Address, log } from "@graphprotocol/graph-ts"
+import { Address, BigDecimal, BigInt, log } from "@graphprotocol/graph-ts"
 import {
   ManagerFeeOut as ManagerFeeOutEvent,
   Deposit as DepositEvent,
@@ -68,7 +68,9 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   managerFeeOut.manager = event.params.manager
   managerFeeOut.token = event.params.token
   managerFeeOut.tokenSymbol = ERC20.bind(event.params.token).symbol()
-  managerFeeOut.amount = event.params.amount
+  const decimals = ERC20.bind(event.params.token).decimals()
+  const tokenDecimal = BigDecimal.fromString(Math.pow(10,decimals).toString())
+  managerFeeOut.amount = event.params.amount.divDecimal(tokenDecimal)
   const feeOutAmountETH = getPriceETH(event.params.token, event.params.amount, Address.fromString(WETH9))
   managerFeeOut.amountETH = feeOutAmountETH
   managerFeeOut.amountUSD = managerFeeOut.amountETH.times(ethPriceInUSD)
@@ -105,7 +107,9 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.investor = event.params.investor
   deposit.token = event.params.token
   deposit.tokenSymbol = ERC20.bind(event.params.token).symbol()
-  deposit.amount = event.params.amount
+  const decimals = ERC20.bind(event.params.token).decimals()
+  const tokenDecimal = BigDecimal.fromString(Math.pow(10,decimals).toString())
+  deposit.amount = event.params.amount.divDecimal(tokenDecimal)
   const depositAmountETH = getPriceETH(event.params.token, event.params.amount, Address.fromString(WETH9))
   deposit.amountETH = depositAmountETH
   deposit.amountUSD = depositAmountETH.times(ethPriceInUSD)
@@ -173,7 +177,10 @@ export function handleWithdraw(event: WithdrawEvent): void {
   withdraw.investor = event.params.investor
   withdraw.token = event.params.token
   withdraw.tokenSymbol = ERC20.bind(event.params.token).symbol()
-  withdraw.amount = event.params.amount
+  const decimals = ERC20.bind(event.params.token).decimals()
+  const tokenDecimal = BigDecimal.fromString(Math.pow(10,decimals).toString())
+  withdraw.amount = event.params.amount.divDecimal(tokenDecimal)
+  //log.debug('12345 withdraw.tokenSymbol: {}, decimals : {}, test : {}', [withdraw.tokenSymbol, decimals.toString(), test.toString()])
   const withdrawAmountETH = getPriceETH(event.params.token, event.params.amount, Address.fromString(WETH9))
   withdraw.amountETH = withdrawAmountETH
   withdraw.amountUSD = withdrawAmountETH.times(ethPriceInUSD)
@@ -239,8 +246,12 @@ export function handleSwap(event: SwapEvent): void {
 
   const tokenIn = event.params.tokenIn.toHexString()
   const tokenOut = event.params.tokenOut.toHexString()
-  const amountIn = event.params.amountIn
-  const amountOut = event.params.amountOut
+  const tokenIndecimals = ERC20.bind(event.params.tokenIn).decimals()
+  const tokenInDecimal = BigDecimal.fromString(Math.pow(10,tokenIndecimals).toString())
+  const tokenOutdecimals = ERC20.bind(event.params.tokenOut).decimals()
+  const tokenOutDecimal = BigDecimal.fromString(Math.pow(10,tokenOutdecimals).toString())
+  const amountIn = event.params.amountIn.divDecimal(tokenInDecimal)
+  const amountOut = event.params.amountOut.divDecimal(tokenOutDecimal)
 
   let transaction = loadTransaction(event)
   let swap = new Swap(event.transaction.hash.toHexString())
@@ -255,7 +266,7 @@ export function handleSwap(event: SwapEvent): void {
   swap.token1Symbol = ERC20.bind(event.params.tokenOut).symbol()
   swap.amount0 = amountIn
   swap.amount1 = amountOut
-  const swapAmountETH = getPriceETH(event.params.tokenOut, amountOut, Address.fromString(WETH9))
+  const swapAmountETH = getPriceETH(event.params.tokenOut, event.params.amountOut, Address.fromString(WETH9))
   swap.amountETH = swapAmountETH
   swap.amountUSD = swapAmountETH.times(ethPriceInUSD)
   swap.origin = event.transaction.from
@@ -311,8 +322,12 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
 
   const token0 = event.params.token0.toHexString()
   const token1 = event.params.token1.toHexString()
-  const amount0 = event.params.amount0
-  const amount1 = event.params.amount1
+  const token0decimals = ERC20.bind(event.params.token0).decimals()
+  const token0Decimal = BigDecimal.fromString(Math.pow(10,token0decimals).toString())
+  const token1decimals = ERC20.bind(event.params.token1).decimals()
+  const token1Decimal = BigDecimal.fromString(Math.pow(10,token1decimals).toString())
+  const amount0 = event.params.amount0.divDecimal(token0Decimal)
+  const amount1 = event.params.amount1.divDecimal(token1Decimal)
 
   let transaction = loadTransaction(event)
   let mintNewPosition = new MintNewPosition(event.transaction.hash.toHexString())
@@ -327,8 +342,8 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   mintNewPosition.token1Symbol = ERC20.bind(event.params.token1).symbol()
   mintNewPosition.amount0 = amount0
   mintNewPosition.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, amount0, Address.fromString(WETH9))
-  const token1AmountETH = getPriceETH(event.params.token1, amount1, Address.fromString(WETH9))
+  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0, Address.fromString(WETH9))
+  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1, Address.fromString(WETH9))
   mintNewPosition.amountETH = token0AmountETH.plus(token1AmountETH)
   mintNewPosition.amountUSD = mintNewPosition.amountETH.times(ethPriceInUSD)
   mintNewPosition.origin = event.transaction.from
@@ -383,8 +398,12 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
 
   const token0 = event.params.token0.toHexString()
   const token1 = event.params.token1.toHexString()
-  const amount0 = event.params.amount0
-  const amount1 = event.params.amount1
+  const token0decimals = ERC20.bind(event.params.token0).decimals()
+  const token0Decimal = BigDecimal.fromString(Math.pow(10,token0decimals).toString())
+  const token1decimals = ERC20.bind(event.params.token1).decimals()
+  const token1Decimal = BigDecimal.fromString(Math.pow(10,token1decimals).toString())
+  const amount0 = event.params.amount0.divDecimal(token0Decimal)
+  const amount1 = event.params.amount1.divDecimal(token1Decimal)
 
   let transaction = loadTransaction(event)
   let increaseLiquidity = new IncreaseLiquidity(event.transaction.hash.toHexString())
@@ -399,8 +418,8 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   increaseLiquidity.token1Symbol = ERC20.bind(event.params.token1).symbol()
   increaseLiquidity.amount0 = amount0
   increaseLiquidity.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, amount0, Address.fromString(WETH9))
-  const token1AmountETH = getPriceETH(event.params.token1, amount1, Address.fromString(WETH9))
+  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0, Address.fromString(WETH9))
+  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1, Address.fromString(WETH9))
   increaseLiquidity.amountETH = token0AmountETH.plus(token1AmountETH)
   increaseLiquidity.amountUSD = increaseLiquidity.amountETH.times(ethPriceInUSD)
   increaseLiquidity.origin = event.transaction.from
@@ -455,8 +474,12 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
 
   const token0 = event.params.token0.toHexString()
   const token1 = event.params.token1.toHexString()
-  const amount0 = event.params.amount0
-  const amount1 = event.params.amount1
+  const token0decimals = ERC20.bind(event.params.token0).decimals()
+  const token0Decimal = BigDecimal.fromString(Math.pow(10,token0decimals).toString())
+  const token1decimals = ERC20.bind(event.params.token1).decimals()
+  const token1Decimal = BigDecimal.fromString(Math.pow(10,token1decimals).toString())
+  const amount0 = event.params.amount0.divDecimal(token0Decimal)
+  const amount1 = event.params.amount1.divDecimal(token1Decimal)
 
   let transaction = loadTransaction(event)
   let collectPositionFee = new CollectPositionFee(event.transaction.hash.toHexString())
@@ -471,8 +494,8 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   collectPositionFee.token1Symbol = ERC20.bind(event.params.token1).symbol()
   collectPositionFee.amount0 = amount0
   collectPositionFee.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, amount0, Address.fromString(WETH9))
-  const token1AmountETH = getPriceETH(event.params.token1, amount1, Address.fromString(WETH9))
+  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0, Address.fromString(WETH9))
+  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1, Address.fromString(WETH9))
   collectPositionFee.amountETH = token0AmountETH.plus(token1AmountETH)
   collectPositionFee.amountUSD = collectPositionFee.amountETH.times(ethPriceInUSD)
   collectPositionFee.origin = event.transaction.from
@@ -527,8 +550,12 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
 
   const token0 = event.params.token0.toHexString()
   const token1 = event.params.token1.toHexString()
-  const amount0 = event.params.amount0
-  const amount1 = event.params.amount1
+  const token0decimals = ERC20.bind(event.params.token0).decimals()
+  const token0Decimal = BigDecimal.fromString(Math.pow(10,token0decimals).toString())
+  const token1decimals = ERC20.bind(event.params.token1).decimals()
+  const token1Decimal = BigDecimal.fromString(Math.pow(10,token1decimals).toString())
+  const amount0 = event.params.amount0.divDecimal(token0Decimal)
+  const amount1 = event.params.amount1.divDecimal(token1Decimal)
 
   let transaction = loadTransaction(event)
   let decreaseLiquidity = new DecreaseLiquidity(event.transaction.hash.toHexString())
@@ -543,8 +570,8 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   decreaseLiquidity.token1Symbol = ERC20.bind(event.params.token1).symbol()
   decreaseLiquidity.amount0 = amount0
   decreaseLiquidity.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, amount0, Address.fromString(WETH9))
-  const token1AmountETH = getPriceETH(event.params.token1, amount1, Address.fromString(WETH9))
+  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0, Address.fromString(WETH9))
+  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1, Address.fromString(WETH9))
   decreaseLiquidity.amountETH = token0AmountETH.plus(token1AmountETH)
   decreaseLiquidity.amountUSD = decreaseLiquidity.amountETH.times(ethPriceInUSD)
   decreaseLiquidity.origin = event.transaction.from
