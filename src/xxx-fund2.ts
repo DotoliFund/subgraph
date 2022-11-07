@@ -52,7 +52,7 @@ import { ERC20 } from './types/templates/XXXFund2/ERC20'
 export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -94,7 +94,7 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
 export function handleDeposit(event: DepositEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -164,7 +164,7 @@ export function handleDeposit(event: DepositEvent): void {
 export function handleWithdraw(event: WithdrawEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -239,7 +239,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
 export function handleSwap(event: SwapEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -315,7 +315,7 @@ export function handleSwap(event: SwapEvent): void {
 export function handleMintNewPosition(event: MintNewPositionEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -391,7 +391,7 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
 export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -467,7 +467,7 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
 export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -543,7 +543,7 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
 export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))

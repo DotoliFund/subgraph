@@ -30,7 +30,7 @@ export function xxxfund2Snapshot(event: ethereum.Event): void {
 }
 
 export function fundSnapshot(fundAddress: Bytes, managerAddress: Bytes, event: ethereum.Event): void {
-  let fund = Fund.load(fundAddress.toHexString())
+  let fund = Fund.load(fundAddress.toHexString().toUpperCase())
   if (!fund) return 
 
   let timestamp = event.block.timestamp

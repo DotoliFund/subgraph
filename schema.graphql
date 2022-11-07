@@ -22,6 +22,8 @@ type Factory @entity {
 type Fund @entity {
   # fund address
   id: ID!
+  # fund address
+  address: Bytes!
   # creation
   createdAtTimestamp: BigInt!
   # block fund was created at

@@ -40,7 +40,8 @@ export function handleFundCreated(event: FundCreated): void {
   factory.fundCount = factory.fundCount.plus(ONE_BI)
   factory.investorCount = factory.investorCount.plus(ONE_BI)
 
-  let fund = new Fund(event.params.fund.toHexString())
+  let fund = new Fund(event.params.fund.toHexString().toUpperCase())
+  fund.address = event.params.fund
   fund.createdAtTimestamp = event.block.timestamp
   fund.createdAtBlockNumber = event.block.number
   fund.manager = event.params.manager
@@ -57,7 +58,7 @@ export function handleFundCreated(event: FundCreated): void {
   fund.feeVolumeUSD = ZERO_BD
 
   const investorID = 
-    event.params.fund.toHexString().toUpperCase() 
+    event.params.fund.toHexString().toUpperCase()
     + '-' 
     + event.params.manager.toHexString().toUpperCase()
   let investor = Investor.load(investorID)
@@ -128,7 +129,7 @@ export function handleSubscribe(event: SubscribeEvent): void {
 
   factory.investorCount = factory.investorCount.plus(ONE_BI)
 
-  let fund = Fund.load(event.params.fund.toHexString())
+  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
   if (fund !== null) {
     fund.investorCount = fund.investorCount.plus(ONE_BI)
 
