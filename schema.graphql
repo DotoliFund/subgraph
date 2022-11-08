@@ -385,8 +385,6 @@ type XXXFund2Snapshot @entity {
   investorCount: BigInt!
   # white listed token
   whitelistTokens: [String!]!
-  # manager fee
-  managerFee: BigInt!
   # total volume all time in derived ETH
   totalVolumeETH: BigDecimal!
   # total volume all time in derived USD
