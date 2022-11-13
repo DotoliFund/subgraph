@@ -28,6 +28,7 @@ import {
   USDC,
   ONE_BD,
   WETH_INT,
+  ZERO_BD,
 } from './utils/constants'
 import { 
   fundSnapshot,
@@ -87,7 +88,12 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
 
   fund.save()
   factory.save()
-  fundSnapshot(event.params.fund, event.params.manager, event)
+  fundSnapshot(
+    event.params.fund,
+    event.params.manager,
+    transaction.id,
+    event
+  )
   xxxfund2Snapshot(event)
 }
 
@@ -155,8 +161,19 @@ export function handleDeposit(event: DepositEvent): void {
     investor.save()
     fund.save()
     factory.save()
-    investorSnapshot(event.params.fund, event.params.manager, event.params.investor, event)
-    fundSnapshot(event.params.fund, event.params.manager, event)
+    investorSnapshot(
+      event.params.fund,
+      event.params.manager,
+      event.params.investor,
+      transaction.id,
+      event
+    )
+    fundSnapshot(
+      event.params.fund,
+      event.params.manager,
+      transaction.id,
+      event
+    )
     xxxfund2Snapshot(event)
   }
 }
@@ -230,8 +247,19 @@ export function handleWithdraw(event: WithdrawEvent): void {
     investor.save()
     fund.save()
     factory.save()
-    investorSnapshot(event.params.fund, event.params.manager, event.params.investor, event)
-    fundSnapshot(event.params.fund, event.params.manager, event)
+    investorSnapshot(
+      event.params.fund,
+      event.params.manager,
+      event.params.investor,
+      transaction.id,
+      event
+    )
+    fundSnapshot(
+      event.params.fund,
+      event.params.manager,
+      transaction.id,
+      event
+    )
     xxxfund2Snapshot(event)
   }
 }
@@ -306,8 +334,19 @@ export function handleSwap(event: SwapEvent): void {
     investor.save()
     fund.save()
     factory.save()
-    investorSnapshot(event.params.fund, event.params.manager, event.params.investor, event)
-    fundSnapshot(event.params.fund, event.params.manager, event)
+    investorSnapshot(
+      event.params.fund,
+      event.params.manager,
+      event.params.investor,
+      transaction.id,
+      event
+    )
+    fundSnapshot(
+      event.params.fund,
+      event.params.manager,
+      transaction.id,
+      event
+    )
     xxxfund2Snapshot(event)
   }
 }
@@ -382,8 +421,19 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
     investor.save()
     fund.save()
     factory.save()
-    investorSnapshot(event.params.fund, event.params.manager, event.params.investor, event)
-    fundSnapshot(event.params.fund, event.params.manager, event)
+    investorSnapshot(
+      event.params.fund,
+      event.params.manager,
+      event.params.investor,
+      transaction.id,
+      event
+    )
+    fundSnapshot(
+      event.params.fund,
+      event.params.manager,
+      transaction.id,
+      event
+    )
     xxxfund2Snapshot(event)
   }
 }
@@ -458,8 +508,19 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
     investor.save()
     fund.save()
     factory.save()
-    investorSnapshot(event.params.fund, event.params.manager, event.params.investor, event)
-    fundSnapshot(event.params.fund, event.params.manager, event)
+    investorSnapshot(
+      event.params.fund,
+      event.params.manager,
+      event.params.investor,
+      transaction.id,
+      event
+    )
+    fundSnapshot(
+      event.params.fund,
+      event.params.manager,
+      transaction.id,
+      event
+    )
     xxxfund2Snapshot(event)
   }
 }
@@ -534,8 +595,19 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
     investor.save()
     fund.save()
     factory.save()
-    investorSnapshot(event.params.fund, event.params.manager, event.params.investor, event)
-    fundSnapshot(event.params.fund, event.params.manager, event)
+    investorSnapshot(
+      event.params.fund,
+      event.params.manager,
+      event.params.investor,
+      transaction.id,
+      event
+    )
+    fundSnapshot(
+      event.params.fund,
+      event.params.manager,
+      transaction.id,
+      event
+    )
     xxxfund2Snapshot(event)
   }
 }
@@ -610,8 +682,19 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
     investor.save()
     fund.save()
     factory.save()
-    investorSnapshot(event.params.fund, event.params.manager, event.params.investor, event)
-    fundSnapshot(event.params.fund, event.params.manager, event)
+    investorSnapshot(
+      event.params.fund,
+      event.params.manager,
+      event.params.investor,
+      transaction.id,
+      event
+    )
+    fundSnapshot(
+      event.params.fund,
+      event.params.manager,
+      transaction.id,
+      event
+    )
     xxxfund2Snapshot(event)
   }
 }

@@ -9,7 +9,7 @@ import {
   InvestorSnapshot,
 } from '../types/schema'
 import { FACTORY_ADDRESS } from './constants'
-import { Bytes, ethereum } from '@graphprotocol/graph-ts'
+import { BigDecimal, Bytes, ethereum } from '@graphprotocol/graph-ts'
 
 export function xxxfund2Snapshot(event: ethereum.Event): void {
   let factory = Factory.load(FACTORY_ADDRESS)
@@ -28,7 +28,12 @@ export function xxxfund2Snapshot(event: ethereum.Event): void {
   xxxfund2Snapshot.save()
 }
 
-export function fundSnapshot(fundAddress: Bytes, managerAddress: Bytes, event: ethereum.Event): void {
+export function fundSnapshot(
+  fundAddress: Bytes,
+  managerAddress: Bytes,
+  transaction: string,
+  event: ethereum.Event
+): void {
   let fund = Fund.load(fundAddress.toHexString().toUpperCase())
   if (!fund) return 
 
@@ -55,6 +60,7 @@ export function fundSnapshot(fundAddress: Bytes, managerAddress: Bytes, event: e
     fundSnapshot.profitRatioUSD = ZERO_BD
     fundSnapshot.feeVolumeETH = fund.feeVolumeETH
     fundSnapshot.feeVolumeUSD = fund.feeVolumeUSD
+    fundSnapshot.transaction = transaction
   }
   fundSnapshot.save()
 }
@@ -63,6 +69,7 @@ export function investorSnapshot(
   fundAddress: Bytes, 
   managerAddress: Bytes, 
   investorAddress: Bytes, 
+  transaction: string,
   event: ethereum.Event
 ): void {
   const investorID = 
@@ -94,6 +101,7 @@ export function investorSnapshot(
     investorSnapshot.profitUSD = ZERO_BD
     investorSnapshot.profitRatioETH = ZERO_BD
     investorSnapshot.profitRatioUSD = ZERO_BD
+    investorSnapshot.transaction = transaction
   }
   investorSnapshot.save()
 }

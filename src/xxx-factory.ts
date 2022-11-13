@@ -28,8 +28,8 @@ export function handleFundCreated(event: FundCreated): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (factory === null) {
     factory = new Factory(FACTORY_ADDRESS)
-    factory.fundCount = ZERO_BI
-    factory.investorCount = ZERO_BI
+    factory.fundCount = ONE_BI
+    factory.investorCount = ONE_BI
     factory.whitelistTokens = []
     factory.swapRouter = ADDRESS_ZERO
     factory.managerFee = ZERO_BI
@@ -37,15 +37,13 @@ export function handleFundCreated(event: FundCreated): void {
     factory.totalVolumeUSD = ZERO_BD
     factory.owner = Address.fromString(ADDRESS_ZERO)
   }
-  factory.fundCount = factory.fundCount.plus(ONE_BI)
-  factory.investorCount = factory.investorCount.plus(ONE_BI)
 
   let fund = new Fund(event.params.fund.toHexString().toUpperCase())
   fund.address = event.params.fund
   fund.createdAtTimestamp = event.block.timestamp
   fund.createdAtBlockNumber = event.block.number
   fund.manager = event.params.manager
-  fund.investorCount = ZERO_BI
+  fund.investorCount = ONE_BI
   fund.principalETH = ZERO_BD
   fund.principalUSD = ZERO_BD
   fund.volumeETH = ZERO_BD
@@ -84,8 +82,19 @@ export function handleFundCreated(event: FundCreated): void {
   // create the tracked contract based on the template
   FundTemplate.create(event.params.fund)
   factory.save()
-  investorSnapshot(event.params.fund, event.params.manager, event.params.manager, event)
-  fundSnapshot(event.params.fund, event.params.manager, event)
+  investorSnapshot(
+    event.params.fund,
+    event.params.manager,
+    event.params.manager,
+    'NEWFUND',
+    event
+  )
+  fundSnapshot(
+    event.params.fund,
+    event.params.manager,
+    'NEWFUND',
+    event
+  )
   xxxfund2Snapshot(event)
 
   // Note: If a handler doesn't require existing field values, it is faster
@@ -173,8 +182,19 @@ export function handleSubscribe(event: SubscribeEvent): void {
     subscribe.save()
     fund.save()
     factory.save()
-    investorSnapshot(event.params.fund, event.params.manager, event.params.investor, event)
-    fundSnapshot(event.params.fund, event.params.manager, event)
+    investorSnapshot(
+      event.params.fund,
+      event.params.manager,
+      event.params.investor,
+      transaction.id,
+      event
+    )
+    fundSnapshot(
+      event.params.fund,
+      event.params.manager,
+      transaction.id,
+      event
+    )
     xxxfund2Snapshot(event)
   }
 }

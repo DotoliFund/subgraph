@@ -98,6 +98,10 @@ type Transaction @entity {
   deposits: [Deposit!]! @derivedFrom(field: "transaction")
   withdraws: [Withdraw!]! @derivedFrom(field: "transaction")
   swaps: [Swap!]! @derivedFrom(field: "transaction")
+  mintNewPositions: [MintNewPosition!]! @derivedFrom(field: "transaction")
+  increaseLiquidities: [IncreaseLiquidity!]! @derivedFrom(field: "transaction")
+  collectPositionFees: [CollectPositionFee!]! @derivedFrom(field: "transaction")
+  decreaseLiquidities: [DecreaseLiquidity!]! @derivedFrom(field: "transaction")
 }
 
 type Subscribe @entity {
@@ -423,6 +427,8 @@ type FundSnapshot @entity {
   feeVolumeETH: BigDecimal!
   # fee volumeUSD
   feeVolumeUSD: BigDecimal!
+  # transaction
+  transaction: Transaction!
 }
 
 # daily stats tracker for investor
@@ -453,4 +459,6 @@ type InvestorSnapshot @entity {
   profitRatioETH: BigDecimal!
   # profit ratio USD
   profitRatioUSD: BigDecimal!
+  # transaction
+  transaction: Transaction!
 }
