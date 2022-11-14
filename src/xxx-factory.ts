@@ -19,6 +19,7 @@ import {
   ONE_BI,
   ADDRESS_ZERO
 } from './utils/constants'
+import { getFundID, getInvestorID } from './utils/index'
 import { fundSnapshot, investorSnapshot, xxxfund2Snapshot } from "./utils/snapshots"
 import { loadTransaction } from "./utils"
 import { XXXFund2 as FundTemplate } from './types/templates'
@@ -41,39 +42,33 @@ export function handleFundCreated(event: FundCreated): void {
   let fund = new Fund(event.params.fund.toHexString().toUpperCase())
   fund.address = event.params.fund
   fund.createdAtTimestamp = event.block.timestamp
-  fund.createdAtBlockNumber = event.block.number
   fund.manager = event.params.manager
   fund.investorCount = ONE_BI
-  fund.principalETH = ZERO_BD
   fund.principalUSD = ZERO_BD
   fund.volumeETH = ZERO_BD
   fund.volumeUSD = ZERO_BD
   fund.feeVolumeETH = ZERO_BD
   fund.feeVolumeUSD = ZERO_BD
   fund.tokens = []
-  fund.tokensVolumeETH = []
   fund.tokensVolumeUSD = []
+  fund.profitUSD = ZERO_BD
+  fund.profitRatio = ZERO_BD
 
-  const investorID = 
-    event.params.fund.toHexString().toUpperCase()
-    + '-' 
-    + event.params.manager.toHexString().toUpperCase()
+  const investorID = getInvestorID(event.params.fund, event.params.manager)
   let investor = Investor.load(investorID)
-  
   if (investor === null) {
     investor = new Investor(investorID)
     investor.createdAtTimestamp = event.block.timestamp
-    investor.createdAtBlockNumber = event.block.number
     investor.fund = event.params.fund
     investor.manager = event.params.manager
     investor.investor = event.params.manager
-    investor.principalETH = ZERO_BD
     investor.principalUSD = ZERO_BD
     investor.volumeETH = ZERO_BD
     investor.volumeUSD = ZERO_BD
     investor.tokens = []
-    investor.tokensVolumeETH = []
     investor.tokensVolumeUSD = []
+    investor.profitUSD = ZERO_BD
+    investor.profitRatio = ZERO_BD
   }
   investor.save()
   fund.save()
@@ -136,7 +131,7 @@ export function handleSubscribe(event: SubscribeEvent): void {
 
   factory.investorCount = factory.investorCount.plus(ONE_BI)
 
-  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
+  let fund = Fund.load(getFundID(event.params.fund))
   if (fund !== null) {
     fund.investorCount = fund.investorCount.plus(ONE_BI)
 
@@ -154,26 +149,21 @@ export function handleSubscribe(event: SubscribeEvent): void {
     subscribe.origin = event.transaction.from
     subscribe.logIndex = event.logIndex
 
-    const investorID = 
-      event.params.fund.toHexString().toUpperCase() 
-      + '-' 
-      + event.params.investor.toHexString().toUpperCase()
+    const investorID = getInvestorID(event.params.fund, event.params.investor)
     let investor = Investor.load(investorID)
-
     if (investor === null) {
       investor = new Investor(investorID)
       investor.createdAtTimestamp = event.block.timestamp
-      investor.createdAtBlockNumber = event.block.number
       investor.fund = event.params.fund
       investor.manager = event.params.manager
       investor.investor = event.params.investor
-      investor.principalETH = ZERO_BD
       investor.principalUSD = ZERO_BD
       investor.volumeETH = ZERO_BD
       investor.volumeUSD = ZERO_BD
       investor.tokens = []
-      investor.tokensVolumeETH = []
       investor.tokensVolumeUSD = []
+      investor.profitUSD = ZERO_BD
+      investor.profitRatio = ZERO_BD
     }
     investor.save()
     subscribe.save()

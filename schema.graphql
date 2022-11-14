@@ -26,14 +26,10 @@ type Fund @entity {
   address: Bytes!
   # creation
   createdAtTimestamp: BigInt!
-  # block fund was created at
-  createdAtBlockNumber: BigInt!
   # manager address
   manager: Bytes!
   # investorCount
   investorCount: BigInt!
-  # principalETH
-  principalETH: BigDecimal!
   # principalUSD
   principalUSD: BigDecimal!
   # volumeETH
@@ -46,10 +42,12 @@ type Fund @entity {
   feeVolumeUSD: BigDecimal!
   # fund tokens address
   tokens: [String!]!
-  # fund tokens volumeETH
-  tokensVolumeETH: [BigDecimal!]!
   # fund tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
+  # profit USD
+  profitUSD: BigDecimal!
+  # profit ratio
+  profitRatio: BigDecimal!
 }
 
 type Investor @entity {
@@ -57,16 +55,12 @@ type Investor @entity {
   id: ID!
   # creation
   createdAtTimestamp: BigInt!
-  # block investor was created at
-  createdAtBlockNumber: BigInt!
   # fund address
   fund: Bytes!
   # manager address
   manager: Bytes!
   # investor address
   investor: Bytes!
-  # principalETH
-  principalETH: BigDecimal!
   # principalUSD
   principalUSD: BigDecimal!
   # volumeETH
@@ -75,10 +69,12 @@ type Investor @entity {
   volumeUSD: BigDecimal!
   # investor tokens address
   tokens: [String!]!
-  # investor tokens volumeETH
-  tokensVolumeETH: [BigDecimal!]!
   # investor tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
+  # profit USD
+  profitUSD: BigDecimal!
+  # profit ratio
+  profitRatio: BigDecimal!
 }
 
 type Transaction @entity {
@@ -403,8 +399,6 @@ type FundSnapshot @entity {
   manager: Bytes!
   # investorCount
   investorCount: BigInt!
-  # principal ETH
-  principalETH: BigDecimal!
   # principal USD
   principalUSD: BigDecimal!
   # volumeETH
@@ -415,12 +409,8 @@ type FundSnapshot @entity {
   feeVolumeETH: BigDecimal!
   # fee volumeUSD
   feeVolumeUSD: BigDecimal!
-  # transaction
-  transaction: Transaction!
   # fund tokens address
   tokens: [String!]!
-  # fund tokens volumeETH
-  tokensVolumeETH: [BigDecimal!]!
   # fund tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
 }
@@ -437,20 +427,14 @@ type InvestorSnapshot @entity {
   manager: Bytes!
   # pointer to investor
   investor: Bytes!
-  # principal ETH
-  principalETH: BigDecimal!
   # principal USD
   principalUSD: BigDecimal!
   # volumeETH
   volumeETH: BigDecimal!
   # volume in USD
   volumeUSD: BigDecimal!
-  # transaction
-  transaction: Transaction!
   # investor tokens address
   tokens: [String!]!
-  # investor tokens volumeETH
-  tokensVolumeETH: [BigDecimal!]!
   # investor tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
 }

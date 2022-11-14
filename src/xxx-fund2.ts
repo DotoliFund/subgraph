@@ -41,7 +41,6 @@ import {
   loadTransaction,
   getInvestorTokens,
   getFundTokens,
-  getTokenVolumeETH,
   getTokenVolumeUSD
 } from './utils'
 import { 
@@ -132,7 +131,6 @@ export function handleDeposit(event: DepositEvent): void {
     factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
-    fund.principalETH = fund.principalETH.minus(investor.principalETH)
     fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
 
     investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
@@ -141,10 +139,8 @@ export function handleDeposit(event: DepositEvent): void {
     fund.feeVolumeETH = getManagerFeeTvlETH(event.params.fund)
     fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
-    investor.principalETH = investor.principalETH.plus(depositAmountETH)
     investor.principalUSD = investor.principalUSD.plus(depositAmountETH.times(ethPriceInUSD))
 
-    fund.principalETH = fund.principalETH.plus(investor.principalETH)
     fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
@@ -153,11 +149,9 @@ export function handleDeposit(event: DepositEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
-    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
     fund.tokens = getFundTokens(event.params.fund.toHexString())
-    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
 
     investor.save()
     fund.save()
@@ -211,7 +205,6 @@ export function handleWithdraw(event: WithdrawEvent): void {
     factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
-    fund.principalETH = fund.principalETH.minus(investor.principalETH)
     fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
 
     investor.volumeETH = getInvestorTvlETH(event.params.fund, event.params.investor)
@@ -224,10 +217,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
     const prevVolumeUSD = investor.volumeUSD.plus(withdraw.amountUSD)
     const withdrawRatioETH = ONE_BD.minus(withdraw.amountETH.div(prevVolumeETH))
     const withdrawRatioUSD = ONE_BD.minus(withdraw.amountUSD.div(prevVolumeUSD))
-    investor.principalETH = investor.principalETH.times(withdrawRatioETH)
     investor.principalUSD = investor.principalUSD.times(withdrawRatioUSD)
 
-    fund.principalETH = fund.principalETH.plus(investor.principalETH)
     fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
@@ -236,11 +227,9 @@ export function handleWithdraw(event: WithdrawEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
-    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
     fund.tokens = getFundTokens(event.params.fund.toHexString())
-    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
 
     investor.save()
     fund.save()
@@ -319,11 +308,9 @@ export function handleSwap(event: SwapEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
-    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
     fund.tokens = getFundTokens(event.params.fund.toHexString())
-    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
 
     investor.save()
     fund.save()
@@ -403,11 +390,9 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
-    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
     fund.tokens = getFundTokens(event.params.fund.toHexString())
-    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
 
     investor.save()
     fund.save()
@@ -487,11 +472,9 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
-    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
     fund.tokens = getFundTokens(event.params.fund.toHexString())
-    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
 
     investor.save()
     fund.save()
@@ -571,11 +554,9 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
-    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
     fund.tokens = getFundTokens(event.params.fund.toHexString())
-    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
 
     investor.save()
     fund.save()
@@ -655,11 +636,9 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
-    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
     fund.tokens = getFundTokens(event.params.fund.toHexString())
-    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
-    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokens)
 
     investor.save()
     fund.save()

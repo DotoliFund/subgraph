@@ -8,8 +8,9 @@ import {
   Investor,
   InvestorSnapshot,
 } from '../types/schema'
+import { getInvestorID } from './index'
 import { FACTORY_ADDRESS } from './constants'
-import { BigDecimal, Bytes, ethereum } from '@graphprotocol/graph-ts'
+import { BigDecimal, Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
 
 export function xxxfund2Snapshot(event: ethereum.Event): void {
   let factory = Factory.load(FACTORY_ADDRESS)
@@ -50,15 +51,12 @@ export function fundSnapshot(
     fundSnapshot.fund = fundAddress
     fundSnapshot.manager = managerAddress
     fundSnapshot.investorCount = ZERO_BI
-    fundSnapshot.principalETH = fund.principalETH
     fundSnapshot.principalUSD = fund.principalUSD
     fundSnapshot.volumeETH = fund.volumeETH
     fundSnapshot.volumeUSD = fund.volumeUSD
     fundSnapshot.feeVolumeETH = fund.feeVolumeETH
     fundSnapshot.feeVolumeUSD = fund.feeVolumeUSD
-    fundSnapshot.transaction = transaction
     fundSnapshot.tokens = []
-    fundSnapshot.tokensVolumeETH = []
     fundSnapshot.tokensVolumeUSD = []
   }
   fundSnapshot.save()
@@ -71,7 +69,9 @@ export function investorSnapshot(
   transaction: string,
   event: ethereum.Event
 ): void {
-  let investor = Investor.load(getInvestorID(event.params.fund, event.params.investor))
+  let investor = Investor.load(getInvestorID(
+    Address.fromString(fundAddress.toHexString()), 
+    Address.fromString(investorAddress.toHexString())))
   if (!investor) return 
 
   let timestamp = event.block.timestamp
@@ -87,13 +87,10 @@ export function investorSnapshot(
     investorSnapshot.fund = fundAddress
     investorSnapshot.manager = managerAddress
     investorSnapshot.investor = investorAddress
-    investorSnapshot.principalETH = investor.principalETH
     investorSnapshot.principalUSD = investor.principalUSD
     investorSnapshot.volumeETH = investor.volumeETH
     investorSnapshot.volumeUSD = investor.volumeUSD
-    investorSnapshot.transaction = transaction
     investorSnapshot.tokens = []
-    investorSnapshot.tokensVolumeETH = []
     investorSnapshot.tokensVolumeUSD = []
   }
   investorSnapshot.save()

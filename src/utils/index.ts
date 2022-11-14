@@ -7,7 +7,7 @@ import {
   Investor,
 } from "../types/schema"
 
-export function getFundID(fund: Address) {
+export function getFundID(fund: Address): string {
   const fundID = fund.toHexString().toUpperCase()
   return fundID
 }
@@ -28,12 +28,22 @@ export function loadTransaction(event: ethereum.Event): Transaction {
   return transaction as Transaction
 }
 
-export function getInvestorTokens(_fund: Address, _investor: Address): string[] {
-  let fund = Fund.load(getFundID(_fund))
-  fund?.tokens
+export function getProfitUSD(princial: BigDecimal, volume: BigDecimal): BigDecimal {
+  let profitUSD: BigDecimal = ZERO_BD 
+  return profitUSD
+}
 
-  let investor = Investor.load(getInvestorID(_fund, _investor))
-  investor?.tokens
+export function getProfitRatio(princial: BigDecimal, volume: BigDecimal): BigDecimal {
+  let profitRatio: BigDecimal = ZERO_BD 
+  return profitRatio
+}
+
+export function getInvestorTokens(_fund: Address, _investor: Address): string[] {
+  // let fund = Fund.load(getFundID(_fund))
+  // fund?.tokens
+
+  // let investor = Investor.load(getInvestorID(_fund, _investor))
+  // investor?.tokens
 
   return []
 }
@@ -42,10 +52,6 @@ export function getFundTokens(fundAddress: string): string[] {
   return []
 }
 
-export function getTokenVolumeETH(tokens: string[]): BigDecimal[] {
-  return [ZERO_BD]
-}
-
-export function getTokenVolumeUSD(tokensVolumeETH: BigDecimal[]): BigDecimal[] {
+export function getTokenVolumeUSD(tokens: string[]): BigDecimal[] {
   return [ZERO_BD]
 }
