@@ -54,13 +54,12 @@ export function fundSnapshot(
     fundSnapshot.principalUSD = fund.principalUSD
     fundSnapshot.volumeETH = fund.volumeETH
     fundSnapshot.volumeUSD = fund.volumeUSD
-    fundSnapshot.profitETH = ZERO_BD
-    fundSnapshot.profitUSD = ZERO_BD
-    fundSnapshot.profitRatioETH = ZERO_BD
-    fundSnapshot.profitRatioUSD = ZERO_BD
     fundSnapshot.feeVolumeETH = fund.feeVolumeETH
     fundSnapshot.feeVolumeUSD = fund.feeVolumeUSD
     fundSnapshot.transaction = transaction
+    fundSnapshot.tokens = []
+    fundSnapshot.tokensVolumeETH = []
+    fundSnapshot.tokensVolumeUSD = []
   }
   fundSnapshot.save()
 }
@@ -72,12 +71,7 @@ export function investorSnapshot(
   transaction: string,
   event: ethereum.Event
 ): void {
-  const investorID = 
-  fundAddress.toHexString().toUpperCase() 
-    + '-' 
-    + investorAddress.toHexString().toUpperCase()
-
-  let investor = Investor.load(investorID)
+  let investor = Investor.load(getInvestorID(event.params.fund, event.params.investor))
   if (!investor) return 
 
   let timestamp = event.block.timestamp
@@ -97,11 +91,10 @@ export function investorSnapshot(
     investorSnapshot.principalUSD = investor.principalUSD
     investorSnapshot.volumeETH = investor.volumeETH
     investorSnapshot.volumeUSD = investor.volumeUSD
-    investorSnapshot.profitETH = ZERO_BD
-    investorSnapshot.profitUSD = ZERO_BD
-    investorSnapshot.profitRatioETH = ZERO_BD
-    investorSnapshot.profitRatioUSD = ZERO_BD
     investorSnapshot.transaction = transaction
+    investorSnapshot.tokens = []
+    investorSnapshot.tokensVolumeETH = []
+    investorSnapshot.tokensVolumeUSD = []
   }
   investorSnapshot.save()
 }

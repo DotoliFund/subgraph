@@ -40,18 +40,16 @@ type Fund @entity {
   volumeETH: BigDecimal!
   # volumeUSD
   volumeUSD: BigDecimal!
-  # profit ETH
-  profitETH: BigDecimal!
-  # profit USD
-  profitUSD: BigDecimal!
-  # profit ratio ETH
-  profitRatioETH: BigDecimal!
-  # profit ratio USD
-  profitRatioUSD: BigDecimal!
   # fee volumeETH
   feeVolumeETH: BigDecimal!
   # fee volumeUSD
   feeVolumeUSD: BigDecimal!
+  # fund tokens address
+  tokens: [String!]!
+  # fund tokens volumeETH
+  tokensVolumeETH: [BigDecimal!]!
+  # fund tokens volumeUSD
+  tokensVolumeUSD: [BigDecimal!]!
 }
 
 type Investor @entity {
@@ -75,14 +73,12 @@ type Investor @entity {
   volumeETH: BigDecimal!
   # volumeUSD
   volumeUSD: BigDecimal!
-  # profit ETH
-  profitETH: BigDecimal!
-  # profit USD
-  profitUSD: BigDecimal!
-  # profit ratio ETH
-  profitRatioETH: BigDecimal!
-  # profit ratio USD
-  profitRatioUSD: BigDecimal!
+  # investor tokens address
+  tokens: [String!]!
+  # investor tokens volumeETH
+  tokensVolumeETH: [BigDecimal!]!
+  # investor tokens volumeUSD
+  tokensVolumeUSD: [BigDecimal!]!
 }
 
 type Transaction @entity {
@@ -415,20 +411,18 @@ type FundSnapshot @entity {
   volumeETH: BigDecimal!
   # volume in USD
   volumeUSD: BigDecimal!
-  # profit ETH
-  profitETH: BigDecimal!
-  # profit USD
-  profitUSD: BigDecimal!
-  # profit ratio ETH
-  profitRatioETH: BigDecimal!
-  # profit ratio USD
-  profitRatioUSD: BigDecimal!
   # fee volumeETH
   feeVolumeETH: BigDecimal!
   # fee volumeUSD
   feeVolumeUSD: BigDecimal!
   # transaction
   transaction: Transaction!
+  # fund tokens address
+  tokens: [String!]!
+  # fund tokens volumeETH
+  tokensVolumeETH: [BigDecimal!]!
+  # fund tokens volumeUSD
+  tokensVolumeUSD: [BigDecimal!]!
 }
 
 # daily stats tracker for investor
@@ -451,14 +445,12 @@ type InvestorSnapshot @entity {
   volumeETH: BigDecimal!
   # volume in USD
   volumeUSD: BigDecimal!
-  # profit ETH
-  profitETH: BigDecimal!
-  # profit USD
-  profitUSD: BigDecimal!
-  # profit ratio ETH
-  profitRatioETH: BigDecimal!
-  # profit ratio USD
-  profitRatioUSD: BigDecimal!
   # transaction
   transaction: Transaction!
+  # investor tokens address
+  tokens: [String!]!
+  # investor tokens volumeETH
+  tokensVolumeETH: [BigDecimal!]!
+  # investor tokens volumeUSD
+  tokensVolumeUSD: [BigDecimal!]!
 }

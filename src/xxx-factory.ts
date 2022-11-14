@@ -48,12 +48,11 @@ export function handleFundCreated(event: FundCreated): void {
   fund.principalUSD = ZERO_BD
   fund.volumeETH = ZERO_BD
   fund.volumeUSD = ZERO_BD
-  fund.profitETH = ZERO_BD
-  fund.profitUSD = ZERO_BD
-  fund.profitRatioETH = ZERO_BD
-  fund.profitRatioUSD = ZERO_BD
   fund.feeVolumeETH = ZERO_BD
   fund.feeVolumeUSD = ZERO_BD
+  fund.tokens = []
+  fund.tokensVolumeETH = []
+  fund.tokensVolumeUSD = []
 
   const investorID = 
     event.params.fund.toHexString().toUpperCase()
@@ -72,10 +71,9 @@ export function handleFundCreated(event: FundCreated): void {
     investor.principalUSD = ZERO_BD
     investor.volumeETH = ZERO_BD
     investor.volumeUSD = ZERO_BD
-    investor.profitETH = ZERO_BD
-    investor.profitUSD = ZERO_BD
-    investor.profitRatioETH = ZERO_BD
-    investor.profitRatioUSD = ZERO_BD
+    investor.tokens = []
+    investor.tokensVolumeETH = []
+    investor.tokensVolumeUSD = []
   }
   investor.save()
   fund.save()
@@ -173,10 +171,9 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.principalUSD = ZERO_BD
       investor.volumeETH = ZERO_BD
       investor.volumeUSD = ZERO_BD
-      investor.profitETH = ZERO_BD
-      investor.profitUSD = ZERO_BD
-      investor.profitRatioETH = ZERO_BD
-      investor.profitRatioUSD = ZERO_BD
+      investor.tokens = []
+      investor.tokensVolumeETH = []
+      investor.tokensVolumeUSD = []
     }
     investor.save()
     subscribe.save()

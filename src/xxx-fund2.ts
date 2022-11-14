@@ -35,12 +35,14 @@ import {
   investorSnapshot,
   xxxfund2Snapshot
 } from './utils/snapshots'
-import { 
+import {
+  getInvestorID,
+  getFundID,
   loadTransaction,
-  getProfitETH,
-  getProfitUSD,
-  getProfitRatioETH,
-  getProfitRatioUSD
+  getInvestorTokens,
+  getFundTokens,
+  getTokenVolumeETH,
+  getTokenVolumeUSD
 } from './utils'
 import { 
   getPriceETH,
@@ -53,7 +55,7 @@ import { ERC20 } from './types/templates/XXXFund2/ERC20'
 export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
+  let fund = Fund.load(getFundID(event.params.fund))
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -100,7 +102,7 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
 export function handleDeposit(event: DepositEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
+  let fund = Fund.load(getFundID(event.params.fund))
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -124,11 +126,7 @@ export function handleDeposit(event: DepositEvent): void {
 
   deposit.save()
 
-  const investorID = 
-    event.params.fund.toHexString().toUpperCase() 
-    + '-' 
-    + event.params.investor.toHexString().toUpperCase()
-  let investor = Investor.load(investorID)
+  let investor = Investor.load(getInvestorID(event.params.fund, event.params.investor))
 
   if (investor !== null) {
     factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
@@ -145,10 +143,6 @@ export function handleDeposit(event: DepositEvent): void {
 
     investor.principalETH = investor.principalETH.plus(depositAmountETH)
     investor.principalUSD = investor.principalUSD.plus(depositAmountETH.times(ethPriceInUSD))
-    investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
-    investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
-    investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
-    investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
 
     fund.principalETH = fund.principalETH.plus(investor.principalETH)
     fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
@@ -157,6 +151,13 @@ export function handleDeposit(event: DepositEvent): void {
     fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
+
+    investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
+    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokens = getFundTokens(event.params.fund.toHexString())
+    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
 
     investor.save()
     fund.save()
@@ -181,7 +182,7 @@ export function handleDeposit(event: DepositEvent): void {
 export function handleWithdraw(event: WithdrawEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
+  let fund = Fund.load(getFundID(event.params.fund))
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -197,7 +198,6 @@ export function handleWithdraw(event: WithdrawEvent): void {
   const decimals = ERC20.bind(event.params.token).decimals()
   const tokenDecimal = BigDecimal.fromString(Math.pow(10,decimals).toString())
   withdraw.amount = event.params.amount.divDecimal(tokenDecimal)
-  //log.debug('12345 withdraw.tokenSymbol: {}, decimals : {}, test : {}', [withdraw.tokenSymbol, decimals.toString(), test.toString()])
   const withdrawAmountETH = getPriceETH(event.params.token, event.params.amount, Address.fromString(WETH9))
   withdraw.amountETH = withdrawAmountETH
   withdraw.amountUSD = withdrawAmountETH.times(ethPriceInUSD)
@@ -206,12 +206,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   withdraw.save()
 
-  const investorID = 
-    event.params.fund.toHexString().toUpperCase() 
-    + '-' 
-    + event.params.investor.toHexString().toUpperCase()
-  let investor = Investor.load(investorID)
-
+  let investor = Investor.load(getInvestorID(event.params.fund, event.params.investor))
   if (investor !== null) {
     factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
@@ -231,10 +226,6 @@ export function handleWithdraw(event: WithdrawEvent): void {
     const withdrawRatioUSD = ONE_BD.minus(withdraw.amountUSD.div(prevVolumeUSD))
     investor.principalETH = investor.principalETH.times(withdrawRatioETH)
     investor.principalUSD = investor.principalUSD.times(withdrawRatioUSD)
-    investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
-    investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
-    investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
-    investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
 
     fund.principalETH = fund.principalETH.plus(investor.principalETH)
     fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
@@ -243,6 +234,13 @@ export function handleWithdraw(event: WithdrawEvent): void {
     fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
+
+    investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
+    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokens = getFundTokens(event.params.fund.toHexString())
+    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
 
     investor.save()
     fund.save()
@@ -267,7 +265,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
 export function handleSwap(event: SwapEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
+  let fund = Fund.load(getFundID(event.params.fund))
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -302,13 +300,7 @@ export function handleSwap(event: SwapEvent): void {
   
   swap.save()
 
-  //investor account swap
-  const investorID = 
-    event.params.fund.toHexString().toUpperCase() 
-    + '-' 
-    + event.params.investor.toHexString().toUpperCase()
-  let investor = Investor.load(investorID)
-
+  let investor = Investor.load(getInvestorID(event.params.fund, event.params.investor))
   if (investor !== null) {
     factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
@@ -320,16 +312,18 @@ export function handleSwap(event: SwapEvent): void {
     fund.feeVolumeETH = getManagerFeeTvlETH(event.params.fund)
     fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
-    investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
-    investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
-    investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
-    investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
-
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
     fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
+
+    investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
+    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokens = getFundTokens(event.params.fund.toHexString())
+    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
 
     investor.save()
     fund.save()
@@ -354,7 +348,7 @@ export function handleSwap(event: SwapEvent): void {
 export function handleMintNewPosition(event: MintNewPositionEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
+  let fund = Fund.load(getFundID(event.params.fund))
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -390,12 +384,7 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   
   mintNewPosition.save()
 
-  const investorID = 
-    event.params.fund.toHexString().toUpperCase() 
-    + '-' 
-    + event.params.investor.toHexString().toUpperCase()
-  let investor = Investor.load(investorID)
-
+  let investor = Investor.load(getInvestorID(event.params.fund, event.params.investor))
   if (investor !== null) {
     factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
@@ -407,16 +396,18 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
     fund.feeVolumeETH = getManagerFeeTvlETH(event.params.fund)
     fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
-    investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
-    investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
-    investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
-    investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
-
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
     fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
+
+    investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
+    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokens = getFundTokens(event.params.fund.toHexString())
+    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
 
     investor.save()
     fund.save()
@@ -441,7 +432,7 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
 export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
+  let fund = Fund.load(getFundID(event.params.fund))
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -477,12 +468,7 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   
   increaseLiquidity.save()
 
-  const investorID = 
-    event.params.fund.toHexString().toUpperCase() 
-    + '-' 
-    + event.params.investor.toHexString().toUpperCase()
-  let investor = Investor.load(investorID)
-
+  let investor = Investor.load(getInvestorID(event.params.fund, event.params.investor))
   if (investor !== null) {
     factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
@@ -494,16 +480,18 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
     fund.feeVolumeETH = getManagerFeeTvlETH(event.params.fund)
     fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
-    investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
-    investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
-    investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
-    investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
-
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
     fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
+
+    investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
+    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokens = getFundTokens(event.params.fund.toHexString())
+    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
 
     investor.save()
     fund.save()
@@ -528,7 +516,7 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
 export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
+  let fund = Fund.load(getFundID(event.params.fund))
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -564,12 +552,7 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   
   collectPositionFee.save()
 
-  const investorID = 
-    event.params.fund.toHexString().toUpperCase() 
-    + '-' 
-    + event.params.investor.toHexString().toUpperCase()
-  let investor = Investor.load(investorID)
-
+  let investor = Investor.load(getInvestorID(event.params.fund, event.params.investor))
   if (investor !== null) {
     factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
@@ -581,16 +564,18 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
     fund.feeVolumeETH = getManagerFeeTvlETH(event.params.fund)
     fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
-    investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
-    investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
-    investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
-    investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
-
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
     fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
+
+    investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
+    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokens = getFundTokens(event.params.fund.toHexString())
+    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
 
     investor.save()
     fund.save()
@@ -615,7 +600,7 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
 export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  let fund = Fund.load(event.params.fund.toHexString().toUpperCase())
+  let fund = Fund.load(getFundID(event.params.fund))
   if (!fund) return
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
@@ -651,12 +636,7 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
 
   decreaseLiquidity.save()
 
-  const investorID = 
-    event.params.fund.toHexString().toUpperCase() 
-    + '-' 
-    + event.params.investor.toHexString().toUpperCase()
-  let investor = Investor.load(investorID)
-
+  let investor = Investor.load(getInvestorID(event.params.fund, event.params.investor))
   if (investor !== null) {
     factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
@@ -668,16 +648,18 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
     fund.feeVolumeETH = getManagerFeeTvlETH(event.params.fund)
     fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
-    investor.profitETH = getProfitETH(investor.principalETH, investor.volumeETH)
-    investor.profitUSD = getProfitUSD(investor.principalUSD, investor.volumeUSD)
-    investor.profitRatioETH = getProfitRatioETH(investor.principalETH, investor.volumeETH)
-    investor.profitRatioUSD = getProfitRatioUSD(investor.principalUSD, investor.volumeUSD)
-
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
     fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
+
+    investor.tokens = getInvestorTokens(event.params.fund, event.params.investor)
+    investor.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    investor.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
+    fund.tokens = getFundTokens(event.params.fund.toHexString())
+    fund.tokensVolumeETH = getTokenVolumeETH(investor.tokens)
+    fund.tokensVolumeUSD = getTokenVolumeUSD(investor.tokensVolumeETH)
 
     investor.save()
     fund.save()
