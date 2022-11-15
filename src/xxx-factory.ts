@@ -79,13 +79,11 @@ export function handleFundCreated(event: FundCreated): void {
     event.params.fund,
     event.params.manager,
     event.params.manager,
-    'NEWFUND',
     event
   )
   fundSnapshot(
     event.params.fund,
     event.params.manager,
-    'NEWFUND',
     event
   )
   xxxfund2Snapshot(event)
@@ -173,13 +171,11 @@ export function handleSubscribe(event: SubscribeEvent): void {
       event.params.fund,
       event.params.manager,
       event.params.investor,
-      transaction.id,
       event
     )
     fundSnapshot(
       event.params.fund,
       event.params.manager,
-      transaction.id,
       event
     )
     xxxfund2Snapshot(event)

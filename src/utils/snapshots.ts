@@ -32,7 +32,6 @@ export function xxxfund2Snapshot(event: ethereum.Event): void {
 export function fundSnapshot(
   fundAddress: Bytes,
   managerAddress: Bytes,
-  transaction: string,
   event: ethereum.Event
 ): void {
   let fund = Fund.load(fundAddress.toHexString().toUpperCase())
@@ -65,8 +64,7 @@ export function fundSnapshot(
 export function investorSnapshot(
   fundAddress: Bytes, 
   managerAddress: Bytes, 
-  investorAddress: Bytes, 
-  transaction: string,
+  investorAddress: Bytes,
   event: ethereum.Event
 ): void {
   let investor = Investor.load(getInvestorID(

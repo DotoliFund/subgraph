@@ -92,7 +92,6 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   fundSnapshot(
     event.params.fund,
     event.params.manager,
-    transaction.id,
     event
   )
   xxxfund2Snapshot(event)
@@ -160,13 +159,11 @@ export function handleDeposit(event: DepositEvent): void {
       event.params.fund,
       event.params.manager,
       event.params.investor,
-      transaction.id,
       event
     )
     fundSnapshot(
       event.params.fund,
       event.params.manager,
-      transaction.id,
       event
     )
     xxxfund2Snapshot(event)
@@ -238,13 +235,11 @@ export function handleWithdraw(event: WithdrawEvent): void {
       event.params.fund,
       event.params.manager,
       event.params.investor,
-      transaction.id,
       event
     )
     fundSnapshot(
       event.params.fund,
       event.params.manager,
-      transaction.id,
       event
     )
     xxxfund2Snapshot(event)
@@ -319,13 +314,11 @@ export function handleSwap(event: SwapEvent): void {
       event.params.fund,
       event.params.manager,
       event.params.investor,
-      transaction.id,
       event
     )
     fundSnapshot(
       event.params.fund,
       event.params.manager,
-      transaction.id,
       event
     )
     xxxfund2Snapshot(event)
@@ -401,13 +394,11 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
       event.params.fund,
       event.params.manager,
       event.params.investor,
-      transaction.id,
       event
     )
     fundSnapshot(
       event.params.fund,
       event.params.manager,
-      transaction.id,
       event
     )
     xxxfund2Snapshot(event)
@@ -483,13 +474,11 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
       event.params.fund,
       event.params.manager,
       event.params.investor,
-      transaction.id,
       event
     )
     fundSnapshot(
       event.params.fund,
       event.params.manager,
-      transaction.id,
       event
     )
     xxxfund2Snapshot(event)
@@ -565,13 +554,11 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
       event.params.fund,
       event.params.manager,
       event.params.investor,
-      transaction.id,
       event
     )
     fundSnapshot(
       event.params.fund,
       event.params.manager,
-      transaction.id,
       event
     )
     xxxfund2Snapshot(event)
@@ -647,13 +634,11 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
       event.params.fund,
       event.params.manager,
       event.params.investor,
-      transaction.id,
       event
     )
     fundSnapshot(
       event.params.fund,
       event.params.manager,
-      transaction.id,
       event
     )
     xxxfund2Snapshot(event)
