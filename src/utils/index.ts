@@ -1,11 +1,20 @@
 /* eslint-disable prefer-const */
-import { BigInt, BigDecimal, Address, ethereum } from '@graphprotocol/graph-ts'
+import { BigDecimal, Address, ethereum, Bytes } from '@graphprotocol/graph-ts'
 import { Transaction } from '../types/schema'
-import { ONE_BI, ZERO_BI, ZERO_BD, ONE_BD, ADDRESS_ZERO } from './constants'
-import {
-  Fund,
-  Investor,
-} from "../types/schema"
+import { 
+  PRICE_ORACLE_ADDRESS,
+  USDC,
+  USDC_DECIMAL,
+  WETH9,
+  WETH_DECIMAL,
+  ZERO_BD,
+  ZERO_BI,
+  WETH_INT
+} from './constants'
+import { getPriceUSD } from './pricing'
+import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
+import { PriceOracle } from '../types/templates/XXXFund2/PriceOracle'
+import { ERC20 } from '../types/templates/XXXFund2/ERC20'
 
 export function getFundID(fund: Address): string {
   const fundID = fund.toHexString().toUpperCase()
@@ -38,20 +47,44 @@ export function getProfitRatio(princial: BigDecimal, volume: BigDecimal): BigDec
   return profitRatio
 }
 
+export function isNewToken(fundTokens: Bytes[], token: Bytes): bool {
+  for (let i=0; i<fundTokens.length; i++) {
+    if(fundTokens[i].equals(token)) return false
+  }
+  return true
+}
+
+export function isTokenEmpty(owner: Address, token: Address): bool {
+  const balnce = ERC20.bind(token).balanceOf(owner)
+  if (balnce.gt(ZERO_BI)) {
+    return false
+  } else {
+    return true
+  }
+}
+
 export function getInvestorTokens(_fund: Address, _investor: Address): string[] {
-  // let fund = Fund.load(getFundID(_fund))
-  // fund?.tokens
+  const xxxFund2 = XXXFund2.bind(_fund)
 
-  // let investor = Investor.load(getInvestorID(_fund, _investor))
-  // investor?.tokens
-
-  return []
+  let investorTokens: string[] = []
+  const _investorTokens = xxxFund2.getInvestorTokens(_investor)
+  for (let i=0; i<_investorTokens.length; i++) {
+    investorTokens.push(_investorTokens[i].tokenAddress.toHexString())
+  }
+  return investorTokens
 }
 
-export function getFundTokens(fundAddress: string): string[] {
-  return []
-}
+export function getTokensVolumeUSD(owner: Address, tokens: Bytes[]): BigDecimal[] {
+  const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
 
-export function getTokenVolumeUSD(tokens: string[]): BigDecimal[] {
-  return [ZERO_BD]
+  const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
+
+  let tokensVolumeUSD: BigDecimal[] = []
+  for (let i=0; i<tokens.length; i++) {
+    const balnce = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(owner)
+    const amountETH = priceOracle.getPriceETH(Address.fromBytes(tokens[i]), balnce, Address.fromString(WETH9))
+    const amountUSD = amountETH.toBigDecimal().times(ethPriceInUSD)
+    tokensVolumeUSD.push(amountUSD)
+  }
+  return tokensVolumeUSD
 }

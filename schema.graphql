@@ -41,7 +41,7 @@ type Fund @entity {
   # fee volumeUSD
   feeVolumeUSD: BigDecimal!
   # fund tokens address
-  tokens: [String!]!
+  tokens: [Bytes!]!
   # fund tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
   # profit USD
@@ -68,7 +68,7 @@ type Investor @entity {
   # volumeUSD
   volumeUSD: BigDecimal!
   # investor tokens address
-  tokens: [String!]!
+  tokens: [Bytes!]!
   # investor tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
   # profit USD
@@ -410,7 +410,7 @@ type FundSnapshot @entity {
   # fee volumeUSD
   feeVolumeUSD: BigDecimal!
   # fund tokens address
-  tokens: [String!]!
+  tokens: [Bytes!]!
   # fund tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
 }
@@ -434,7 +434,7 @@ type InvestorSnapshot @entity {
   # volume in USD
   volumeUSD: BigDecimal!
   # investor tokens address
-  tokens: [String!]!
+  tokens: [Bytes!]!
   # investor tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
 }
