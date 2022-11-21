@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { BigDecimal, Address, ethereum, Bytes } from '@graphprotocol/graph-ts'
+import { BigDecimal, Address, ethereum, Bytes, log } from '@graphprotocol/graph-ts'
 import { Transaction } from '../types/schema'
 import { 
   PRICE_ORACLE_ADDRESS,
@@ -78,13 +78,15 @@ export function getTokensVolumeUSD(owner: Address, tokens: Bytes[]): BigDecimal[
   const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
 
   const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
-
+  
   let tokensVolumeUSD: BigDecimal[] = []
   for (let i=0; i<tokens.length; i++) {
     const balnce = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(owner)
     const amountETH = priceOracle.getPriceETH(Address.fromBytes(tokens[i]), balnce, Address.fromString(WETH9))
-    const amountUSD = amountETH.toBigDecimal().times(ethPriceInUSD)
+    const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
+    const amountUSD = deAmountETH.times(ethPriceInUSD)
     tokensVolumeUSD.push(amountUSD)
+    log.info('ethPriceInUSD, amountETH, amountUSD: {}, {}, {}', [ethPriceInUSD.toString(), amountETH.toString(), amountUSD.toString()])
   }
   return tokensVolumeUSD
 }

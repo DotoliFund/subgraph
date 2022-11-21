@@ -29,6 +29,7 @@ import {
   ONE_BD,
   WETH_INT,
   USDC_DECIMAL,
+  WETH_DECIMAL,
   PRICE_ORACLE_ADDRESS
 } from './utils/constants'
 import { 
@@ -162,8 +163,8 @@ export function handleDeposit(event: DepositEvent): void {
       _investorTokens.push(tokenAddress)
       const amount = investorTokens[i].amount
       const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const amountUSD = amountETH.toBigDecimal().times(ethPriceInUSD)
-      //const deAmountUSD = new BigDecimal(amountUSD).div(USDC_DECIMAL)
+      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
+      const amountUSD = deAmountETH.times(ethPriceInUSD)
       _investorTokensVolumeUSD.push(amountUSD)
     }
     investor.tokens = _investorTokens
@@ -256,8 +257,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
       _investorTokens.push(tokenAddress)
       const amount = investorTokens[i].amount
       const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const amountUSD = amountETH.toBigDecimal().times(ethPriceInUSD)
-      //const deAmountUSD = new BigDecimal(amountUSD).div(USDC_DECIMAL)
+      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
+      const amountUSD = deAmountETH.times(ethPriceInUSD)
       _investorTokensVolumeUSD.push(amountUSD)
       log.info('withdraw getPriceUSD(): {}, {}, {}', [i.toString(), tokenAddress.toHexString(), amountUSD.toString()])
     }
@@ -360,8 +361,8 @@ export function handleSwap(event: SwapEvent): void {
       _tokens.push(tokenAddress)
       const amount = investorTokens[i].amount
       const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const amountUSD = amountETH.toBigDecimal().times(ethPriceInUSD)
-      //const deAmountUSD = new BigDecimal(amountUSD).div(USDC_DECIMAL)
+      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
+      const amountUSD = deAmountETH.times(ethPriceInUSD)
       _tokensVolumeUSD.push(amountUSD)
       log.info('swap getPriceUSD(): {}, {}, {}', [i.toString(), tokenAddress.toHexString(), amountUSD.toString()])
     }
@@ -471,8 +472,8 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
       const tokenAddress = investorTokens[i].tokenAddress
       const amount = investorTokens[i].amount
       const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const amountUSD = amountETH.toBigDecimal().times(ethPriceInUSD)
-      //const deAmountUSD = new BigDecimal(amountUSD).div(USDC_DECIMAL)
+      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
+      const amountUSD = deAmountETH.times(ethPriceInUSD)
       _tokensVolumeUSD.push(amountUSD)
     }
     investor.tokensVolumeUSD = _tokensVolumeUSD
@@ -564,8 +565,8 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
       const tokenAddress = investorTokens[i].tokenAddress
       const amount = investorTokens[i].amount
       const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const amountUSD = amountETH.toBigDecimal().times(ethPriceInUSD)
-      //const deAmountUSD = new BigDecimal(amountUSD).div(USDC_DECIMAL)
+      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
+      const amountUSD = deAmountETH.times(ethPriceInUSD)
       _tokensVolumeUSD.push(amountUSD)
     }
     investor.tokensVolumeUSD = _tokensVolumeUSD
@@ -656,8 +657,8 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
       const tokenAddress = investorTokens[i].tokenAddress
       const amount = investorTokens[i].amount
       const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const amountUSD = amountETH.toBigDecimal().times(ethPriceInUSD)
-      //const deAmountUSD = new BigDecimal(amountUSD).div(USDC_DECIMAL)
+      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
+      const amountUSD = deAmountETH.times(ethPriceInUSD)
       _tokensVolumeUSD.push(amountUSD)
     }
     investor.tokensVolumeUSD = _tokensVolumeUSD
@@ -748,8 +749,8 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
       const tokenAddress = investorTokens[i].tokenAddress
       const amount = investorTokens[i].amount
       const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const amountUSD = amountETH.toBigDecimal().times(ethPriceInUSD)
-      //const deAmountUSD = new BigDecimal(amountUSD).div(USDC_DECIMAL)
+      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
+      const amountUSD = deAmountETH.times(ethPriceInUSD)
       _tokensVolumeUSD.push(amountUSD)
     }
     investor.tokensVolumeUSD = _tokensVolumeUSD
