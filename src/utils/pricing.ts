@@ -3,13 +3,9 @@ import { BigInt, BigDecimal, Address, log } from '@graphprotocol/graph-ts'
 import {
     PRICE_ORACLE_ADDRESS,
     WETH9,
-    USDC,
-    WETH_INT,
     WETH_DECIMAL,
     USDC_DECIMAL,
     ZERO_BD,
-    ONE_BD,
-    ADDRESS_ZERO,
     LIQUIDITY_ORACLE_ADDRESS
 } from './constants'
 import { PriceOracle } from '../types/templates/XXXFund2/PriceOracle'

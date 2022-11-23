@@ -28,9 +28,6 @@ import {
   USDC,
   ONE_BD,
   WETH_INT,
-  USDC_DECIMAL,
-  WETH_DECIMAL,
-  PRICE_ORACLE_ADDRESS
 } from './utils/constants'
 import { 
   fundSnapshot,
@@ -43,7 +40,6 @@ import {
   loadTransaction,
   isNewToken,
   isTokenEmpty,
-  getInvestorTokens,
   getTokensVolumeUSD
 } from './utils'
 import { 
@@ -53,7 +49,6 @@ import {
   getManagerFeeTvlETH
 } from './utils/pricing'
 import { ERC20 } from './types/templates/XXXFund2/ERC20'
-import { PriceOracle } from './types/templates/XXXFund2/PriceOracle'
 import { XXXFund2 } from './types/templates/XXXFund2/XXXFund2'
 
 export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
@@ -153,27 +148,30 @@ export function handleDeposit(event: DepositEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     const xxxFund2 = XXXFund2.bind(event.params.fund)
-    const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
-
     let _investorTokens: Bytes[] = []
+    let _investorSymbols: string[] = []
     let _investorTokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
       _investorTokens.push(tokenAddress)
+      _investorSymbols.push(ERC20.bind(tokenAddress).symbol())
       const amount = investorTokens[i].amount
-      const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
-      const amountUSD = deAmountETH.times(ethPriceInUSD)
+      const amountETH = getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
+      const amountUSD = amountETH.times(ethPriceInUSD)
       _investorTokensVolumeUSD.push(amountUSD)
     }
     investor.tokens = _investorTokens
+    investor.symbols = _investorSymbols
     investor.tokensVolumeUSD = _investorTokensVolumeUSD
     
     if (isNewToken(fund.tokens, deposit.token)) {
       let fundTokens: Bytes[] = fund.tokens
+      let fundSymbols: string[] = fund.symbols
       fundTokens.push(deposit.token)
+      fundSymbols.push(deposit.tokenSymbol)
       fund.tokens = fundTokens
+      fund.symbols = fundSymbols
     }
     fund.tokensVolumeUSD = getTokensVolumeUSD(event.params.fund, fund.tokens)
 
@@ -247,32 +245,35 @@ export function handleWithdraw(event: WithdrawEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     const xxxFund2 = XXXFund2.bind(event.params.fund)
-    const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
-
     let _investorTokens: Bytes[] = []
+    let _investorSymbols: string[] = []
     let _investorTokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
       _investorTokens.push(tokenAddress)
+      _investorSymbols.push(ERC20.bind(tokenAddress).symbol())
       const amount = investorTokens[i].amount
-      const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
-      const amountUSD = deAmountETH.times(ethPriceInUSD)
+      const amountETH = getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
+      const amountUSD = amountETH.times(ethPriceInUSD)
       _investorTokensVolumeUSD.push(amountUSD)
       log.info('withdraw getPriceUSD(): {}, {}, {}', [i.toString(), tokenAddress.toHexString(), amountUSD.toString()])
     }
     investor.tokens = _investorTokens
+    investor.symbols = _investorSymbols
     investor.tokensVolumeUSD = _investorTokensVolumeUSD
     
     // if token amount 0, remove from fund token list
     if (isTokenEmpty(event.params.fund, event.params.token)) {
       let fundTokens: Bytes[] = []
+      let fundSymbols: string[] = []
       for (let i=0; i<fund.tokens.length; i++) {
         if(fund.tokens[i] === withdraw.token) continue
         fundTokens.push(fund.tokens[i])
+        fundSymbols.push(fund.symbols[i])
       }
       fund.tokens = fundTokens
+      fund.symbols = fundSymbols
     }
     fund.tokensVolumeUSD = getTokensVolumeUSD(event.params.fund, fund.tokens)
 
@@ -351,39 +352,45 @@ export function handleSwap(event: SwapEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     const xxxFund2 = XXXFund2.bind(event.params.fund)
-    const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
-
-    let _tokens: Bytes[] = []
+    let _investorTokens: Bytes[] = []
+    let _investorSymbols: string[] = []
     let _tokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
-      _tokens.push(tokenAddress)
+      _investorTokens.push(tokenAddress)
+      _investorSymbols.push(ERC20.bind(tokenAddress).symbol())
       const amount = investorTokens[i].amount
-      const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
-      const amountUSD = deAmountETH.times(ethPriceInUSD)
+      const amountETH = getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
+      const amountUSD = amountETH.times(ethPriceInUSD)
       _tokensVolumeUSD.push(amountUSD)
       log.info('swap getPriceUSD(): {}, {}, {}', [i.toString(), tokenAddress.toHexString(), amountUSD.toString()])
     }
-    investor.tokens = _tokens
+    investor.tokens = _investorTokens
+    investor.symbols = _investorSymbols
     investor.tokensVolumeUSD = _tokensVolumeUSD
     
     // if token amount 0, remove from fund token list
     if (isTokenEmpty(event.params.fund, event.params.tokenIn)) {
       let fundTokens: Bytes[] = []
+      let fundSymbols: string[] = []
       for (let i=0; i<fund.tokens.length; i++) {
         if(fund.tokens[i] === event.params.tokenIn) continue
         fundTokens.push(fund.tokens[i])
+        fundSymbols.push(fund.symbols[i])
       }
       fund.tokens = fundTokens
+      fund.symbols = fundSymbols
     }
     fund.tokensVolumeUSD = getTokensVolumeUSD(event.params.fund, fund.tokens)
 
     if (isNewToken(fund.tokens, event.params.tokenOut)) {
       let fundTokens: Bytes[] = fund.tokens
+      let fundSymbols: string[] = fund.symbols
       fundTokens.push(event.params.tokenOut)
+      fundSymbols.push(ERC20.bind(event.params.tokenOut).symbol())
       fund.tokens = fundTokens
+      fund.symbols = fundSymbols
     }
     fund.tokensVolumeUSD = getTokensVolumeUSD(event.params.fund, fund.tokens)
 
@@ -464,16 +471,13 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
 
 
     const xxxFund2 = XXXFund2.bind(event.params.fund)
-    const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
-
     let _tokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
       const amount = investorTokens[i].amount
-      const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
-      const amountUSD = deAmountETH.times(ethPriceInUSD)
+      const amountETH = getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
+      const amountUSD = amountETH.times(ethPriceInUSD)
       _tokensVolumeUSD.push(amountUSD)
     }
     investor.tokensVolumeUSD = _tokensVolumeUSD
@@ -557,16 +561,13 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
 
 
     const xxxFund2 = XXXFund2.bind(event.params.fund)
-    const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
-
     let _tokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
       const amount = investorTokens[i].amount
-      const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
-      const amountUSD = deAmountETH.times(ethPriceInUSD)
+      const amountETH = getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
+      const amountUSD = amountETH.times(ethPriceInUSD)
       _tokensVolumeUSD.push(amountUSD)
     }
     investor.tokensVolumeUSD = _tokensVolumeUSD
@@ -649,16 +650,13 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     const xxxFund2 = XXXFund2.bind(event.params.fund)
-    const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
-
     let _tokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
       const amount = investorTokens[i].amount
-      const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
-      const amountUSD = deAmountETH.times(ethPriceInUSD)
+      const amountETH = getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
+      const amountUSD = amountETH.times(ethPriceInUSD)
       _tokensVolumeUSD.push(amountUSD)
     }
     investor.tokensVolumeUSD = _tokensVolumeUSD
@@ -741,16 +739,13 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     const xxxFund2 = XXXFund2.bind(event.params.fund)
-    const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
-
     let _tokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
       const amount = investorTokens[i].amount
-      const amountETH = priceOracle.getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
-      const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
-      const amountUSD = deAmountETH.times(ethPriceInUSD)
+      const amountETH = getPriceETH(tokenAddress, amount, Address.fromString(WETH9))
+      const amountUSD = amountETH.times(ethPriceInUSD)
       _tokensVolumeUSD.push(amountUSD)
     }
     investor.tokensVolumeUSD = _tokensVolumeUSD
