@@ -175,6 +175,11 @@ export function handleDeposit(event: DepositEvent): void {
     }
     fund.tokensVolumeUSD = getTokensVolumeUSD(event.params.fund, fund.tokens)
 
+    investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
+    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
+    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
+
     investor.save()
     fund.save()
     factory.save()
@@ -276,6 +281,11 @@ export function handleWithdraw(event: WithdrawEvent): void {
       fund.symbols = fundSymbols
     }
     fund.tokensVolumeUSD = getTokensVolumeUSD(event.params.fund, fund.tokens)
+
+    investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
+    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
+    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
 
     investor.save()
     fund.save()
@@ -394,6 +404,11 @@ export function handleSwap(event: SwapEvent): void {
     }
     fund.tokensVolumeUSD = getTokensVolumeUSD(event.params.fund, fund.tokens)
 
+    investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
+    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
+    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
+
     investor.save()
     fund.save()
     factory.save()
@@ -483,6 +498,11 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
     investor.tokensVolumeUSD = _tokensVolumeUSD
     
     fund.tokensVolumeUSD = getTokensVolumeUSD(event.params.fund, fund.tokens)
+
+    investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
+    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
+    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
 
     investor.save()
     fund.save()
@@ -574,6 +594,11 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
     
     fund.tokensVolumeUSD = getTokensVolumeUSD(event.params.fund, fund.tokens)
 
+    investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
+    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
+    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
+
     investor.save()
     fund.save()
     factory.save()
@@ -663,6 +688,11 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
     
     fund.tokensVolumeUSD = getTokensVolumeUSD(event.params.fund, fund.tokens)
 
+    investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
+    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
+    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
+
     investor.save()
     fund.save()
     factory.save()
@@ -751,6 +781,11 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
     investor.tokensVolumeUSD = _tokensVolumeUSD
     
     fund.tokensVolumeUSD = getTokensVolumeUSD(event.params.fund, fund.tokens)
+
+    investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
+    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
+    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
 
     investor.save()
     fund.save()
