@@ -1,19 +1,16 @@
 /* eslint-disable prefer-const */
-import { BigDecimal, Address, ethereum, Bytes, log } from '@graphprotocol/graph-ts'
+import { BigInt,BigDecimal, Address, ethereum, Bytes, log } from '@graphprotocol/graph-ts'
 import { Transaction } from '../types/schema'
 import { 
-  PRICE_ORACLE_ADDRESS,
-  USDC,
-  USDC_DECIMAL,
   WETH9,
   WETH_DECIMAL,
   ZERO_BD,
   ZERO_BI,
+  ONE_BI,
   WETH_INT
 } from './constants'
-import { getPriceUSD } from './pricing'
+import { getPriceUSD, getPriceETH } from './pricing'
 import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
-import { PriceOracle } from '../types/templates/XXXFund2/PriceOracle'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
 
 export function getFundID(fund: Address): string {
@@ -75,18 +72,32 @@ export function getInvestorTokens(_fund: Address, _investor: Address): string[] 
 }
 
 export function getTokensVolumeUSD(owner: Address, tokens: Bytes[]): BigDecimal[] {
-  const priceOracle = PriceOracle.bind(Address.fromString(PRICE_ORACLE_ADDRESS))
-
-  const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT, Address.fromString(USDC))
+  const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT)
   
   let tokensVolumeUSD: BigDecimal[] = []
   for (let i=0; i<tokens.length; i++) {
     const balnce = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(owner)
-    const amountETH = priceOracle.getPriceETH(Address.fromBytes(tokens[i]), balnce, Address.fromString(WETH9))
-    const deAmountETH = new BigDecimal(amountETH).div(WETH_DECIMAL)
+    const amountETH = getPriceETH(Address.fromBytes(tokens[i]), balnce)
+    const deAmountETH = amountETH.div(WETH_DECIMAL)
     const amountUSD = deAmountETH.times(ethPriceInUSD)
     tokensVolumeUSD.push(amountUSD)
-    log.info('ethPriceInUSD, amountETH, amountUSD: {}, {}, {}', [ethPriceInUSD.toString(), amountETH.toString(), amountUSD.toString()])
   }
   return tokensVolumeUSD
+}
+
+export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
+  let bd = BigDecimal.fromString('1')
+  for (let i = ZERO_BI; i.lt(decimals as BigInt); i = i.plus(ONE_BI)) {
+    bd = bd.times(BigDecimal.fromString('10'))
+  }
+  return bd
+}
+
+// return 0 if denominator is 0 in division
+export function safeDiv(amount0: BigDecimal, amount1: BigDecimal): BigDecimal {
+  if (amount1.equals(ZERO_BD)) {
+    return ZERO_BD
+  } else {
+    return amount0.div(amount1)
+  }
 }

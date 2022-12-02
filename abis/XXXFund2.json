@@ -10,18 +10,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "investor",
         "type": "address"
       },
@@ -56,18 +44,6 @@
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
       {
         "indexed": true,
         "internalType": "address",
@@ -108,18 +84,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "investor",
         "type": "address"
       },
@@ -142,18 +106,6 @@
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
       {
         "indexed": true,
         "internalType": "address",
@@ -213,19 +165,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "investor",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
         "type": "address"
       },
       {
@@ -248,18 +188,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
         "indexed": false,
         "internalType": "address",
         "name": "token",
@@ -278,18 +206,6 @@
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
       {
         "indexed": true,
         "internalType": "address",
@@ -330,18 +246,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "investor",
         "type": "address"
       },
@@ -376,18 +280,6 @@
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
       {
         "indexed": true,
         "internalType": "address",

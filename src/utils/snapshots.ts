@@ -1,4 +1,4 @@
-import { ZERO_BD, ZERO_BI, ONE_BI } from './constants'
+import { ZERO_BI } from './constants'
 /* eslint-disable prefer-const */
 import {
   Factory,
@@ -10,7 +10,7 @@ import {
 } from '../types/schema'
 import { getInvestorID } from './index'
 import { FACTORY_ADDRESS } from './constants'
-import { BigDecimal, Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
+import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
 
 export function xxxfund2Snapshot(event: ethereum.Event): void {
   let factory = Factory.load(FACTORY_ADDRESS)

@@ -1,4 +1,4 @@
-import { BigInt, Address } from "@graphprotocol/graph-ts"
+import { Address } from "@graphprotocol/graph-ts"
 import {
   FundCreated,
   OwnerChanged,
@@ -12,8 +12,6 @@ import {
 } from "./types/schema"
 import { 
   FACTORY_ADDRESS,
-  FACTORY_OWNER,
-  SWAP_ROUTER_ADDRESS,
   ZERO_BD,
   ZERO_BI,
   ONE_BI,
