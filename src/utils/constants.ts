@@ -4,7 +4,7 @@ import { XXXFactory as FactoryContract } from '../types/XXXFactory/XXXFactory'
 
 //owner is timelock contract
 export const FACTORY_OWNER = '0x0203A2F161909893d06C0e3cCb386D7E0919E887'
-export const FACTORY_ADDRESS = '0x104E5D56f8efDd231CcA52BB15F3a0743eDCf8CE'
+export const FACTORY_ADDRESS = '0xE3AEde6133D3499E6fdc29148D111707b140fbFA'
 export const UNISWAP_V3_FACTORY = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
 export const SWAP_ROUTER_ADDRESS = '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'
 export const PRICE_ORACLE_ADDRESS = '0xf36DC7B5656B444F1203ce56cB53c458AA6A3393'
@@ -17,7 +17,7 @@ export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 
 //goerli
 export const WETH9 = '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6'
-export const USDC = '0xD87Ba7A50B2E7E660f678A895E4B72E7CB4CCd9C'
+export const USDC = '0x07865c6E87B9F70255377e024ace6630C1Eaa37F'
 
 export let ZERO_BI = BigInt.fromI32(0)
 export let ONE_BI = BigInt.fromI32(1)
@@ -26,8 +26,6 @@ export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
 export const WETH_DECIMAL = BigDecimal.fromString('1000000000000000000')
-export const WETH_INT = BigInt.fromString('1000000000000000000')
 export const USDC_DECIMAL = BigDecimal.fromString('1000000')
-export const USDC_INT = BigInt.fromString('1000000')
 
 export let factoryContract = FactoryContract.bind(Address.fromString(FACTORY_ADDRESS))

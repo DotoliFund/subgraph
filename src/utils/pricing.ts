@@ -1,44 +1,35 @@
 /* eslint-disable prefer-const */
 import { BigInt, BigDecimal, Address, log } from '@graphprotocol/graph-ts'
 import {
-    PRICE_ORACLE_ADDRESS,
     WETH9,
     WETH_DECIMAL,
-    USDC_DECIMAL,
     ZERO_BD,
     LIQUIDITY_ORACLE_ADDRESS,
     USDC,
     UNISWAP_V3_FACTORY,
-    ADDRESS_ZERO,
-    ZERO_BI
+    ZERO_BI,
 } from './constants'
 import { LiquidityOracle  } from '../types/templates/XXXFund2/LiquidityOracle'
 import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
-import { exponentToBigDecimal, safeDiv } from '../utils'
+import { safeDiv } from '../utils'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
 import { UniswapV3Factory } from '../types/templates/XXXFund2/UniswapV3Factory'
 import { UniswapV3Pool } from '../types/templates/XXXFund2/UniswapV3Pool'
 
-const Q192 = 2 ** 192
-
+const Q192 = f64(2 ** 192)
 export function sqrtPriceX96ToTokenPrices(sqrtPriceX96: BigInt, token0: Address, token1: Address): BigDecimal[] {
   let num = sqrtPriceX96.times(sqrtPriceX96).toBigDecimal()
   let denom = BigDecimal.fromString(Q192.toString())
   const token0Decimals = ERC20.bind(token0).decimals()
   const token1Decimals = ERC20.bind(token1).decimals()
-  log.info('5555 : {}, {}', [(2 ** 192).toString(), Q192.toString()])
-  log.info('66666 : {}, {}', [num.toString(), denom.toString()])
-  log.info('77777 : {}, {}', [exponentToBigDecimal(BigInt.fromString(token0Decimals.toString())).toString(), 
-    exponentToBigDecimal(BigInt.fromString(token1Decimals.toString())).toString()])
 
   let price1 = num
     .div(denom)
-    .times(exponentToBigDecimal(BigInt.fromString(token0Decimals.toString())))
-    .div(exponentToBigDecimal(BigInt.fromString(token1Decimals.toString())))
+    .times(BigDecimal.fromString(f64(10 ** token1Decimals).toString()))
+    .div(BigDecimal.fromString(f64(10 ** token0Decimals).toString()))
 
-  log.info('88888 : {}', [price1.toString()])
-  
   let price0 = safeDiv(BigDecimal.fromString('1'), price1)
+  
   return [price0, price1]
 }
 
@@ -49,20 +40,17 @@ export function getEthPriceInUSD(): BigDecimal {
 
   let ethPrice = ZERO_BD
   let largestLiquidity = ZERO_BI
-  log.info('33333 getEthPriceInUSD : {}, {}', [wethAddress.toHexString(), usdcAddress.toHexString()])
 
   for (let i=0; i<fees.length; i++) {
     const poolAddress = UniswapV3Factory.bind(Address.fromString(UNISWAP_V3_FACTORY))
       .getPool(wethAddress, usdcAddress, fees[i])
-    const pool = UniswapV3Pool.bind(poolAddress)
-    const liquidity = pool.liquidity()
-    log.info('44444 poolAddress, liquidity : {}, {}', [poolAddress.toHexString(), liquidity.toString()])
+    const liquidity = UniswapV3Pool.bind(poolAddress).liquidity()
 
     if (liquidity.gt(ZERO_BI) && liquidity.gt(largestLiquidity)) {
-      const sqrtPriceX96 = pool.slot0().getSqrtPriceX96()
+      const slot0 = UniswapV3Pool.bind(poolAddress).slot0()
+      const sqrtPriceX96 = slot0.getSqrtPriceX96()
       ethPrice = sqrtPriceX96ToTokenPrices(sqrtPriceX96, wethAddress, usdcAddress)[0]
       largestLiquidity = liquidity
-      log.info('55555 sqrtPriceX96 : {}, {}', [sqrtPriceX96.toString(), ethPrice.toString()])
     }
   }
   return ethPrice
@@ -76,23 +64,21 @@ export function getPriceETH(token: Address, amountIn: BigInt): BigDecimal {
   let price = ZERO_BD
   let largestLiquidity = ZERO_BI
 
+  if (token.equals(Address.fromString(WETH9))) {
+    return amountIn.toBigDecimal().div(WETH_DECIMAL)
+  }
+
   for (let i=0; i<fees.length; i++) {
     const poolAddress = UniswapV3Factory.bind(Address.fromString(UNISWAP_V3_FACTORY))
       .getPool(tokenAddress, wethAddress, fees[i])
-    const pool = UniswapV3Pool.bind(poolAddress)
-    const liquidity = pool.liquidity()
-
+    const liquidity = UniswapV3Pool.bind(poolAddress).liquidity()
     if (liquidity.gt(ZERO_BI) && liquidity.gt(largestLiquidity)) {
-      const sqrtPriceX96 = pool.slot0().getSqrtPriceX96()
+      const sqrtPriceX96 = UniswapV3Pool.bind(poolAddress).slot0().getSqrtPriceX96()
       price = sqrtPriceX96ToTokenPrices(sqrtPriceX96, tokenAddress, wethAddress)[0]
       largestLiquidity = liquidity
     }
   }
-  return price.times(amountIn.toBigDecimal())
-}
-
-export function getPriceUSD(token: Address, amountIn: BigInt): BigDecimal {
-  return getPriceETH(token, amountIn).times(getEthPriceInUSD())
+  return price.times(amountIn.toBigDecimal().div(WETH_DECIMAL))
 }
 
 export function getInvestorTvlETH(fund: Address, investor: Address): BigDecimal {

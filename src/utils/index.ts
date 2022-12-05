@@ -7,9 +7,9 @@ import {
   ZERO_BD,
   ZERO_BI,
   ONE_BI,
-  WETH_INT
+  ONE_BD
 } from './constants'
-import { getPriceUSD, getPriceETH } from './pricing'
+import { getEthPriceInUSD, getPriceETH } from './pricing'
 import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
 
@@ -72,7 +72,7 @@ export function getInvestorTokens(_fund: Address, _investor: Address): string[] 
 }
 
 export function getTokensVolumeUSD(owner: Address, tokens: Bytes[]): BigDecimal[] {
-  const ethPriceInUSD = getPriceUSD(Address.fromString(WETH9), WETH_INT)
+  const ethPriceInUSD = getEthPriceInUSD()
   
   let tokensVolumeUSD: BigDecimal[] = []
   for (let i=0; i<tokens.length; i++) {
@@ -83,14 +83,6 @@ export function getTokensVolumeUSD(owner: Address, tokens: Bytes[]): BigDecimal[
     tokensVolumeUSD.push(amountUSD)
   }
   return tokensVolumeUSD
-}
-
-export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
-  let bd = BigDecimal.fromString('1')
-  for (let i = ZERO_BI; i.lt(decimals as BigInt); i = i.plus(ONE_BI)) {
-    bd = bd.times(BigDecimal.fromString('10'))
-  }
-  return bd
 }
 
 // return 0 if denominator is 0 in division

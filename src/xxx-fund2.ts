@@ -1,4 +1,4 @@
-import { Address, BigDecimal, Bytes, log } from "@graphprotocol/graph-ts"
+import { BigDecimal, Bytes, log } from "@graphprotocol/graph-ts"
 import {
   ManagerFeeOut as ManagerFeeOutEvent,
   Deposit as DepositEvent,
@@ -24,10 +24,7 @@ import {
 } from "./types/schema"
 import { 
   FACTORY_ADDRESS,
-  WETH9,
-  USDC,
   ONE_BD,
-  WETH_INT,
 } from './utils/constants'
 import { 
   fundSnapshot,
@@ -40,7 +37,8 @@ import {
   loadTransaction,
   isNewToken,
   isTokenEmpty,
-  getTokensVolumeUSD
+  getTokensVolumeUSD,
+  safeDiv
 } from './utils'
 import { 
   getEthPriceInUSD,
@@ -103,17 +101,15 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
 export function handleDeposit(event: DepositEvent): void {
   const fundAddress = event.address
   const managerAddress = XXXFund2.bind(fundAddress).manager()
-  log.info('00000: {},{}', [fundAddress.toHexString(), managerAddress.toHexString()])
 
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
-  log.info('12345: {},{}', [fundAddress.toHexString(), managerAddress.toHexString()])
 
   let fund = Fund.load(getFundID(fundAddress))
   if (!fund) return
-  log.info('11111: {}', [fundAddress.toHexString()])
+
   const ethPriceInUSD = getEthPriceInUSD()
-  log.info('22222 ethPriceInUSD : {}', [ethPriceInUSD.toString()])
+
   let transaction = loadTransaction(event)
   let deposit = new Deposit(event.transaction.hash.toHexString())
   deposit.transaction = transaction.id
@@ -185,9 +181,9 @@ export function handleDeposit(event: DepositEvent): void {
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 
     investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
-    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
     fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
-    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
 
     investor.save()
     fund.save()
@@ -251,9 +247,9 @@ export function handleWithdraw(event: WithdrawEvent): void {
     fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
     const prevVolumeUSD = investor.volumeUSD.plus(withdraw.amountUSD)
-    const withdrawRatioUSD = ONE_BD.minus(withdraw.amountUSD.div(prevVolumeUSD))
-    investor.principalUSD = investor.principalUSD.times(withdrawRatioUSD)
+    const withdrawRatioUSD = ONE_BD.minus(safeDiv(withdraw.amountUSD, prevVolumeUSD))
 
+    investor.principalUSD = investor.principalUSD.times(withdrawRatioUSD)
     fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
@@ -294,9 +290,9 @@ export function handleWithdraw(event: WithdrawEvent): void {
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 
     investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
-    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
     fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
-    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
 
     investor.save()
     fund.save()
@@ -418,9 +414,9 @@ export function handleSwap(event: SwapEvent): void {
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 
     investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
-    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
     fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
-    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
 
     investor.save()
     fund.save()
@@ -516,9 +512,9 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 
     investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
-    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
     fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
-    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
 
     investor.save()
     fund.save()
@@ -614,9 +610,9 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 
     investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
-    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
     fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
-    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
 
     investor.save()
     fund.save()
@@ -711,9 +707,9 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 
     investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
-    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
     fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
-    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
 
     investor.save()
     fund.save()
@@ -808,9 +804,9 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 
     investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
-    investor.profitRatio = investor.volumeUSD.minus(investor.principalUSD).div(investor.principalUSD).times(BigDecimal.fromString('100'))
+    investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
     fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
-    fund.profitRatio = fund.volumeUSD.minus(fund.principalUSD).div(fund.principalUSD).times(BigDecimal.fromString('100'))
+    fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
 
     investor.save()
     fund.save()
