@@ -38,7 +38,9 @@ import {
   isNewToken,
   isTokenEmpty,
   getTokensVolumeUSD,
-  safeDiv
+  safeDiv,
+  updateVolume,
+  updateInvestorTokens
 } from './utils'
 import { 
   getEthPriceInUSD,
@@ -102,9 +104,6 @@ export function handleDeposit(event: DepositEvent): void {
   const fundAddress = event.address
   const managerAddress = XXXFund2.bind(fundAddress).manager()
 
-  let factory = Factory.load(FACTORY_ADDRESS)
-  if (!factory) return
-
   let fund = Fund.load(getFundID(fundAddress))
   if (!fund) return
 
@@ -130,45 +129,14 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.save()
 
   let investor = Investor.load(getInvestorID(fundAddress, event.params.investor))
-
   if (investor !== null) {
-    factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
-    fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
-    fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
+    updateVolume(fundAddress, event.params.investor, fund, investor, ethPriceInUSD)
+
     fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
-
-    investor.volumeETH = getInvestorTvlETH(fundAddress, event.params.investor)
-    investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
-
-    fund.feeVolumeETH = getManagerFeeTvlETH(fundAddress)
-    fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
-
     investor.principalUSD = investor.principalUSD.plus(depositAmountETH.times(ethPriceInUSD))
-
     fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
-    fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
-    fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
-    fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
-    factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
-    factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
-    const xxxFund2 = XXXFund2.bind(fundAddress)
-    let _investorTokens: Bytes[] = []
-    let _investorSymbols: string[] = []
-    let _investorTokensVolumeUSD: BigDecimal[] = []
-    const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
-    for (let i=0; i<investorTokens.length; i++) {
-      const tokenAddress = investorTokens[i].tokenAddress
-      _investorTokens.push(tokenAddress)
-      _investorSymbols.push(ERC20.bind(tokenAddress).symbol())
-      const amount = investorTokens[i].amount
-      const amountETH = getPriceETH(tokenAddress, amount)
-      const amountUSD = amountETH.times(ethPriceInUSD)
-      _investorTokensVolumeUSD.push(amountUSD)
-    }
-    investor.tokens = _investorTokens
-    investor.symbols = _investorSymbols
-    investor.tokensVolumeUSD = _investorTokensVolumeUSD
+    updateInvestorTokens(fundAddress, event.params.investor, investor, ethPriceInUSD)
     
     if (isNewToken(fund.tokens, deposit.token)) {
       let fundTokens: Bytes[] = fund.tokens
@@ -187,18 +155,8 @@ export function handleDeposit(event: DepositEvent): void {
 
     investor.save()
     fund.save()
-    factory.save()
-    investorSnapshot(
-      fundAddress,
-      managerAddress,
-      event.params.investor,
-      event
-    )
-    fundSnapshot(
-      fundAddress,
-      managerAddress,
-      event
-    )
+    investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
+    fundSnapshot(fundAddress, managerAddress, event)
     xxxfund2Snapshot(event)
   }
 }
@@ -238,7 +196,6 @@ export function handleWithdraw(event: WithdrawEvent): void {
     factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
-    fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
 
     investor.volumeETH = getInvestorTvlETH(fundAddress, event.params.investor)
     investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
@@ -246,16 +203,23 @@ export function handleWithdraw(event: WithdrawEvent): void {
     fund.feeVolumeETH = getManagerFeeTvlETH(fundAddress)
     fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
-    const prevVolumeUSD = investor.volumeUSD.plus(withdraw.amountUSD)
-    const withdrawRatioUSD = ONE_BD.minus(safeDiv(withdraw.amountUSD, prevVolumeUSD))
-
-    investor.principalUSD = investor.principalUSD.times(withdrawRatioUSD)
-    fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
     fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
     fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
     fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
+
+
+
+
+    fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
+    const prevVolumeUSD = investor.volumeUSD.plus(withdraw.amountUSD)
+    const withdrawRatioUSD = ONE_BD.minus(safeDiv(withdraw.amountUSD, prevVolumeUSD))
+    investor.principalUSD = investor.principalUSD.times(withdrawRatioUSD)
+    fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
+
+
+
 
     const xxxFund2 = XXXFund2.bind(fundAddress)
     let _investorTokens: Bytes[] = []
@@ -374,7 +338,7 @@ export function handleSwap(event: SwapEvent): void {
     const xxxFund2 = XXXFund2.bind(fundAddress)
     let _investorTokens: Bytes[] = []
     let _investorSymbols: string[] = []
-    let _tokensVolumeUSD: BigDecimal[] = []
+    let _investorTokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
@@ -383,13 +347,13 @@ export function handleSwap(event: SwapEvent): void {
       const amount = investorTokens[i].amount
       const amountETH = getPriceETH(tokenAddress, amount)
       const amountUSD = amountETH.times(ethPriceInUSD)
-      _tokensVolumeUSD.push(amountUSD)
+      _investorTokensVolumeUSD.push(amountUSD)
     }
     investor.tokens = _investorTokens
     investor.symbols = _investorSymbols
-    investor.tokensVolumeUSD = _tokensVolumeUSD
+    investor.tokensVolumeUSD = _investorTokensVolumeUSD
     
-    // if token amount 0, remove from fund token list
+    // if tokenIn amount 0, remove from fund token list
     if (isTokenEmpty(fundAddress, event.params.tokenIn)) {
       let fundTokens: Bytes[] = []
       let fundSymbols: string[] = []
@@ -403,6 +367,7 @@ export function handleSwap(event: SwapEvent): void {
     }
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 
+    // if tokenOut is new, add to fund token list
     if (isNewToken(fund.tokens, event.params.tokenOut)) {
       let fundTokens: Bytes[] = fund.tokens
       let fundSymbols: string[] = fund.symbols
@@ -496,18 +461,23 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
     factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
-
     const xxxFund2 = XXXFund2.bind(fundAddress)
-    let _tokensVolumeUSD: BigDecimal[] = []
+    let _investorTokens: Bytes[] = []
+    let _investorSymbols: string[] = []
+    let _investorTokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
+      _investorTokens.push(tokenAddress)
+      _investorSymbols.push(ERC20.bind(tokenAddress).symbol())
       const amount = investorTokens[i].amount
       const amountETH = getPriceETH(tokenAddress, amount)
       const amountUSD = amountETH.times(ethPriceInUSD)
-      _tokensVolumeUSD.push(amountUSD)
+      _investorTokensVolumeUSD.push(amountUSD)
     }
-    investor.tokensVolumeUSD = _tokensVolumeUSD
+    investor.tokens = _investorTokens
+    investor.symbols = _investorSymbols
+    investor.tokensVolumeUSD = _investorTokensVolumeUSD
     
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 
@@ -596,16 +566,22 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
 
 
     const xxxFund2 = XXXFund2.bind(fundAddress)
-    let _tokensVolumeUSD: BigDecimal[] = []
+    let _investorTokens: Bytes[] = []
+    let _investorSymbols: string[] = []
+    let _investorTokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
+      _investorTokens.push(tokenAddress)
+      _investorSymbols.push(ERC20.bind(tokenAddress).symbol())
       const amount = investorTokens[i].amount
       const amountETH = getPriceETH(tokenAddress, amount)
       const amountUSD = amountETH.times(ethPriceInUSD)
-      _tokensVolumeUSD.push(amountUSD)
+      _investorTokensVolumeUSD.push(amountUSD)
     }
-    investor.tokensVolumeUSD = _tokensVolumeUSD
+    investor.tokens = _investorTokens
+    investor.symbols = _investorSymbols
+    investor.tokensVolumeUSD = _investorTokensVolumeUSD
     
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 
@@ -693,16 +669,22 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     const xxxFund2 = XXXFund2.bind(fundAddress)
-    let _tokensVolumeUSD: BigDecimal[] = []
+    let _investorTokens: Bytes[] = []
+    let _investorSymbols: string[] = []
+    let _investorTokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
+      _investorTokens.push(tokenAddress)
+      _investorSymbols.push(ERC20.bind(tokenAddress).symbol())
       const amount = investorTokens[i].amount
       const amountETH = getPriceETH(tokenAddress, amount)
       const amountUSD = amountETH.times(ethPriceInUSD)
-      _tokensVolumeUSD.push(amountUSD)
+      _investorTokensVolumeUSD.push(amountUSD)
     }
-    investor.tokensVolumeUSD = _tokensVolumeUSD
+    investor.tokens = _investorTokens
+    investor.symbols = _investorSymbols
+    investor.tokensVolumeUSD = _investorTokensVolumeUSD
     
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 
@@ -790,16 +772,22 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
 
     const xxxFund2 = XXXFund2.bind(fundAddress)
-    let _tokensVolumeUSD: BigDecimal[] = []
+    let _investorTokens: Bytes[] = []
+    let _investorSymbols: string[] = []
+    let _investorTokensVolumeUSD: BigDecimal[] = []
     const investorTokens = xxxFund2.getInvestorTokens(event.params.investor)
     for (let i=0; i<investorTokens.length; i++) {
       const tokenAddress = investorTokens[i].tokenAddress
+      _investorTokens.push(tokenAddress)
+      _investorSymbols.push(ERC20.bind(tokenAddress).symbol())
       const amount = investorTokens[i].amount
       const amountETH = getPriceETH(tokenAddress, amount)
       const amountUSD = amountETH.times(ethPriceInUSD)
-      _tokensVolumeUSD.push(amountUSD)
+      _investorTokensVolumeUSD.push(amountUSD)
     }
-    investor.tokensVolumeUSD = _tokensVolumeUSD
+    investor.tokens = _investorTokens
+    investor.symbols = _investorSymbols
+    investor.tokensVolumeUSD = _investorTokensVolumeUSD
     
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
 

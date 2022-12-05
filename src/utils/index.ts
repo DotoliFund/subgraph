@@ -1,15 +1,13 @@
 /* eslint-disable prefer-const */
-import { BigInt,BigDecimal, Address, ethereum, Bytes, log } from '@graphprotocol/graph-ts'
-import { Transaction } from '../types/schema'
-import { 
-  WETH9,
+import { BigDecimal, Address, ethereum, Bytes, log } from '@graphprotocol/graph-ts'
+import { Factory, Fund, Investor, Transaction } from '../types/schema'
+import {
   WETH_DECIMAL,
   ZERO_BD,
   ZERO_BI,
-  ONE_BI,
-  ONE_BD
+  FACTORY_ADDRESS
 } from './constants'
-import { getEthPriceInUSD, getPriceETH } from './pricing'
+import { getEthPriceInUSD, getPriceETH, getInvestorTvlETH, getManagerFeeTvlETH } from './pricing'
 import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
 
@@ -92,4 +90,51 @@ export function safeDiv(amount0: BigDecimal, amount1: BigDecimal): BigDecimal {
   } else {
     return amount0.div(amount1)
   }
+}
+
+export function updateVolume(fundAddress: Address, investorAddress: Address, fund: Fund, investor: Investor, ethPriceInUSD: BigDecimal) {
+  let factory = Factory.load(FACTORY_ADDRESS)
+  if (!factory) return
+
+  factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
+  fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
+  fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
+
+  investor.volumeETH = getInvestorTvlETH(fundAddress, investorAddress)
+  investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
+
+  fund.feeVolumeETH = getManagerFeeTvlETH(fundAddress)
+  fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
+
+  fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
+  fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
+  fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
+  factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
+  factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
+  
+  factory.save()
+  fund.save()
+  investor.save()
+}
+
+export function updateInvestorTokens(fundAddress: Address, investorAddress: Address, investor: Investor) {
+  const xxxFund2 = XXXFund2.bind(fundAddress)
+  let _investorTokens: Bytes[] = []
+  let _investorSymbols: string[] = []
+  let _investorTokensVolumeUSD: BigDecimal[] = []
+  const investorTokens = xxxFund2.getInvestorTokens(investorAddress)
+  for (let i=0; i<investorTokens.length; i++) {
+    const tokenAddress = investorTokens[i].tokenAddress
+    _investorTokens.push(tokenAddress)
+    _investorSymbols.push(ERC20.bind(tokenAddress).symbol())
+    const amount = investorTokens[i].amount
+    const amountETH = getPriceETH(tokenAddress, amount)
+    const amountUSD = amountETH.times(ethPriceInUSD)
+    _investorTokensVolumeUSD.push(amountUSD)
+  }
+  investor.tokens = _investorTokens
+  investor.symbols = _investorSymbols
+  investor.tokensVolumeUSD = _investorTokensVolumeUSD
+
+  investor.save()
 }
