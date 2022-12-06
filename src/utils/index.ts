@@ -32,30 +32,11 @@ export function loadTransaction(event: ethereum.Event): Transaction {
   return transaction as Transaction
 }
 
-export function getProfitUSD(princial: BigDecimal, volume: BigDecimal): BigDecimal {
-  let profitUSD: BigDecimal = ZERO_BD 
-  return profitUSD
-}
-
-export function getProfitRatio(princial: BigDecimal, volume: BigDecimal): BigDecimal {
-  let profitRatio: BigDecimal = ZERO_BD 
-  return profitRatio
-}
-
-export function isNewToken(fundTokens: Bytes[], token: Bytes): bool {
-  for (let i=0; i<fundTokens.length; i++) {
-    if(fundTokens[i].equals(token)) return false
-  }
-  return true
-}
-
-export function isTokenEmpty(owner: Address, token: Address): bool {
-  const balnce = ERC20.bind(token).balanceOf(owner)
-  if (balnce.gt(ZERO_BI)) {
-    return false
-  } else {
-    return true
-  }
+export function updateFundTokensVolumeUSD(fundAddress: Address): void {
+  let fund = Fund.load(getFundID(fundAddress))
+  if (!fund) return
+  fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
+  fund.save()
 }
 
 export function getInvestorTokens(_fund: Address, _investor: Address): string[] {
@@ -74,9 +55,9 @@ export function getTokensVolumeUSD(owner: Address, tokens: Bytes[]): BigDecimal[
   
   let tokensVolumeUSD: BigDecimal[] = []
   for (let i=0; i<tokens.length; i++) {
-    const balnce = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(owner)
-    const amountETH = getPriceETH(Address.fromBytes(tokens[i]), balnce)
-    const deAmountETH = amountETH.div(WETH_DECIMAL)
+    const balance = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(owner)
+    const amountETH = getPriceETH(Address.fromBytes(tokens[i]), balance)
+    const deAmountETH = amountETH
     const amountUSD = deAmountETH.times(ethPriceInUSD)
     tokensVolumeUSD.push(amountUSD)
   }
@@ -92,9 +73,19 @@ export function safeDiv(amount0: BigDecimal, amount1: BigDecimal): BigDecimal {
   }
 }
 
-export function updateVolume(fundAddress: Address, investorAddress: Address, fund: Fund, investor: Investor, ethPriceInUSD: BigDecimal) {
+export function updateVolume(
+  fundAddress: Address,
+  investorAddress: Address,
+  ethPriceInUSD: BigDecimal
+): void {
   let factory = Factory.load(FACTORY_ADDRESS)
   if (!factory) return
+
+  let fund = Fund.load(getFundID(fundAddress))
+  if (!fund) return
+
+  let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
+  if (!investor) return
 
   factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
   fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
@@ -117,7 +108,14 @@ export function updateVolume(fundAddress: Address, investorAddress: Address, fun
   investor.save()
 }
 
-export function updateInvestorTokens(fundAddress: Address, investorAddress: Address, investor: Investor) {
+export function updateInvestorTokens(
+  fundAddress: Address,
+  investorAddress: Address,
+  ethPriceInUSD: BigDecimal
+): void {
+  let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
+  if (!investor) return
+  
   const xxxFund2 = XXXFund2.bind(fundAddress)
   let _investorTokens: Bytes[] = []
   let _investorSymbols: string[] = []
@@ -135,6 +133,83 @@ export function updateInvestorTokens(fundAddress: Address, investorAddress: Addr
   investor.tokens = _investorTokens
   investor.symbols = _investorSymbols
   investor.tokensVolumeUSD = _investorTokensVolumeUSD
-
   investor.save()
+}
+
+export function updateProfit(
+  fundAddress: Address,
+  investorAddress: Address
+): void {
+  let fund = Fund.load(getFundID(fundAddress))
+  if (!fund) return
+
+  let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
+  if (!investor) return
+
+  investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
+  investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
+  fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
+  fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
+
+  fund.save()
+  investor.save()
+}
+
+export function isNewFundToken(fundTokens: Bytes[], token: Bytes): bool {
+  for (let i=0; i<fundTokens.length; i++) {
+    if(fundTokens[i].equals(token)) return false
+  }
+  return true
+}
+
+export function isEmptyFundToken(fund: Address, token: Bytes): bool {
+  const balance = ERC20.bind(Address.fromBytes(token)).balanceOf(fund)
+  if (balance.equals(ZERO_BI)) {
+    return true
+  } else {
+    return false
+  }
+}
+
+export function handleEmptyFundToken(
+  fundAddress: Address,
+  token: Bytes
+): void {
+  let fund = Fund.load(getFundID(fundAddress))
+  if (!fund) return
+
+  // if token amount 0, remove from fund token list
+  if (isEmptyFundToken(fundAddress, token)) {
+    let fundTokens: Bytes[] = []
+    let fundSymbols: string[] = []
+    for (let i=0; i<fund.tokens.length; i++) {
+      if(fund.tokens[i] === token) continue
+      fundTokens.push(fund.tokens[i])
+      fundSymbols.push(fund.symbols[i])
+    }
+    fund.tokens = fundTokens
+    fund.symbols = fundSymbols
+    fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
+    fund.save()
+  }
+}
+
+export function handleNewFundToken(
+  fundAddress: Address,
+  token: Bytes,
+  tokenSymbol: string
+): void {
+  let fund = Fund.load(getFundID(fundAddress))
+  if (!fund) return
+
+  if (isNewFundToken(fund.tokens, token)) {
+    let fundTokens: Bytes[] = fund.tokens
+    let fundSymbols: string[] = fund.symbols
+    fundTokens.push(token)
+    fundSymbols.push(tokenSymbol)
+    fund.tokens = fundTokens
+    fund.symbols = fundSymbols
+    fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
+    fund.save()
+  }
 }

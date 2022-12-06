@@ -93,7 +93,7 @@ export function getInvestorTvlETH(fund: Address, investor: Address): BigDecimal 
     const tokenAddress = investorTokens[i].tokenAddress
     const amount = investorTokens[i].amount
     const amountETH = getPriceETH(tokenAddress, amount)
-    const deAmountETH = amountETH.div(WETH_DECIMAL)
+    const deAmountETH = amountETH
     investorTvlETH = investorTvlETH.plus(deAmountETH)
   }
 
@@ -110,7 +110,7 @@ export function getInvestorTvlETH(fund: Address, investor: Address): BigDecimal 
 
     const token0VolumeETH = getPriceETH(token0, amount0)
     const token1VolumeETH = getPriceETH(token1, amount1)
-    const deVolumeETH = token0VolumeETH.plus(token1VolumeETH).div(WETH_DECIMAL)
+    const deVolumeETH = token0VolumeETH.plus(token1VolumeETH)
     investorTvlETH = investorTvlETH.plus(deVolumeETH)     
   }
 
