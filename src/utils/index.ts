@@ -136,6 +136,7 @@ export function updateInvestorTokens(
   investor.save()
 }
 
+// updateProfit must be after update principalUSD
 export function updateProfit(
   fundAddress: Address,
   investorAddress: Address
@@ -182,8 +183,9 @@ export function handleEmptyFundToken(
   if (isEmptyFundToken(fundAddress, token)) {
     let fundTokens: Bytes[] = []
     let fundSymbols: string[] = []
+
     for (let i=0; i<fund.tokens.length; i++) {
-      if(fund.tokens[i] === token) continue
+      if(fund.tokens[i].equals(token)) continue
       fundTokens.push(fund.tokens[i])
       fundSymbols.push(fund.symbols[i])
     }

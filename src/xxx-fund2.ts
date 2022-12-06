@@ -121,7 +121,6 @@ export function handleDeposit(event: DepositEvent): void {
 
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateProfit(fundAddress, event.params.investor)
   handleNewFundToken(fundAddress, deposit.token, deposit.tokenSymbol)
 
   let investor = Investor.load(getInvestorID(fundAddress, event.params.investor))
@@ -129,17 +128,17 @@ export function handleDeposit(event: DepositEvent): void {
   let fund = Fund.load(getFundID(fundAddress))
   if (!fund) return
 
-  // update principal
+  const prevVolumeUSD = investor.volumeUSD.minus(deposit.amountUSD)
+  const depositRatioUSD = ONE_BD.plus(safeDiv(deposit.amountUSD, prevVolumeUSD))
   fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
-  investor.principalUSD = investor.principalUSD.plus(depositAmountETH.times(ethPriceInUSD))
+  investor.principalUSD = investor.principalUSD.times(depositRatioUSD)
   fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
-  
-  // if (isNewFundToken(fund.tokens, deposit.token)) {
-  //   addFundToken(fundAddress, deposit.token, deposit.tokenSymbol)
-  // }
 
   investor.save()
   fund.save()
+
+  // updateProfit must be after update principalUSD
+  updateProfit(fundAddress, event.params.investor)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
@@ -171,7 +170,6 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateProfit(fundAddress, event.params.investor)
   handleEmptyFundToken(fundAddress, withdraw.token)
 
   let investor = Investor.load(getInvestorID(fundAddress, event.params.investor))
@@ -184,14 +182,12 @@ export function handleWithdraw(event: WithdrawEvent): void {
   fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
   investor.principalUSD = investor.principalUSD.times(withdrawRatioUSD)
   fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
-  
-  // // if token amount 0, remove from fund token list
-  // if (isEmptyFundToken(fundAddress, event.params.token)) {
-  //   removeFundToken(fundAddress, withdraw.token)
-  // }
 
   investor.save()
   fund.save()
+
+  // updateProfit must be after update principalUSD
+  updateProfit(fundAddress, event.params.investor)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
@@ -237,21 +233,6 @@ export function handleSwap(event: SwapEvent): void {
   updateProfit(fundAddress, event.params.investor)
   handleEmptyFundToken(fundAddress, event.params.tokenIn)
   handleNewFundToken(fundAddress, event.params.tokenOut, ERC20.bind(event.params.tokenOut).symbol())
-
-  let fund = Fund.load(getFundID(fundAddress))
-  if (!fund) return
-
-  // // if tokenIn amount 0, remove from fund token list
-  // if (isEmptyFundToken(fundAddress, event.params.tokenIn)) {
-  //   removeFundToken(fundAddress, event.params.tokenIn)
-  // }
-
-  // // if tokenOut is new, add to fund token list
-  // if (isNewFundToken(fund.tokens, event.params.tokenOut)) {
-  //   addFundToken(fundAddress, event.params.tokenOut, ERC20.bind(event.params.tokenOut).symbol())
-  // }
-
-  fund.save()
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
