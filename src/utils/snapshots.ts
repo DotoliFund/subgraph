@@ -11,6 +11,7 @@ import {
 import { getInvestorID } from './index'
 import { FACTORY_ADDRESS } from './constants'
 import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
+import { getEthPriceInUSD } from './pricing'
 
 export function xxxfund2Snapshot(event: ethereum.Event): void {
   let factory = Factory.load(FACTORY_ADDRESS)
@@ -38,10 +39,8 @@ export function fundSnapshot(
   if (!fund) return 
 
   let timestamp = event.block.timestamp
-  let fundTimeID = fundAddress
-    .toHexString()
-    .concat('-')
-    .concat(timestamp.toString())
+  let fundTimeID = fundAddress.toHexString()
+    .concat('-').concat(timestamp.toString())
     
   let fundSnapshot = FundSnapshot.load(fundTimeID)
   if (fundSnapshot === null) {
@@ -50,6 +49,7 @@ export function fundSnapshot(
     fundSnapshot.fund = fundAddress
     fundSnapshot.manager = managerAddress
     fundSnapshot.investorCount = ZERO_BI
+    fundSnapshot.principalETH = fund.principalETH
     fundSnapshot.principalUSD = fund.principalUSD
     fundSnapshot.volumeETH = fund.volumeETH
     fundSnapshot.volumeUSD = fund.volumeUSD
@@ -74,10 +74,8 @@ export function investorSnapshot(
   if (!investor) return 
 
   let timestamp = event.block.timestamp
-  let fundTimeID = investorAddress
-    .toHexString()
-    .concat('-')
-    .concat(timestamp.toString())
+  let fundTimeID = investorAddress.toHexString()
+    .concat('-').concat(timestamp.toString())
 
   let investorSnapshot = InvestorSnapshot.load(fundTimeID)
   if (investorSnapshot === null) {
@@ -86,6 +84,7 @@ export function investorSnapshot(
     investorSnapshot.fund = fundAddress
     investorSnapshot.manager = managerAddress
     investorSnapshot.investor = investorAddress
+    investorSnapshot.principalETH = investor.principalETH
     investorSnapshot.principalUSD = investor.principalUSD
     investorSnapshot.volumeETH = investor.volumeETH
     investorSnapshot.volumeUSD = investor.volumeUSD

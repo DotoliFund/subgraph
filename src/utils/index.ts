@@ -2,7 +2,6 @@
 import { BigDecimal, Address, ethereum, Bytes, log } from '@graphprotocol/graph-ts'
 import { Factory, Fund, Investor, Transaction } from '../types/schema'
 import {
-  WETH_DECIMAL,
   ZERO_BD,
   ZERO_BI,
   FACTORY_ADDRESS
@@ -147,10 +146,12 @@ export function updateProfit(
   let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
   if (!investor) return
 
+  investor.profitETH = investor.volumeETH.minus(investor.principalETH)
   investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
-  investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
+  investor.profitRatio = safeDiv(investor.profitETH, investor.principalETH).times(BigDecimal.fromString('100'))
+  fund.profitETH = fund.volumeETH.minus(fund.principalETH)
   fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
-  fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
+  fund.profitRatio = safeDiv(fund.profitETH, fund.principalETH).times(BigDecimal.fromString('100'))
 
   fund.save()
   investor.save()

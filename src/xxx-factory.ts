@@ -42,6 +42,7 @@ export function handleFundCreated(event: FundCreated): void {
   fund.createdAtTimestamp = event.block.timestamp
   fund.manager = event.params.manager
   fund.investorCount = ONE_BI
+  fund.principalETH = ZERO_BD
   fund.principalUSD = ZERO_BD
   fund.volumeETH = ZERO_BD
   fund.volumeUSD = ZERO_BD
@@ -50,6 +51,7 @@ export function handleFundCreated(event: FundCreated): void {
   fund.tokens = []
   fund.symbols = []
   fund.tokensVolumeUSD = []
+  fund.profitETH = ZERO_BD
   fund.profitUSD = ZERO_BD
   fund.profitRatio = ZERO_BD
 
@@ -61,12 +63,14 @@ export function handleFundCreated(event: FundCreated): void {
     investor.fund = event.params.fund
     investor.manager = event.params.manager
     investor.investor = event.params.manager
+    investor.principalETH = ZERO_BD
     investor.principalUSD = ZERO_BD
     investor.volumeETH = ZERO_BD
     investor.volumeUSD = ZERO_BD
     investor.tokens = []
     investor.symbols = []
     investor.tokensVolumeUSD = []
+    investor.profitETH = ZERO_BD
     investor.profitUSD = ZERO_BD
     investor.profitRatio = ZERO_BD
   }
@@ -155,12 +159,14 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.fund = event.params.fund
       investor.manager = event.params.manager
       investor.investor = event.params.investor
+      investor.principalETH = ZERO_BD
       investor.principalUSD = ZERO_BD
       investor.volumeETH = ZERO_BD
       investor.volumeUSD = ZERO_BD
       investor.tokens = []
       investor.symbols = []
       investor.tokensVolumeUSD = []
+      investor.profitETH = ZERO_BD
       investor.profitUSD = ZERO_BD
       investor.profitRatio = ZERO_BD
     }

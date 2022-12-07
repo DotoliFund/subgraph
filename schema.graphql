@@ -30,7 +30,9 @@ type Fund @entity {
   manager: Bytes!
   # investorCount
   investorCount: BigInt!
-  # principalUSD
+  # principal ETH
+  principalETH: BigDecimal!
+  # principal USD
   principalUSD: BigDecimal!
   # volumeETH
   volumeETH: BigDecimal!
@@ -46,6 +48,8 @@ type Fund @entity {
   symbols: [String!]!
   # fund tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
+  # profit ETH
+  profitETH: BigDecimal!
   # profit USD
   profitUSD: BigDecimal!
   # profit ratio
@@ -63,7 +67,9 @@ type Investor @entity {
   manager: Bytes!
   # investor address
   investor: Bytes!
-  # principalUSD
+  # principal ETH
+  principalETH: BigDecimal!
+  # principal USD
   principalUSD: BigDecimal!
   # volumeETH
   volumeETH: BigDecimal!
@@ -75,6 +81,8 @@ type Investor @entity {
   symbols: [String!]!
   # investor tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
+  # profit ETH
+  profitETH: BigDecimal!
   # profit USD
   profitUSD: BigDecimal!
   # profit ratio
@@ -403,6 +411,8 @@ type FundSnapshot @entity {
   manager: Bytes!
   # investorCount
   investorCount: BigInt!
+  # principal ETH
+  principalETH: BigDecimal!
   # principal USD
   principalUSD: BigDecimal!
   # volumeETH
@@ -433,6 +443,8 @@ type InvestorSnapshot @entity {
   manager: Bytes!
   # pointer to investor
   investor: Bytes!
+  # principal ETH
+  principalETH: BigDecimal!
   # principal USD
   principalUSD: BigDecimal!
   # volumeETH

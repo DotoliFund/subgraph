@@ -128,16 +128,16 @@ export function handleDeposit(event: DepositEvent): void {
   let fund = Fund.load(getFundID(fundAddress))
   if (!fund) return
 
-  const prevVolumeUSD = investor.volumeUSD.minus(deposit.amountUSD)
-  const depositRatioUSD = ONE_BD.plus(safeDiv(deposit.amountUSD, prevVolumeUSD))
-  fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
-  investor.principalUSD = investor.principalUSD.times(depositRatioUSD)
-  fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
+  const prevVolumeETH = investor.volumeETH.minus(deposit.amountETH)
+  const depositRatioETH = ONE_BD.plus(safeDiv(deposit.amountETH, prevVolumeETH))
+  fund.principalETH = fund.principalETH.minus(investor.principalETH)
+  investor.principalETH = investor.principalETH.times(depositRatioETH)
+  fund.principalETH = fund.principalETH.plus(investor.principalETH)
 
   investor.save()
   fund.save()
 
-  // updateProfit must be after update principalUSD
+  // updateProfit must be after update principalETH
   updateProfit(fundAddress, event.params.investor)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
@@ -177,11 +177,11 @@ export function handleWithdraw(event: WithdrawEvent): void {
   let fund = Fund.load(getFundID(fundAddress))
   if (!fund) return
 
-  const prevVolumeUSD = investor.volumeUSD.plus(withdraw.amountUSD)
-  const withdrawRatioUSD = ONE_BD.minus(safeDiv(withdraw.amountUSD, prevVolumeUSD))
-  fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
-  investor.principalUSD = investor.principalUSD.times(withdrawRatioUSD)
-  fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
+  const prevVolumeETH = investor.volumeETH.plus(withdraw.amountETH)
+  const withdrawRatioETH = ONE_BD.minus(safeDiv(withdraw.amountETH, prevVolumeETH))
+  fund.principalETH = fund.principalETH.minus(investor.principalETH)
+  investor.principalETH = investor.principalETH.times(withdrawRatioETH)
+  fund.principalETH = fund.principalETH.plus(investor.principalETH)
 
   investor.save()
   fund.save()
