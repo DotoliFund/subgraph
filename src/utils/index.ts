@@ -31,9 +31,10 @@ export function loadTransaction(event: ethereum.Event): Transaction {
   return transaction as Transaction
 }
 
-export function updateFundTokensVolumeUSD(fundAddress: Address): void {
+export function updateFundTokensVolume(fundAddress: Address): void {
   let fund = Fund.load(getFundID(fundAddress))
   if (!fund) return
+  fund.tokensVolumeETH = getTokensVolumeETH(fundAddress, fund.tokens)
   fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
   fund.save()
 }
@@ -47,6 +48,16 @@ export function getInvestorTokens(_fund: Address, _investor: Address): string[] 
     investorTokens.push(_investorTokens[i].tokenAddress.toHexString())
   }
   return investorTokens
+}
+
+export function getTokensVolumeETH(owner: Address, tokens: Bytes[]): BigDecimal[] {
+  let tokensVolumeETH: BigDecimal[] = []
+  for (let i=0; i<tokens.length; i++) {
+    const balance = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(owner)
+    const amountETH = getPriceETH(Address.fromBytes(tokens[i]), balance)
+    tokensVolumeETH.push(amountETH)
+  }
+  return tokensVolumeETH
 }
 
 export function getTokensVolumeUSD(owner: Address, tokens: Bytes[]): BigDecimal[] {
@@ -118,6 +129,7 @@ export function updateInvestorTokens(
   const xxxFund2 = XXXFund2.bind(fundAddress)
   let _investorTokens: Bytes[] = []
   let _investorSymbols: string[] = []
+  let _investorTokensVolumeETH: BigDecimal[] = []
   let _investorTokensVolumeUSD: BigDecimal[] = []
   const investorTokens = xxxFund2.getInvestorTokens(investorAddress)
   for (let i=0; i<investorTokens.length; i++) {
@@ -127,10 +139,12 @@ export function updateInvestorTokens(
     const amount = investorTokens[i].amount
     const amountETH = getPriceETH(tokenAddress, amount)
     const amountUSD = amountETH.times(ethPriceInUSD)
+    _investorTokensVolumeETH.push(amountETH)
     _investorTokensVolumeUSD.push(amountUSD)
   }
   investor.tokens = _investorTokens
   investor.symbols = _investorSymbols
+  investor.tokensVolumeETH = _investorTokensVolumeETH
   investor.tokensVolumeUSD = _investorTokensVolumeUSD
   investor.save()
 }
@@ -192,6 +206,7 @@ export function handleEmptyFundToken(
     }
     fund.tokens = fundTokens
     fund.symbols = fundSymbols
+    fund.tokensVolumeETH = getTokensVolumeETH(fundAddress, fund.tokens)
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
     fund.save()
   }
@@ -212,6 +227,7 @@ export function handleNewFundToken(
     fundSymbols.push(tokenSymbol)
     fund.tokens = fundTokens
     fund.symbols = fundSymbols
+    fund.tokensVolumeETH = getTokensVolumeETH(fundAddress, fund.tokens)
     fund.tokensVolumeUSD = getTokensVolumeUSD(fundAddress, fund.tokens)
     fund.save()
   }

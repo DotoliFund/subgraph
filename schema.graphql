@@ -46,6 +46,8 @@ type Fund @entity {
   tokens: [Bytes!]!
   # fund tokens symbol
   symbols: [String!]!
+  # fund tokens volumeETH
+  tokensVolumeETH: [BigDecimal!]!
   # fund tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
   # profit ETH
@@ -79,6 +81,8 @@ type Investor @entity {
   tokens: [Bytes!]!
   # investor tokens symbol
   symbols: [String!]!
+  # investor tokens volumeETH
+  tokensVolumeETH: [BigDecimal!]!
   # investor tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
   # profit ETH
@@ -427,6 +431,8 @@ type FundSnapshot @entity {
   tokens: [Bytes!]!
   # fund tokens symbol
   symbols: [String!]!
+  # fund tokens volumeETH
+  tokensVolumeETH: [BigDecimal!]!
   # fund tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
 }
@@ -455,6 +461,8 @@ type InvestorSnapshot @entity {
   tokens: [Bytes!]!
   # investor tokens symbol
   symbols: [String!]!
+  # investor tokens volumeETH
+  tokensVolumeETH: [BigDecimal!]!
   # investor tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
 }

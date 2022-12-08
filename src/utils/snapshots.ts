@@ -57,6 +57,7 @@ export function fundSnapshot(
     fundSnapshot.feeVolumeUSD = fund.feeVolumeUSD
     fundSnapshot.tokens = fund.tokens
     fundSnapshot.symbols = fund.symbols
+    fundSnapshot.tokensVolumeETH = fund.tokensVolumeETH
     fundSnapshot.tokensVolumeUSD = fund.tokensVolumeUSD
   }
   fundSnapshot.save()
@@ -90,6 +91,7 @@ export function investorSnapshot(
     investorSnapshot.volumeUSD = investor.volumeUSD
     investorSnapshot.tokens = investor.tokens
     investorSnapshot.symbols = investor.symbols
+    investorSnapshot.tokensVolumeETH = investor.tokensVolumeETH
     investorSnapshot.tokensVolumeUSD = investor.tokensVolumeUSD
   }
   investorSnapshot.save()
