@@ -46,6 +46,8 @@ type Fund @entity {
   tokens: [Bytes!]!
   # fund tokens symbol
   symbols: [String!]!
+  # fund tokens amount
+  tokensAmount: [BigDecimal!]!
   # fund tokens volumeETH
   tokensVolumeETH: [BigDecimal!]!
   # fund tokens volumeUSD
@@ -81,6 +83,8 @@ type Investor @entity {
   tokens: [Bytes!]!
   # investor tokens symbol
   symbols: [String!]!
+  # investor tokens amount
+  tokensAmount: [BigDecimal!]!
   # investor tokens volumeETH
   tokensVolumeETH: [BigDecimal!]!
   # investor tokens volumeUSD

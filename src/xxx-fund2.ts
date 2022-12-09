@@ -35,13 +35,13 @@ import {
   getInvestorID,
   getFundID,
   loadTransaction,
-  updateFundTokensVolume,
+  updateFundTokens,
   safeDiv,
   updateVolume,
   updateInvestorTokens,
   updateProfit,
-  handleEmptyFundToken,
-  handleNewFundToken
+  updateEmptyFundToken,
+  updateNewFundToken
 } from './utils'
 import { 
   getEthPriceInUSD,
@@ -122,8 +122,9 @@ export function handleDeposit(event: DepositEvent): void {
 
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  handleNewFundToken(fundAddress, deposit.token, deposit.tokenSymbol)
-
+  updateNewFundToken(fundAddress, deposit.token, deposit.tokenSymbol)
+  updateFundTokens(fundAddress)
+  
   let investor = Investor.load(getInvestorID(fundAddress, event.params.investor))
   if (!investor) return
   let fund = Fund.load(getFundID(fundAddress))
@@ -171,7 +172,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  handleEmptyFundToken(fundAddress, withdraw.token)
+  updateEmptyFundToken(fundAddress, withdraw.token)
+  updateFundTokens(fundAddress)
 
   let investor = Investor.load(getInvestorID(fundAddress, event.params.investor))
   if (!investor) return
@@ -234,8 +236,9 @@ export function handleSwap(event: SwapEvent): void {
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateProfit(fundAddress, event.params.investor)
-  handleEmptyFundToken(fundAddress, event.params.tokenIn)
-  handleNewFundToken(fundAddress, event.params.tokenOut, ERC20.bind(event.params.tokenOut).symbol())
+  updateEmptyFundToken(fundAddress, event.params.tokenIn)
+  updateNewFundToken(fundAddress, event.params.tokenOut, ERC20.bind(event.params.tokenOut).symbol())
+  updateFundTokens(fundAddress)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
@@ -280,7 +283,7 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateProfit(fundAddress, event.params.investor)
-  updateFundTokensVolume(fundAddress)
+  updateFundTokens(fundAddress)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
@@ -325,7 +328,7 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateProfit(fundAddress, event.params.investor)
-  updateFundTokensVolume(fundAddress)
+  updateFundTokens(fundAddress)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
@@ -370,7 +373,7 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateProfit(fundAddress, event.params.investor)
-  updateFundTokensVolume(fundAddress)
+  updateFundTokens(fundAddress)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
@@ -415,7 +418,7 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateProfit(fundAddress, event.params.investor)
-  updateFundTokensVolume(fundAddress)
+  updateFundTokens(fundAddress)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
