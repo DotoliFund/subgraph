@@ -52,16 +52,6 @@ type Fund @entity {
   tokensVolumeETH: [BigDecimal!]!
   # tokens volumeUSD not liquidity
   tokensVolumeUSD: [BigDecimal!]!
-  # liquidity tokens address
-  liquidityTokens: [Bytes!]!
-  # liquidity tokens symbol
-  liquiditySymbols: [String!]!
-  # liquidity tokens amount
-  liquidityAmount: [BigDecimal!]!
-  # liquidity tokens volumeETH
-  liquidityVolumeETH: [BigDecimal!]!
-  # liquidity tokens volumeUSD
-  liquidityVolumeUSD: [BigDecimal!]!
   # profit ETH
   profitETH: BigDecimal!
   # profit USD

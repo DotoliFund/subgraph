@@ -53,11 +53,6 @@ export function handleFundCreated(event: FundCreated): void {
   fund.tokensAmount = []
   fund.tokensVolumeETH = []
   fund.tokensVolumeUSD = []
-  fund.liquidityTokens = []
-  fund.liquiditySymbols = []
-  fund.liquidityAmount = []
-  fund.liquidityVolumeETH = []
-  fund.liquidityVolumeUSD = []
   fund.profitETH = ZERO_BD
   fund.profitUSD = ZERO_BD
   fund.profitRatio = ZERO_BD
