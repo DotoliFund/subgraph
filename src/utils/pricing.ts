@@ -101,12 +101,12 @@ export function getInvestorTvlETH(fund: Address, investor: Address): BigDecimal 
   const investorTokenIds = xxxFund2.getPositionTokenIds(investor)
   for (let i=0; i<investorTokenIds.length; i++) {
     const tokenId = investorTokenIds[i]
-    const positionTokenAmount = liquidityOracle.getPositionTokenAmount(tokenId)
+    const positionTokens = liquidityOracle.getPositionTokenAmount(tokenId)
   
-    const token0 = positionTokenAmount.getToken0()
-    const token1 = positionTokenAmount.getToken1()
-    const amount0 = positionTokenAmount.getAmount0()
-    const amount1 = positionTokenAmount.getAmount1()
+    const token0 = positionTokens.getToken0()
+    const token1 = positionTokens.getToken1()
+    const amount0 = positionTokens.getAmount0()
+    const amount1 = positionTokens.getAmount1()
 
     const token0VolumeETH = getPriceETH(token0, amount0)
     const token1VolumeETH = getPriceETH(token1, amount1)

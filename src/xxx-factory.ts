@@ -53,6 +53,11 @@ export function handleFundCreated(event: FundCreated): void {
   fund.tokensAmount = []
   fund.tokensVolumeETH = []
   fund.tokensVolumeUSD = []
+  fund.liquidityTokens = []
+  fund.liquiditySymbols = []
+  fund.liquidityAmount = []
+  fund.liquidityVolumeETH = []
+  fund.liquidityVolumeUSD = []
   fund.profitETH = ZERO_BD
   fund.profitUSD = ZERO_BD
   fund.profitRatio = ZERO_BD
@@ -74,6 +79,11 @@ export function handleFundCreated(event: FundCreated): void {
     investor.tokensAmount = []
     investor.tokensVolumeETH = []
     investor.tokensVolumeUSD = []
+    investor.liquidityTokens = []
+    investor.liquiditySymbols = []
+    investor.liquidityAmount = []
+    investor.liquidityVolumeETH = []
+    investor.liquidityVolumeUSD = []
     investor.profitETH = ZERO_BD
     investor.profitUSD = ZERO_BD
     investor.profitRatio = ZERO_BD
@@ -172,6 +182,11 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.tokensAmount = []
       investor.tokensVolumeETH = []
       investor.tokensVolumeUSD = []
+      investor.liquidityTokens = []
+      investor.liquiditySymbols = []
+      investor.liquidityAmount = []
+      investor.liquidityVolumeETH = []
+      investor.liquidityVolumeUSD = []
       investor.profitETH = ZERO_BD
       investor.profitUSD = ZERO_BD
       investor.profitRatio = ZERO_BD

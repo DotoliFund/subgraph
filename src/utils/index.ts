@@ -4,11 +4,13 @@ import { Factory, Fund, Investor, Transaction } from '../types/schema'
 import {
   ZERO_BD,
   ZERO_BI,
-  FACTORY_ADDRESS
+  FACTORY_ADDRESS,
+  LIQUIDITY_ORACLE_ADDRESS
 } from './constants'
 import { getEthPriceInUSD, getPriceETH, getInvestorTvlETH, getManagerFeeTvlETH } from './pricing'
 import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
+import { LiquidityOracle  } from '../types/templates/XXXFund2/LiquidityOracle'
 
 export function getFundID(fund: Address): string {
   const fundID = fund.toHexString().toUpperCase()
@@ -95,30 +97,98 @@ export function updateInvestorTokens(
   if (!investor) return
   
   const xxxFund2 = XXXFund2.bind(fundAddress)
-  let _investorTokens: Bytes[] = []
-  let _investorSymbols: string[] = []
-  let _investorTokensAmount: BigDecimal[] = []
-  let _investorTokensVolumeETH: BigDecimal[] = []
-  let _investorTokensVolumeUSD: BigDecimal[] = []
-  const investorTokens = xxxFund2.getInvestorTokens(investorAddress)
-  for (let i=0; i<investorTokens.length; i++) {
-    const tokenAddress = investorTokens[i].tokenAddress
-    _investorTokens.push(tokenAddress)
-    _investorSymbols.push(ERC20.bind(tokenAddress).symbol())
-    const amount = investorTokens[i].amount
+  let investorTokens: Bytes[] = []
+  let investorSymbols: string[] = []
+  let investorTokensAmount: BigDecimal[] = []
+  let investorTokensVolumeETH: BigDecimal[] = []
+  let investorTokensVolumeUSD: BigDecimal[] = []
+  const tokensInfo = xxxFund2.getInvestorTokens(investorAddress)
+  for (let i=0; i<tokensInfo.length; i++) {
+    const tokenAddress = tokensInfo[i].tokenAddress
+    investorTokens.push(tokenAddress)
+    investorSymbols.push(ERC20.bind(tokenAddress).symbol())
+    const amount = tokensInfo[i].amount
     const decimals = ERC20.bind(tokenAddress).decimals()
     const deAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
-    _investorTokensAmount.push(deAmount)
+    investorTokensAmount.push(deAmount)
     const amountETH = getPriceETH(tokenAddress, amount)
     const amountUSD = amountETH.times(ethPriceInUSD)
-    _investorTokensVolumeETH.push(amountETH)
-    _investorTokensVolumeUSD.push(amountUSD)
+    investorTokensVolumeETH.push(amountETH)
+    investorTokensVolumeUSD.push(amountUSD)
   }
-  investor.tokens = _investorTokens
-  investor.symbols = _investorSymbols
-  investor.tokensAmount = _investorTokensAmount
-  investor.tokensVolumeETH = _investorTokensVolumeETH
-  investor.tokensVolumeUSD = _investorTokensVolumeUSD
+  investor.tokens = investorTokens
+  investor.symbols = investorSymbols
+  investor.tokensAmount = investorTokensAmount
+  investor.tokensVolumeETH = investorTokensVolumeETH
+  investor.tokensVolumeUSD = investorTokensVolumeUSD
+  investor.save()
+}
+
+export function updateInvestorLiquidityTokens(
+  fundAddress: Address,
+  investorAddress: Address,
+  ethPriceInUSD: BigDecimal
+): void {
+  let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
+  if (!investor) return
+  
+  const xxxFund2 = XXXFund2.bind(fundAddress)
+  const liquidityOracle = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
+
+  let liquidityTokens: Bytes[] = []
+  let liquiditySymbols: string[] = []
+  let liquidityAmount: BigDecimal[] = []
+  let liquidityVolumeETH: BigDecimal[] = []
+  let liquidityVolumeUSD: BigDecimal[] = []
+
+  const investorTokenIds = xxxFund2.getPositionTokenIds(investorAddress)
+  for (let i=0; i<investorTokenIds.length; i++) {
+    const tokenId = investorTokenIds[i]
+    const positionTokens = liquidityOracle.getPositionTokenAmount(tokenId)
+  
+    const token0 = positionTokens.getToken0()
+    const amount0 = positionTokens.getAmount0()
+    const decimal0 = ERC20.bind(token0).decimals()
+    const deAmount0 = amount0.divDecimal(BigDecimal.fromString(f64(10 ** decimal0).toString()))
+    const token0Index = liquidityTokens.indexOf(token0)
+    if (token0Index > 0) {
+      const amount0ETH = getPriceETH(token0, amount0)
+      const amount0USD = amount0ETH.times(ethPriceInUSD)
+      liquidityAmount[token0Index] = liquidityAmount[token0Index].plus(deAmount0)
+      liquidityVolumeETH[token0Index] = liquidityVolumeETH[token0Index].plus(amount0ETH)
+      liquidityVolumeUSD[token0Index] = liquidityVolumeUSD[token0Index].plus(amount0USD)
+    } else {
+      liquidityTokens.push(token0)
+      liquiditySymbols.push(ERC20.bind(token0).symbol())
+      liquidityAmount.push(deAmount0)
+      liquidityVolumeETH.push(getPriceETH(token0, amount0))
+      liquidityVolumeUSD.push(deAmount0.times(ethPriceInUSD))
+    }
+
+    const token1 = positionTokens.getToken1()
+    const amount1 = positionTokens.getAmount1()
+    const decimal1 = ERC20.bind(token1).decimals()
+    const deAmount1 = amount1.divDecimal(BigDecimal.fromString(f64(10 ** decimal1).toString()))
+    const token1Index = liquidityTokens.indexOf(token1)
+    if (token1Index > 0) {
+      const amount1ETH = getPriceETH(token1, amount1)
+      const amount1USD = amount1ETH.times(ethPriceInUSD)
+      liquidityAmount[token1Index] = liquidityAmount[token1Index].plus(deAmount1)
+      liquidityVolumeETH[token1Index] = liquidityVolumeETH[token1Index].plus(amount1ETH)
+      liquidityVolumeUSD[token1Index] = liquidityVolumeUSD[token1Index].plus(amount1USD)
+    } else {
+      liquidityTokens.push(token1)
+      liquiditySymbols.push(ERC20.bind(token1).symbol())
+      liquidityAmount.push(deAmount1)
+      liquidityVolumeETH.push(getPriceETH(token1, amount1))
+      liquidityVolumeUSD.push(deAmount1.times(ethPriceInUSD))
+    }
+  }
+  investor.liquidityTokens = liquidityTokens
+  investor.liquiditySymbols = liquiditySymbols
+  investor.liquidityAmount = liquidityAmount
+  investor.liquidityVolumeETH = liquidityVolumeETH
+  investor.liquidityVolumeUSD = liquidityVolumeUSD
   investor.save()
 }
 

@@ -42,16 +42,26 @@ type Fund @entity {
   feeVolumeETH: BigDecimal!
   # fee volumeUSD
   feeVolumeUSD: BigDecimal!
-  # fund tokens address
+  # tokens address not liquidity
   tokens: [Bytes!]!
-  # fund tokens symbol
+  # tokens symbol not liquidity
   symbols: [String!]!
-  # fund tokens amount
+  # tokens amount not liquidity
   tokensAmount: [BigDecimal!]!
-  # fund tokens volumeETH
+  # tokens volumeETH not liquidity
   tokensVolumeETH: [BigDecimal!]!
-  # fund tokens volumeUSD
+  # tokens volumeUSD not liquidity
   tokensVolumeUSD: [BigDecimal!]!
+  # liquidity tokens address
+  liquidityTokens: [Bytes!]!
+  # liquidity tokens symbol
+  liquiditySymbols: [String!]!
+  # liquidity tokens amount
+  liquidityAmount: [BigDecimal!]!
+  # liquidity tokens volumeETH
+  liquidityVolumeETH: [BigDecimal!]!
+  # liquidity tokens volumeUSD
+  liquidityVolumeUSD: [BigDecimal!]!
   # profit ETH
   profitETH: BigDecimal!
   # profit USD
@@ -79,16 +89,26 @@ type Investor @entity {
   volumeETH: BigDecimal!
   # volumeUSD
   volumeUSD: BigDecimal!
-  # investor tokens address
+  # tokens address not liquidity
   tokens: [Bytes!]!
-  # investor tokens symbol
+  # tokens symbol not liquidity
   symbols: [String!]!
-  # investor tokens amount
+  # tokens amount not liquidity
   tokensAmount: [BigDecimal!]!
-  # investor tokens volumeETH
+  # tokens volumeETH not liquidity
   tokensVolumeETH: [BigDecimal!]!
-  # investor tokens volumeUSD
+  # tokens volumeUSD not liquidity
   tokensVolumeUSD: [BigDecimal!]!
+  # liquidity tokens address
+  liquidityTokens: [Bytes!]!
+  # liquidity tokens symbol
+  liquiditySymbols: [String!]!
+  # liquidity tokens amount
+  liquidityAmount: [BigDecimal!]!
+  # liquidity tokens volumeETH
+  liquidityVolumeETH: [BigDecimal!]!
+  # liquidity tokens volumeUSD
+  liquidityVolumeUSD: [BigDecimal!]!
   # profit ETH
   profitETH: BigDecimal!
   # profit USD
