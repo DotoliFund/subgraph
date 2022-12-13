@@ -48,6 +48,8 @@ export function handleFundCreated(event: FundCreated): void {
   fund.principalUSD = ZERO_BD
   fund.volumeETH = ZERO_BD
   fund.volumeUSD = ZERO_BD
+  fund.liquidityVolumeETH = ZERO_BD
+  fund.liquidityVolumeUSD = ZERO_BD
   fund.feeVolumeETH = ZERO_BD
   fund.feeVolumeUSD = ZERO_BD
   fund.tokens = []
@@ -71,6 +73,8 @@ export function handleFundCreated(event: FundCreated): void {
     investor.principalUSD = ZERO_BD
     investor.volumeETH = ZERO_BD
     investor.volumeUSD = ZERO_BD
+    investor.liquidityVolumeETH = ZERO_BD
+    investor.liquidityVolumeUSD = ZERO_BD  
     investor.tokens = []
     investor.symbols = []
     investor.tokensAmount = []
@@ -174,6 +178,8 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.principalUSD = ZERO_BD
       investor.volumeETH = ZERO_BD
       investor.volumeUSD = ZERO_BD
+      investor.liquidityVolumeETH = ZERO_BD
+      investor.liquidityVolumeUSD = ZERO_BD    
       investor.tokens = []
       investor.symbols = []
       investor.tokensAmount = []

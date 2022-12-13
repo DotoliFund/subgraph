@@ -26,6 +26,8 @@ export function xxxfund2Snapshot(event: ethereum.Event): void {
     xxxfund2Snapshot.whitelistTokens = factory.whitelistTokens
     xxxfund2Snapshot.totalVolumeETH = factory.totalVolumeETH
     xxxfund2Snapshot.totalVolumeUSD = factory.totalVolumeUSD
+    xxxfund2Snapshot.totalLiquidityVolumeETH = factory.totalLiquidityVolumeETH
+    xxxfund2Snapshot.totalLiquidityVolumeUSD = factory.totalLiquidityVolumeUSD
   }
   xxxfund2Snapshot.save()
 }
@@ -53,6 +55,8 @@ export function fundSnapshot(
     fundSnapshot.principalUSD = fund.principalUSD
     fundSnapshot.volumeETH = fund.volumeETH
     fundSnapshot.volumeUSD = fund.volumeUSD
+    fundSnapshot.liquidityVolumeETH = fund.liquidityVolumeETH
+    fundSnapshot.liquidityVolumeUSD = fund.liquidityVolumeUSD
     fundSnapshot.feeVolumeETH = fund.feeVolumeETH
     fundSnapshot.feeVolumeUSD = fund.feeVolumeUSD
     fundSnapshot.tokens = fund.tokens
@@ -89,6 +93,8 @@ export function investorSnapshot(
     investorSnapshot.principalUSD = investor.principalUSD
     investorSnapshot.volumeETH = investor.volumeETH
     investorSnapshot.volumeUSD = investor.volumeUSD
+    investorSnapshot.liquidityVolumeETH = investor.liquidityVolumeETH
+    investorSnapshot.liquidityVolumeUSD = investor.liquidityVolumeUSD
     investorSnapshot.tokens = investor.tokens
     investorSnapshot.symbols = investor.symbols
     investorSnapshot.tokensVolumeETH = investor.tokensVolumeETH

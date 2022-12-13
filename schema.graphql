@@ -427,6 +427,10 @@ type XXXFund2Snapshot @entity {
   totalVolumeETH: BigDecimal!
   # total volume all time in derived USD
   totalVolumeUSD: BigDecimal!
+  # total liquidity volume in derived ETH
+  totalLiquidityVolumeETH: BigDecimal!
+  # total liquidity volume in derived USD
+  totalLiquidityVolumeUSD: BigDecimal!
 }
 
 # daily stats tracker for fund
@@ -449,6 +453,10 @@ type FundSnapshot @entity {
   volumeETH: BigDecimal!
   # volume in USD
   volumeUSD: BigDecimal!
+  # liquidity VolumeETH
+  liquidityVolumeETH: BigDecimal!
+  # liquidity VolumeUSD
+  liquidityVolumeUSD: BigDecimal!
   # fee volumeETH
   feeVolumeETH: BigDecimal!
   # fee volumeUSD
@@ -483,6 +491,10 @@ type InvestorSnapshot @entity {
   volumeETH: BigDecimal!
   # volume in USD
   volumeUSD: BigDecimal!
+  # liquidity VolumeETH
+  liquidityVolumeETH: BigDecimal!
+  # liquidity VolumeUSD
+  liquidityVolumeUSD: BigDecimal!
   # investor tokens address
   tokens: [Bytes!]!
   # investor tokens symbol
