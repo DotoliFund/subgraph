@@ -137,9 +137,9 @@ export function updateInvestorLiquidityTokens(
 
   let liquidityTokens: Bytes[] = []
   let liquiditySymbols: string[] = []
-  let liquidityAmount: BigDecimal[] = []
-  let liquidityVolumeETH: BigDecimal[] = []
-  let liquidityVolumeUSD: BigDecimal[] = []
+  let liquidityTokensAmount: BigDecimal[] = []
+  let liquidityTokensVolumeETH: BigDecimal[] = []
+  let liquidityTokensVolumeUSD: BigDecimal[] = []
 
   const investorTokenIds = xxxFund2.getPositionTokenIds(investorAddress)
   for (let i=0; i<investorTokenIds.length; i++) {
@@ -154,15 +154,15 @@ export function updateInvestorLiquidityTokens(
     if (token0Index > 0) {
       const amount0ETH = getPriceETH(token0, amount0)
       const amount0USD = amount0ETH.times(ethPriceInUSD)
-      liquidityAmount[token0Index] = liquidityAmount[token0Index].plus(deAmount0)
-      liquidityVolumeETH[token0Index] = liquidityVolumeETH[token0Index].plus(amount0ETH)
-      liquidityVolumeUSD[token0Index] = liquidityVolumeUSD[token0Index].plus(amount0USD)
+      liquidityTokensAmount[token0Index] = liquidityTokensAmount[token0Index].plus(deAmount0)
+      liquidityTokensVolumeETH[token0Index] = liquidityTokensVolumeETH[token0Index].plus(amount0ETH)
+      liquidityTokensVolumeUSD[token0Index] = liquidityTokensVolumeUSD[token0Index].plus(amount0USD)
     } else {
       liquidityTokens.push(token0)
       liquiditySymbols.push(ERC20.bind(token0).symbol())
-      liquidityAmount.push(deAmount0)
-      liquidityVolumeETH.push(getPriceETH(token0, amount0))
-      liquidityVolumeUSD.push(deAmount0.times(ethPriceInUSD))
+      liquidityTokensAmount.push(deAmount0)
+      liquidityTokensVolumeETH.push(getPriceETH(token0, amount0))
+      liquidityTokensVolumeUSD.push(deAmount0.times(ethPriceInUSD))
     }
 
     const token1 = positionTokens.getToken1()
@@ -173,22 +173,22 @@ export function updateInvestorLiquidityTokens(
     if (token1Index > 0) {
       const amount1ETH = getPriceETH(token1, amount1)
       const amount1USD = amount1ETH.times(ethPriceInUSD)
-      liquidityAmount[token1Index] = liquidityAmount[token1Index].plus(deAmount1)
-      liquidityVolumeETH[token1Index] = liquidityVolumeETH[token1Index].plus(amount1ETH)
-      liquidityVolumeUSD[token1Index] = liquidityVolumeUSD[token1Index].plus(amount1USD)
+      liquidityTokensAmount[token1Index] = liquidityTokensAmount[token1Index].plus(deAmount1)
+      liquidityTokensVolumeETH[token1Index] = liquidityTokensVolumeETH[token1Index].plus(amount1ETH)
+      liquidityTokensVolumeUSD[token1Index] = liquidityTokensVolumeUSD[token1Index].plus(amount1USD)
     } else {
       liquidityTokens.push(token1)
       liquiditySymbols.push(ERC20.bind(token1).symbol())
-      liquidityAmount.push(deAmount1)
-      liquidityVolumeETH.push(getPriceETH(token1, amount1))
-      liquidityVolumeUSD.push(deAmount1.times(ethPriceInUSD))
+      liquidityTokensAmount.push(deAmount1)
+      liquidityTokensVolumeETH.push(getPriceETH(token1, amount1))
+      liquidityTokensVolumeUSD.push(deAmount1.times(ethPriceInUSD))
     }
   }
   investor.liquidityTokens = liquidityTokens
   investor.liquiditySymbols = liquiditySymbols
-  investor.liquidityAmount = liquidityAmount
-  investor.liquidityVolumeETH = liquidityVolumeETH
-  investor.liquidityVolumeUSD = liquidityVolumeUSD
+  investor.liquidityTokensAmount = liquidityTokensAmount
+  investor.liquidityTokensVolumeETH = liquidityTokensVolumeETH
+  investor.liquidityTokensVolumeUSD = liquidityTokensVolumeUSD
   investor.save()
 }
 

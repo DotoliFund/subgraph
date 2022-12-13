@@ -94,11 +94,11 @@ type Investor @entity {
   # liquidity tokens symbol
   liquiditySymbols: [String!]!
   # liquidity tokens amount
-  liquidityAmount: [BigDecimal!]!
+  liquidityTokensAmount: [BigDecimal!]!
   # liquidity tokens volumeETH
-  liquidityVolumeETH: [BigDecimal!]!
+  liquidityTokensVolumeETH: [BigDecimal!]!
   # liquidity tokens volumeUSD
-  liquidityVolumeUSD: [BigDecimal!]!
+  liquidityTokensVolumeUSD: [BigDecimal!]!
   # profit ETH
   profitETH: BigDecimal!
   # profit USD
