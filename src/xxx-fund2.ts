@@ -38,6 +38,7 @@ import {
   updateFundTokens,
   safeDiv,
   updateVolume,
+  updateLiquidityVolume,
   updateInvestorTokens,
   updateInvestorLiquidityTokens,
   updateProfit,
@@ -122,6 +123,7 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.save()
 
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
+  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateNewFundToken(fundAddress, deposit.token, deposit.tokenSymbol)
@@ -173,6 +175,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
   withdraw.save()
 
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
+  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateEmptyFundToken(fundAddress, withdraw.token)
@@ -237,6 +240,7 @@ export function handleSwap(event: SwapEvent): void {
   swap.save()
 
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
+  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
   
@@ -286,6 +290,7 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   mintNewPosition.save()
 
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
+  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
 
@@ -333,6 +338,7 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   increaseLiquidity.save()
 
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
+  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
   
@@ -380,6 +386,7 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   collectPositionFee.save()
 
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
+  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
 
@@ -427,6 +434,7 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   decreaseLiquidity.save()
 
   updateVolume(fundAddress, event.params.investor, ethPriceInUSD)
+  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
 

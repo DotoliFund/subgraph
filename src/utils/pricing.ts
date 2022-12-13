@@ -81,9 +81,8 @@ export function getPriceETH(token: Address, amountIn: BigInt): BigDecimal {
   return price.times(amountIn.toBigDecimal().div(WETH_DECIMAL))
 }
 
-export function getInvestorTvlETH(fund: Address, investor: Address): BigDecimal {
+export function getInvestorVolumeETH(fund: Address, investor: Address): BigDecimal {
   const xxxFund2 = XXXFund2.bind(fund)
-  const liquidityOracle = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
 
   let investorTvlETH = ZERO_BD
 
@@ -96,6 +95,14 @@ export function getInvestorTvlETH(fund: Address, investor: Address): BigDecimal 
     const deAmountETH = amountETH
     investorTvlETH = investorTvlETH.plus(deAmountETH)
   }
+  return investorTvlETH
+}
+
+export function getInvestorLiquidityVolumeETH(fund: Address, investor: Address): BigDecimal {
+  const xxxFund2 = XXXFund2.bind(fund)
+  const liquidityOracle = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
+
+  let investorTvlETH = ZERO_BD
 
   // liquidity volume
   const investorTokenIds = xxxFund2.getPositionTokenIds(investor)
@@ -113,7 +120,6 @@ export function getInvestorTvlETH(fund: Address, investor: Address): BigDecimal 
     const deVolumeETH = token0VolumeETH.plus(token1VolumeETH)
     investorTvlETH = investorTvlETH.plus(deVolumeETH)     
   }
-
   return investorTvlETH
 }
 

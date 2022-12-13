@@ -15,6 +15,10 @@ type Factory @entity {
   totalVolumeETH: BigDecimal!
   # total volume all time in derived USD
   totalVolumeUSD: BigDecimal!
+  # total liquidity volume in derived ETH
+  totalLiquidityVolumeETH: BigDecimal!
+  # total liquidity volume in derived USD
+  totalLiquidityVolumeUSD: BigDecimal!
   # current owner of the factory
   owner: Bytes!
 }
@@ -38,6 +42,10 @@ type Fund @entity {
   volumeETH: BigDecimal!
   # volumeUSD
   volumeUSD: BigDecimal!
+  # liquidity VolumeETH
+  liquidityVolumeETH: BigDecimal!
+  # liquidity VolumeUSD
+  liquidityVolumeUSD: BigDecimal!
   # fee volumeETH
   feeVolumeETH: BigDecimal!
   # fee volumeUSD
@@ -79,6 +87,10 @@ type Investor @entity {
   volumeETH: BigDecimal!
   # volumeUSD
   volumeUSD: BigDecimal!
+  # liquidity VolumeETH
+  liquidityVolumeETH: BigDecimal!
+  # liquidity VolumeUSD
+  liquidityVolumeUSD: BigDecimal!
   # tokens address not liquidity
   tokens: [Bytes!]!
   # tokens symbol not liquidity

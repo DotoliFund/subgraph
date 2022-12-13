@@ -7,7 +7,13 @@ import {
   FACTORY_ADDRESS,
   LIQUIDITY_ORACLE_ADDRESS
 } from './constants'
-import { getEthPriceInUSD, getPriceETH, getInvestorTvlETH, getManagerFeeTvlETH } from './pricing'
+import { 
+  getEthPriceInUSD,
+  getPriceETH,
+  getInvestorVolumeETH,
+  getInvestorLiquidityVolumeETH,
+  getManagerFeeTvlETH
+} from './pricing'
 import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
 import { LiquidityOracle  } from '../types/templates/XXXFund2/LiquidityOracle'
@@ -71,7 +77,7 @@ export function updateVolume(
   fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
   fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
 
-  investor.volumeETH = getInvestorTvlETH(fundAddress, investorAddress)
+  investor.volumeETH = getInvestorVolumeETH(fundAddress, investorAddress)
   investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
 
   fund.feeVolumeETH = getManagerFeeTvlETH(fundAddress)
@@ -83,6 +89,37 @@ export function updateVolume(
   factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
   factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
   
+  factory.save()
+  fund.save()
+  investor.save()
+}
+
+export function updateLiquidityVolume(
+  fundAddress: Address,
+  investorAddress: Address,
+  ethPriceInUSD: BigDecimal
+): void {
+  let factory = Factory.load(FACTORY_ADDRESS)
+  if (!factory) return
+
+  let fund = Fund.load(getFundID(fundAddress))
+  if (!fund) return
+
+  let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
+  if (!investor) return
+
+  factory.totalLiquidityVolumeETH = factory.totalLiquidityVolumeETH.minus(fund.liquidityVolumeETH)
+  fund.liquidityVolumeETH = fund.liquidityVolumeETH.minus(investor.liquidityVolumeETH)
+
+  investor.liquidityVolumeETH = getInvestorLiquidityVolumeETH(fundAddress, investorAddress)
+  investor.liquidityVolumeUSD = investor.liquidityVolumeETH.times(ethPriceInUSD)
+
+  fund.liquidityVolumeETH = fund.liquidityVolumeETH.plus(investor.liquidityVolumeETH)
+  fund.liquidityVolumeUSD = fund.liquidityVolumeETH.times(ethPriceInUSD)
+  
+  factory.totalLiquidityVolumeETH = factory.totalLiquidityVolumeETH.plus(fund.liquidityVolumeETH)
+  factory.totalLiquidityVolumeUSD = factory.totalLiquidityVolumeETH.times(ethPriceInUSD)
+
   factory.save()
   fund.save()
   investor.save()

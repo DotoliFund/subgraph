@@ -34,6 +34,8 @@ export function handleFundCreated(event: FundCreated): void {
     factory.managerFee = ZERO_BI
     factory.totalVolumeETH = ZERO_BD
     factory.totalVolumeUSD = ZERO_BD
+    factory.totalLiquidityVolumeETH = ZERO_BD
+    factory.totalLiquidityVolumeUSD = ZERO_BD
     factory.owner = Address.fromString(ADDRESS_ZERO)
   }
 
