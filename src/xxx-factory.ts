@@ -17,7 +17,8 @@ import {
   ONE_BI,
   ADDRESS_ZERO
 } from './utils/constants'
-import { getFundID, getInvestorID } from './utils/index'
+import { getInvestorID } from "./utils/investor"
+import { getFundID } from "./utils/fund"
 import { fundSnapshot, investorSnapshot, xxxfund2Snapshot } from "./utils/snapshots"
 import { loadTransaction } from "./utils"
 import { XXXFund2 as FundTemplate } from './types/templates'

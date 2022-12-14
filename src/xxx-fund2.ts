@@ -32,19 +32,24 @@ import {
   xxxfund2Snapshot
 } from './utils/snapshots'
 import {
-  getInvestorID,
-  getFundID,
   loadTransaction,
-  updateFundTokens,
   safeDiv,
   updateVolume,
   updateLiquidityVolume,
-  updateInvestorTokens,
-  updateInvestorLiquidityTokens,
   updateProfit,
+
+} from './utils'
+import {
+  getFundID,
+  updateFundTokens,
   updateEmptyFundToken,
   updateNewFundToken
-} from './utils'
+} from "./utils/fund"
+import {
+  getInvestorID,
+  updateInvestorTokens,
+  updateInvestorLiquidityTokens
+} from "./utils/investor"
 import { 
   getEthPriceInUSD,
   getPriceETH,
@@ -52,6 +57,7 @@ import {
 } from './utils/pricing'
 import { ERC20 } from './types/templates/XXXFund2/ERC20'
 import { XXXFund2 } from './types/templates/XXXFund2/XXXFund2'
+
 
 export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   const fundAddress = event.address

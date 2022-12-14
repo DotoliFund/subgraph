@@ -8,10 +8,10 @@ import {
   Investor,
   InvestorSnapshot,
 } from '../types/schema'
-import { getInvestorID } from './index'
+import { getInvestorID } from './investor'
 import { FACTORY_ADDRESS } from './constants'
 import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
-import { getEthPriceInUSD } from './pricing'
+
 
 export function xxxfund2Snapshot(event: ethereum.Event): void {
   let factory = Factory.load(FACTORY_ADDRESS)
