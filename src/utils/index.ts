@@ -110,7 +110,8 @@ export function updateLiquidityVolume(
 // updateProfit must be after update principalUSD
 export function updateProfit(
   fundAddress: Address,
-  investorAddress: Address
+  investorAddress: Address,
+  ethPriceInUSD: BigDecimal
 ): void {
   let fund = Fund.load(getFundID(fundAddress))
   if (!fund) return
@@ -118,11 +119,11 @@ export function updateProfit(
   let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
   if (!investor) return
 
-  investor.profitETH = investor.volumeETH.minus(investor.principalETH)
-  investor.profitUSD = investor.volumeUSD.minus(investor.principalUSD)
+  investor.profitETH = investor.volumeETH.plus(investor.liquidityVolumeETH).minus(investor.principalETH)
+  investor.profitUSD = investor.profitETH.times(ethPriceInUSD)
   investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
-  fund.profitETH = fund.volumeETH.minus(fund.principalETH)
-  fund.profitUSD = fund.volumeUSD.minus(fund.principalUSD)
+  fund.profitETH = fund.volumeETH.plus(fund.liquidityVolumeETH).minus(fund.principalETH)
+  fund.profitUSD = fund.profitETH.times(ethPriceInUSD)
   fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
   
   fund.save()

@@ -150,7 +150,7 @@ export function handleDeposit(event: DepositEvent): void {
   fund.save()
 
   // updateProfit must be after update principalETH
-  updateProfit(fundAddress, event.params.investor)
+  updateProfit(fundAddress, event.params.investor, ethPriceInUSD)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
@@ -204,7 +204,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
   fund.save()
 
   // updateProfit must be after update principalUSD
-  updateProfit(fundAddress, event.params.investor)
+  updateProfit(fundAddress, event.params.investor, ethPriceInUSD)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
@@ -250,7 +250,7 @@ export function handleSwap(event: SwapEvent): void {
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
   
-  updateProfit(fundAddress, event.params.investor)
+  updateProfit(fundAddress, event.params.investor, ethPriceInUSD)
   updateEmptyFundToken(fundAddress, event.params.tokenIn)
   updateNewFundToken(fundAddress, event.params.tokenOut, ERC20.bind(event.params.tokenOut).symbol())
   updateFundTokens(fundAddress)
@@ -300,7 +300,7 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
 
-  updateProfit(fundAddress, event.params.investor)
+  updateProfit(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundTokens(fundAddress)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
@@ -348,7 +348,7 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
   
-  updateProfit(fundAddress, event.params.investor)
+  updateProfit(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundTokens(fundAddress)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
@@ -396,7 +396,7 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
 
-  updateProfit(fundAddress, event.params.investor)
+  updateProfit(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundTokens(fundAddress)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
@@ -444,7 +444,7 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorLiquidityTokens(fundAddress, event.params.investor, ethPriceInUSD)
 
-  updateProfit(fundAddress, event.params.investor)
+  updateProfit(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundTokens(fundAddress)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
