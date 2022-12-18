@@ -141,10 +141,11 @@ export function handleDeposit(event: DepositEvent): void {
   if (!fund) return
 
   fund.principalETH = fund.principalETH.minus(investor.principalETH)
+  fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
   investor.principalETH = investor.principalETH.plus(deposit.amountETH)
-  investor.principalUSD = investor.principalETH.times(ethPriceInUSD)
+  investor.principalUSD = investor.principalUSD.plus(deposit.amountUSD)
   fund.principalETH = fund.principalETH.plus(investor.principalETH)
-  fund.principalUSD = fund.principalETH.times(ethPriceInUSD)
+  fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
 
   investor.save()
   fund.save()
@@ -196,9 +197,13 @@ export function handleWithdraw(event: WithdrawEvent): void {
   const withdrawRatioETH = ONE_BD.minus(safeDiv(withdraw.amountETH, prevVolumeETH))
   fund.principalETH = fund.principalETH.minus(investor.principalETH)
   investor.principalETH = investor.principalETH.times(withdrawRatioETH)
-  investor.principalUSD = investor.principalETH.times(ethPriceInUSD)
   fund.principalETH = fund.principalETH.plus(investor.principalETH)
-  fund.principalUSD = fund.principalETH.times(ethPriceInUSD)
+
+  const prevVolumeUSD = investor.volumeUSD.plus(withdraw.amountUSD)
+  const withdrawRatioUSD = ONE_BD.minus(safeDiv(withdraw.amountUSD, prevVolumeUSD))
+  fund.principalUSD = fund.principalUSD.minus(investor.principalUSD)
+  investor.principalUSD = investor.principalUSD.times(withdrawRatioUSD)
+  fund.principalUSD = fund.principalUSD.plus(investor.principalUSD)
 
   investor.save()
   fund.save()

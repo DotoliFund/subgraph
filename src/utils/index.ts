@@ -1,11 +1,9 @@
 /* eslint-disable prefer-const */
-import { BigDecimal, Address, ethereum, Bytes, log, BigInt } from '@graphprotocol/graph-ts'
+import { BigDecimal, Address, ethereum, Bytes } from '@graphprotocol/graph-ts'
 import { Factory, Fund, Investor, Transaction } from '../types/schema'
 import {
   ZERO_BD,
-  ZERO_BI,
   FACTORY_ADDRESS,
-  LIQUIDITY_ORACLE_ADDRESS
 } from './constants'
 import { 
   getEthPriceInUSD,
@@ -14,9 +12,7 @@ import {
   getInvestorLiquidityVolumeETH,
   getManagerFeeTvlETH
 } from './pricing'
-import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
-import { LiquidityOracle  } from '../types/templates/XXXFund2/LiquidityOracle'
 import { getFundID } from './fund'
 import { getInvestorID } from './investor'
 
@@ -120,10 +116,10 @@ export function updateProfit(
   if (!investor) return
 
   investor.profitETH = investor.volumeETH.plus(investor.liquidityVolumeETH).minus(investor.principalETH)
-  investor.profitUSD = investor.profitETH.times(ethPriceInUSD)
+  investor.profitUSD = investor.volumeUSD.plus(investor.liquidityVolumeUSD).minus(investor.principalUSD)
   investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
   fund.profitETH = fund.volumeETH.plus(fund.liquidityVolumeETH).minus(fund.principalETH)
-  fund.profitUSD = fund.profitETH.times(ethPriceInUSD)
+  fund.profitUSD = fund.volumeUSD.plus(fund.liquidityVolumeUSD).minus(fund.principalUSD)
   fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
   
   fund.save()
