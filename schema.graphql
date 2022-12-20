@@ -1,6 +1,6 @@
 type Factory @entity {
   # factory address
-  id: ID!
+  id: Bytes!
   # amount of funds created
   fundCount: BigInt!
   # amount of investor
@@ -25,7 +25,7 @@ type Factory @entity {
 
 type Fund @entity {
   # fund address
-  id: ID!
+  id: Bytes!
   # fund address
   address: Bytes!
   # creation

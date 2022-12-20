@@ -14,7 +14,7 @@ import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
 
 
 export function xxxfund2Snapshot(event: ethereum.Event): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
   if (!factory) return 
 
   let xxxfund2Snapshot = XXXFund2Snapshot.load(event.block.timestamp.toString())
@@ -37,7 +37,7 @@ export function fundSnapshot(
   managerAddress: Bytes,
   event: ethereum.Event
 ): void {
-  let fund = Fund.load(fundAddress.toHexString().toUpperCase())
+  let fund = Fund.load(fundAddress)
   if (!fund) return 
 
   let timestamp = event.block.timestamp

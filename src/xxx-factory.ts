@@ -1,4 +1,4 @@
-import { Address } from "@graphprotocol/graph-ts"
+import { Address, Bytes } from "@graphprotocol/graph-ts"
 import {
   FundCreated,
   OwnerChanged,
@@ -18,16 +18,15 @@ import {
   ADDRESS_ZERO
 } from './utils/constants'
 import { getInvestorID } from "./utils/investor"
-import { getFundID } from "./utils/fund"
 import { fundSnapshot, investorSnapshot, xxxfund2Snapshot } from "./utils/snapshots"
 import { loadTransaction } from "./utils"
 import { XXXFund2 as FundTemplate } from './types/templates'
 
 export function handleFundCreated(event: FundCreated): void {
   // load factory
-  let factory = Factory.load(FACTORY_ADDRESS)
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
   if (factory === null) {
-    factory = new Factory(FACTORY_ADDRESS)
+    factory = new Factory(Bytes.fromHexString(FACTORY_ADDRESS))
     factory.fundCount = ONE_BI
     factory.investorCount = ONE_BI
     factory.whitelistTokens = []
@@ -40,7 +39,7 @@ export function handleFundCreated(event: FundCreated): void {
     factory.owner = Address.fromString(ADDRESS_ZERO)
   }
 
-  let fund = new Fund(event.params.fund.toHexString().toUpperCase())
+  let fund = new Fund(event.params.fund)
   fund.address = event.params.fund
   fund.createdAtTimestamp = event.block.timestamp
   fund.manager = event.params.manager
@@ -135,7 +134,7 @@ export function handleFundCreated(event: FundCreated): void {
 }
 
 export function handleOwnerChanged(event: OwnerChanged): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
   if (!factory) return
   
   factory.owner = event.params.newOwner
@@ -144,12 +143,12 @@ export function handleOwnerChanged(event: OwnerChanged): void {
 }
 
 export function handleSubscribe(event: SubscribeEvent): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
   if (!factory) return
 
   factory.investorCount = factory.investorCount.plus(ONE_BI)
 
-  let fund = Fund.load(getFundID(event.params.fund))
+  let fund = Fund.load(event.params.fund)
   if (fund !== null) {
     fund.investorCount = fund.investorCount.plus(ONE_BI)
 

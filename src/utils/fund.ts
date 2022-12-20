@@ -12,14 +12,8 @@ import {
 } from './pricing'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
 
-
-export function getFundID(fund: Address): string {
-  const fundID = fund.toHexString().toUpperCase()
-  return fundID
-}
-
 export function updateFundTokens(fundAddress: Address): void {
-  let fund = Fund.load(getFundID(fundAddress))
+  let fund = Fund.load(fundAddress)
   if (!fund) return
   
   const ethPriceInUSD = getEthPriceInUSD()
@@ -70,7 +64,7 @@ export function updateEmptyFundToken(
   fundAddress: Address,
   token: Bytes
 ): void {
-  let fund = Fund.load(getFundID(fundAddress))
+  let fund = Fund.load(fundAddress)
   if (!fund) return
 
   // if token amount 0, remove from fund token list
@@ -93,7 +87,7 @@ export function updateNewFundToken(
   token: Bytes,
   tokenSymbol: string
 ): void {
-  let fund = Fund.load(getFundID(fundAddress))
+  let fund = Fund.load(fundAddress)
   if (!fund) return
 
   if (isNewFundToken(fund.tokens, token)) {

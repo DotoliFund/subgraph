@@ -40,7 +40,6 @@ import {
 
 } from './utils'
 import {
-  getFundID,
   updateFundTokens,
   updateEmptyFundToken,
   updateNewFundToken
@@ -83,9 +82,9 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
 
   managerFeeOut.save()
   
-  let factory = Factory.load(FACTORY_ADDRESS)
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
   if (!factory) return
-  let fund = Fund.load(getFundID(fundAddress))
+  let fund = Fund.load(fundAddress)
   if (!fund) return
 
   // update volume
@@ -137,7 +136,7 @@ export function handleDeposit(event: DepositEvent): void {
   
   let investor = Investor.load(getInvestorID(fundAddress, event.params.investor))
   if (!investor) return
-  let fund = Fund.load(getFundID(fundAddress))
+  let fund = Fund.load(fundAddress)
   if (!fund) return
 
   fund.principalETH = fund.principalETH.minus(investor.principalETH)
@@ -190,7 +189,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   let investor = Investor.load(getInvestorID(fundAddress, event.params.investor))
   if (!investor) return
-  let fund = Fund.load(getFundID(fundAddress))
+  let fund = Fund.load(fundAddress)
   if (!fund) return
 
   const prevVolumeETH = investor.volumeETH.plus(withdraw.amountETH)

@@ -13,7 +13,6 @@ import {
   getManagerFeeTvlETH
 } from './pricing'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
-import { getFundID } from './fund'
 import { getInvestorID } from './investor'
 
 
@@ -42,10 +41,10 @@ export function updateVolume(
   investorAddress: Address,
   ethPriceInUSD: BigDecimal
 ): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
   if (!factory) return
 
-  let fund = Fund.load(getFundID(fundAddress))
+  let fund = Fund.load(fundAddress)
   if (!fund) return
 
   let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
@@ -77,10 +76,10 @@ export function updateLiquidityVolume(
   investorAddress: Address,
   ethPriceInUSD: BigDecimal
 ): void {
-  let factory = Factory.load(FACTORY_ADDRESS)
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
   if (!factory) return
 
-  let fund = Fund.load(getFundID(fundAddress))
+  let fund = Fund.load(fundAddress)
   if (!fund) return
 
   let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
@@ -109,7 +108,7 @@ export function updateProfit(
   investorAddress: Address,
   ethPriceInUSD: BigDecimal
 ): void {
-  let fund = Fund.load(getFundID(fundAddress))
+  let fund = Fund.load(fundAddress)
   if (!fund) return
 
   let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
