@@ -1,7 +1,7 @@
 
 
 
-import { BigDecimal, Address, Bytes } from '@graphprotocol/graph-ts'
+import { BigDecimal, Address, Bytes, log } from '@graphprotocol/graph-ts'
 import { Fund } from '../types/schema'
 import {
   ZERO_BI,
@@ -25,7 +25,9 @@ export function updateFundTokens(fundAddress: Address): void {
 
   for (let i=0; i<tokens.length; i++) {
     const balance = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(fundAddress)
-    
+    log.info('aaaa updateFundTokens 1: {}', [tokens[i].toString()])
+    log.info('aaaa updateFundTokens 2: {}', [balance.toString()])
+
     const decimals = ERC20.bind(Address.fromBytes(tokens[i])).decimals()
     const tokenAmount = balance.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
     tokensAmount.push(tokenAmount)
@@ -53,6 +55,8 @@ export function isNewFundToken(fundTokens: Bytes[], token: Bytes): bool {
 
 export function isEmptyFundToken(fund: Address, token: Bytes): bool {
   const balance = ERC20.bind(Address.fromBytes(token)).balanceOf(fund)
+  log.info('aaaa isEmptyFundToken 1: {}', [token.toHexString()])
+  log.info('aaaa isEmptyFundToken 2: {}', [balance.toString()])
   if (balance.equals(ZERO_BI)) {
     return true
   } else {
@@ -72,6 +76,7 @@ export function updateEmptyFundToken(
     let fundTokens: Bytes[] = []
     let fundSymbols: string[] = []
     for (let i=0; i<fund.tokens.length; i++) {
+      log.info('aaaa updateEmptyFundToken :{}', [fund.tokens[i].toHexString()])
       if(fund.tokens[i].equals(token)) continue
       fundTokens.push(fund.tokens[i])
       fundSymbols.push(fund.symbols[i])
