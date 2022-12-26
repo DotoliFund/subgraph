@@ -37,7 +37,6 @@ import {
   updateVolume,
   updateLiquidityVolume,
   updateProfit,
-
 } from './utils'
 import {
   updateFundTokens,
@@ -96,13 +95,12 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
   factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
   factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
-  log.info('aaaa 567899999: {}', ['123'])
-
-  updateEmptyFundToken(fundAddress, managerFeeOut.token)
-  updateFundTokens(fundAddress)
 
   fund.save()
   factory.save()
+
+  updateEmptyFundToken(fundAddress, managerFeeOut.token)
+  updateFundTokens(fundAddress)
 
   fundSnapshot(fundAddress, managerAddress, event)
   xxxfund2Snapshot(event)
