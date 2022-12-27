@@ -41,7 +41,8 @@ import {
 import {
   updateFundTokens,
   updateEmptyFundToken,
-  updateNewFundToken
+  updateNewFundToken,
+  getManagerFeeTvlETH
 } from "./utils/fund"
 import {
   getInvestorID,
@@ -51,7 +52,6 @@ import {
 import { 
   getEthPriceInUSD,
   getPriceETH,
-  getManagerFeeTvlETH
 } from './utils/pricing'
 import { ERC20 } from './types/templates/XXXFund2/ERC20'
 import { XXXFund2 } from './types/templates/XXXFund2/XXXFund2'

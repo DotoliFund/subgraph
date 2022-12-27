@@ -1,7 +1,8 @@
 import { BigDecimal, Address, Bytes } from '@graphprotocol/graph-ts'
 import { Investor } from '../types/schema'
 import {
-  LIQUIDITY_ORACLE_ADDRESS
+  LIQUIDITY_ORACLE_ADDRESS,
+  ZERO_BD
 } from './constants'
 import { 
   getPriceETH,
@@ -130,4 +131,46 @@ export function updateInvestorLiquidityTokens(
   investor.liquidityTokensVolumeETH = liquidityTokensVolumeETH
   investor.liquidityTokensVolumeUSD = liquidityTokensVolumeUSD
   investor.save()
+}
+
+export function getInvestorVolumeETH(fund: Address, investor: Address): BigDecimal {
+  const xxxFund2 = XXXFund2.bind(fund)
+
+  let investorTvlETH = ZERO_BD
+
+  // not liquidity volume
+  const investorTokens = xxxFund2.getInvestorTokens(investor)
+  for (let i=0; i<investorTokens.length; i++) {
+    const tokenAddress = investorTokens[i].tokenAddress
+    const amount = investorTokens[i].amount
+    const amountETH = getPriceETH(tokenAddress, amount)
+    const deAmountETH = amountETH
+    investorTvlETH = investorTvlETH.plus(deAmountETH)
+  }
+  return investorTvlETH
+}
+
+export function getInvestorLiquidityVolumeETH(fund: Address, investor: Address): BigDecimal {
+  const xxxFund2 = XXXFund2.bind(fund)
+  const liquidityOracle = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
+
+  let investorTvlETH = ZERO_BD
+
+  // liquidity volume
+  const investorTokenIds = xxxFund2.getPositionTokenIds(investor)
+  for (let i=0; i<investorTokenIds.length; i++) {
+    const tokenId = investorTokenIds[i]
+    const positionTokens = liquidityOracle.getPositionTokenAmount(tokenId)
+  
+    const token0 = positionTokens.getToken0()
+    const token1 = positionTokens.getToken1()
+    const amount0 = positionTokens.getAmount0()
+    const amount1 = positionTokens.getAmount1()
+
+    const token0VolumeETH = getPriceETH(token0, amount0)
+    const token1VolumeETH = getPriceETH(token1, amount1)
+    const deVolumeETH = token0VolumeETH.plus(token1VolumeETH)
+    investorTvlETH = investorTvlETH.plus(deVolumeETH)     
+  }
+  return investorTvlETH
 }

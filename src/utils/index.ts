@@ -8,13 +8,11 @@ import {
 import { 
   getEthPriceInUSD,
   getPriceETH,
-  getInvestorVolumeETH,
-  getInvestorLiquidityVolumeETH,
-  getManagerFeeTvlETH
 } from './pricing'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
 import { getInvestorID } from './investor'
-
+import { getFundVolumeETH, getManagerFeeTvlETH } from './fund'
+import { getInvestorVolumeETH, getInvestorLiquidityVolumeETH } from './investor'
 
 export function loadTransaction(event: ethereum.Event): Transaction {
   let transaction = Transaction.load(event.transaction.hash.toHexString())
@@ -51,18 +49,16 @@ export function updateVolume(
   if (!investor) return
 
   factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
-  fund.volumeETH = fund.volumeETH.minus(investor.volumeETH)
-  fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
-
-  investor.volumeETH = getInvestorVolumeETH(fundAddress, investorAddress)
-  investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
+  
+  fund.volumeETH = getFundVolumeETH(fundAddress)
+  fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
 
   fund.feeVolumeETH = getManagerFeeTvlETH(fundAddress)
   fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
-  fund.volumeETH = fund.volumeETH.plus(investor.volumeETH)
-  fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
-  fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
+  investor.volumeETH = getInvestorVolumeETH(fundAddress, investorAddress)
+  investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
+
   factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
   factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
   

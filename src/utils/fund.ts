@@ -5,12 +5,14 @@ import { BigDecimal, Address, Bytes, log } from '@graphprotocol/graph-ts'
 import { Fund } from '../types/schema'
 import {
   ZERO_BI,
+  ZERO_BD
 } from './constants'
 import { 
   getEthPriceInUSD,
   getPriceETH
 } from './pricing'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
+import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
 
 export function updateFundTokens(fundAddress: Address): void {
   let fund = Fund.load(fundAddress)
@@ -99,4 +101,36 @@ export function updateNewFundToken(
     fund.symbols = fundSymbols
     fund.save()
   }
+}
+
+export function getFundVolumeETH(fundAddress: Address): BigDecimal {
+  let fund = Fund.load(fundAddress)
+  if (!fund) return ZERO_BD
+
+  let fundTvlETH = ZERO_BD
+
+  const fundTokens = fund.tokens
+  for (let i=0; i<fundTokens.length; i++) {
+    const tokenAddress = fundTokens[i]
+    const amount = ERC20.bind(Address.fromBytes(tokenAddress)).balanceOf(fundAddress)
+    const amountETH = getPriceETH(Address.fromBytes(tokenAddress), amount)
+    const deAmountETH = amountETH
+    fundTvlETH = fundTvlETH.plus(deAmountETH)
+  }
+  return fundTvlETH
+}
+
+export function getManagerFeeTvlETH(fund: Address): BigDecimal {
+  const xxxFund2 = XXXFund2.bind(fund)
+  const feeTokens = xxxFund2.getFeeTokens()
+
+  let feeTvlETH = ZERO_BD
+  for (let i=0; i<feeTokens.length; i++) {
+    const token = feeTokens[i]
+    const tokenAddress = token.tokenAddress
+    const amount = token.amount
+    const amountETH = getPriceETH(tokenAddress, amount)
+    feeTvlETH = feeTvlETH.plus(amountETH)
+  }
+  return feeTvlETH
 }
