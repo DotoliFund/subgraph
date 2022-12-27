@@ -119,18 +119,3 @@ export function getFundVolumeETH(fundAddress: Address): BigDecimal {
   }
   return fundTvlETH
 }
-
-export function getManagerFeeTvlETH(fund: Address): BigDecimal {
-  const xxxFund2 = XXXFund2.bind(fund)
-  const feeTokens = xxxFund2.getFeeTokens()
-
-  let feeTvlETH = ZERO_BD
-  for (let i=0; i<feeTokens.length; i++) {
-    const token = feeTokens[i]
-    const tokenAddress = token.tokenAddress
-    const amount = token.amount
-    const amountETH = getPriceETH(tokenAddress, amount)
-    feeTvlETH = feeTvlETH.plus(amountETH)
-  }
-  return feeTvlETH
-}

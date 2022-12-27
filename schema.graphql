@@ -46,10 +46,6 @@ type Fund @entity {
   liquidityVolumeETH: BigDecimal!
   # liquidity VolumeUSD
   liquidityVolumeUSD: BigDecimal!
-  # fee volumeETH
-  feeVolumeETH: BigDecimal!
-  # fee volumeUSD
-  feeVolumeUSD: BigDecimal!
   # tokens address not liquidity
   tokens: [Bytes!]!
   # tokens symbol not liquidity
@@ -457,10 +453,6 @@ type FundSnapshot @entity {
   liquidityVolumeETH: BigDecimal!
   # liquidity VolumeUSD
   liquidityVolumeUSD: BigDecimal!
-  # fee volumeETH
-  feeVolumeETH: BigDecimal!
-  # fee volumeUSD
-  feeVolumeUSD: BigDecimal!
   # fund tokens address
   tokens: [Bytes!]!
   # fund tokens symbol

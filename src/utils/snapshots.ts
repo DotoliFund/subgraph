@@ -57,8 +57,6 @@ export function fundSnapshot(
     fundSnapshot.volumeUSD = fund.volumeUSD
     fundSnapshot.liquidityVolumeETH = fund.liquidityVolumeETH
     fundSnapshot.liquidityVolumeUSD = fund.liquidityVolumeUSD
-    fundSnapshot.feeVolumeETH = fund.feeVolumeETH
-    fundSnapshot.feeVolumeUSD = fund.feeVolumeUSD
     fundSnapshot.tokens = fund.tokens
     fundSnapshot.symbols = fund.symbols
     fundSnapshot.tokensVolumeETH = fund.tokensVolumeETH
