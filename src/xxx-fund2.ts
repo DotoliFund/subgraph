@@ -42,7 +42,7 @@ import {
   updateFundTokens,
   updateEmptyFundToken,
   updateNewFundToken,
-  getFundVolumeETH
+  getManagerFeeTvlETH
 } from "./utils/fund"
 import {
   getInvestorID,
@@ -88,7 +88,10 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
 
   // update volume
   factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
-  fund.volumeETH = getFundVolumeETH(fundAddress)
+  fund.volumeETH = fund.volumeETH.minus(fund.feeVolumeETH)
+  fund.feeVolumeETH = getManagerFeeTvlETH(fundAddress)
+  fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
+  fund.volumeETH = fund.volumeETH.plus(fund.feeVolumeETH)
   fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
   factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
   factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)

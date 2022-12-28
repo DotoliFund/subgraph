@@ -8,6 +8,7 @@ import {
     UNISWAP_V3_FACTORY,
     ZERO_BI,
 } from './constants'
+import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
 import { safeDiv } from '../utils'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
 import { UniswapV3Factory } from '../types/templates/XXXFund2/UniswapV3Factory'

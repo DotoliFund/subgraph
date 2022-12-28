@@ -11,7 +11,7 @@ import {
 } from './pricing'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
 import { getInvestorID } from './investor'
-import { getFundVolumeETH } from './fund'
+import { getFundVolumeETH, getManagerFeeTvlETH } from './fund'
 import { getInvestorVolumeETH, getInvestorLiquidityVolumeETH } from './investor'
 
 export function loadTransaction(event: ethereum.Event): Transaction {
@@ -52,6 +52,9 @@ export function updateVolume(
   
   fund.volumeETH = getFundVolumeETH(fundAddress)
   fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
+
+  fund.feeVolumeETH = getManagerFeeTvlETH(fundAddress)
+  fund.feeVolumeUSD = fund.feeVolumeETH.times(ethPriceInUSD)
 
   investor.volumeETH = getInvestorVolumeETH(fundAddress, investorAddress)
   investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
