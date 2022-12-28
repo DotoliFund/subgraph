@@ -28,6 +28,18 @@ export function getInvestorTokens(_fund: Address, _investor: Address): string[] 
   return investorTokens
 }
 
+export function updateInvestorVolume(
+  fundAddress: Address,
+  investorAddress: Address,
+  ethPriceInUSD: BigDecimal
+): void {
+  let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
+  if (!investor) return
+
+  investor.volumeETH = getInvestorVolumeETH(fundAddress, investorAddress)
+  investor.volumeUSD = investor.volumeETH.times(ethPriceInUSD)
+  investor.save()
+}
 
 export function updateInvestorTokens(
   fundAddress: Address,

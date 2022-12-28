@@ -2,8 +2,9 @@
 
 
 import { BigDecimal, Address, Bytes, log } from '@graphprotocol/graph-ts'
-import { Fund } from '../types/schema'
+import { Fund, Factory } from '../types/schema'
 import {
+  FACTORY_ADDRESS,
   ZERO_BI,
   ZERO_BD
 } from './constants'
@@ -13,6 +14,25 @@ import {
 } from './pricing'
 import { ERC20 } from '../types/templates/XXXFund2/ERC20'
 import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
+
+export function updateFundVolume(
+  fundAddress: Address,
+  ethPriceInUSD: BigDecimal
+): void {
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  if (!factory) return
+
+  let fund = Fund.load(fundAddress)
+  if (!fund) return
+
+  factory.totalVolumeETH = factory.totalVolumeETH.minus(fund.volumeETH)
+  fund.volumeETH = getFundVolumeETH(fundAddress)
+  fund.volumeUSD = fund.volumeETH.times(ethPriceInUSD)
+  factory.totalVolumeETH = factory.totalVolumeETH.plus(fund.volumeETH)
+  factory.totalVolumeUSD = factory.totalVolumeETH.times(ethPriceInUSD)
+  fund.save()
+  factory.save()
+}
 
 export function updateFundTokens(fundAddress: Address): void {
   let fund = Fund.load(fundAddress)
@@ -120,17 +140,32 @@ export function getFundVolumeETH(fundAddress: Address): BigDecimal {
   return fundTvlETH
 }
 
-export function getManagerFeeTvlETH(fund: Address): BigDecimal {
-  const xxxFund2 = XXXFund2.bind(fund)
-  const feeTokens = xxxFund2.getFeeTokens()
+export function updateFeeTokens(fundAddress: Address): void {
+  let fund = Fund.load(fundAddress)
+  if (!fund) return
 
-  let feeTvlETH = ZERO_BD
-  for (let i=0; i<feeTokens.length; i++) {
-    const token = feeTokens[i]
-    const tokenAddress = token.tokenAddress
-    const amount = token.amount
-    const amountETH = getPriceETH(tokenAddress, amount)
-    feeTvlETH = feeTvlETH.plus(amountETH)
+  const xxxFund2 = XXXFund2.bind(fundAddress)
+  const feeTokensInfo = xxxFund2.getFeeTokens()
+
+  let feeTokens: Bytes[] = []
+  let feeSymbols: string[] = []
+  let feeTokensAmount: BigDecimal[] = []
+
+  for (let i=0; i<feeTokensInfo.length; i++) {
+    const tokenAddress = feeTokensInfo[i].tokenAddress
+    const symbol = ERC20.bind(Address.fromBytes(tokenAddress)).symbol()
+
+    feeTokens.push(tokenAddress)
+    feeSymbols.push(symbol)
+    const amount = feeTokensInfo[i].amount
+    const decimal = ERC20.bind(tokenAddress).decimals()
+    const deAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimal).toString()))
+    feeTokensAmount.push(deAmount)
   }
-  return feeTvlETH
+
+  fund.feeTokens = feeTokens
+  fund.feeSymbols = feeSymbols
+  fund.feeTokensAmount = feeTokensAmount
+
+  fund.save()
 }
