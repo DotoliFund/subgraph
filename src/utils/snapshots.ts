@@ -18,17 +18,15 @@ export function xxxfund2Snapshot(event: ethereum.Event): void {
   if (!factory) return 
 
   let xxxfund2Snapshot = XXXFund2Snapshot.load(event.block.timestamp.toString())
-  if (xxxfund2Snapshot === null) {
-    xxxfund2Snapshot = new XXXFund2Snapshot(event.block.timestamp.toString())
-    xxxfund2Snapshot.timestamp = event.block.timestamp
-    xxxfund2Snapshot.fundCount = factory.fundCount
-    xxxfund2Snapshot.investorCount = factory.investorCount
-    xxxfund2Snapshot.whitelistTokens = factory.whitelistTokens
-    xxxfund2Snapshot.totalVolumeETH = factory.totalVolumeETH
-    xxxfund2Snapshot.totalVolumeUSD = factory.totalVolumeUSD
-    xxxfund2Snapshot.totalLiquidityVolumeETH = factory.totalLiquidityVolumeETH
-    xxxfund2Snapshot.totalLiquidityVolumeUSD = factory.totalLiquidityVolumeUSD
-  }
+  xxxfund2Snapshot = new XXXFund2Snapshot(event.block.timestamp.toString())
+  xxxfund2Snapshot.timestamp = event.block.timestamp
+  xxxfund2Snapshot.fundCount = factory.fundCount
+  xxxfund2Snapshot.investorCount = factory.investorCount
+  xxxfund2Snapshot.whitelistTokens = factory.whitelistTokens
+  xxxfund2Snapshot.totalVolumeETH = factory.totalVolumeETH
+  xxxfund2Snapshot.totalVolumeUSD = factory.totalVolumeUSD
+  xxxfund2Snapshot.totalLiquidityVolumeETH = factory.totalLiquidityVolumeETH
+  xxxfund2Snapshot.totalLiquidityVolumeUSD = factory.totalLiquidityVolumeUSD
   xxxfund2Snapshot.save()
 }
 
@@ -45,23 +43,21 @@ export function fundSnapshot(
     .concat('-').concat(timestamp.toString())
     
   let fundSnapshot = FundSnapshot.load(fundTimeID)
-  if (fundSnapshot === null) {
-    fundSnapshot = new FundSnapshot(fundTimeID)
-    fundSnapshot.timestamp = timestamp
-    fundSnapshot.fund = fundAddress
-    fundSnapshot.manager = managerAddress
-    fundSnapshot.investorCount = ZERO_BI
-    fundSnapshot.principalETH = fund.principalETH
-    fundSnapshot.principalUSD = fund.principalUSD
-    fundSnapshot.volumeETH = fund.volumeETH
-    fundSnapshot.volumeUSD = fund.volumeUSD
-    fundSnapshot.liquidityVolumeETH = fund.liquidityVolumeETH
-    fundSnapshot.liquidityVolumeUSD = fund.liquidityVolumeUSD
-    fundSnapshot.tokens = fund.tokens
-    fundSnapshot.symbols = fund.symbols
-    fundSnapshot.tokensVolumeETH = fund.tokensVolumeETH
-    fundSnapshot.tokensVolumeUSD = fund.tokensVolumeUSD
-  }
+  fundSnapshot = new FundSnapshot(fundTimeID)
+  fundSnapshot.timestamp = timestamp
+  fundSnapshot.fund = fundAddress
+  fundSnapshot.manager = managerAddress
+  fundSnapshot.investorCount = fund.investorCount
+  fundSnapshot.principalETH = fund.principalETH
+  fundSnapshot.principalUSD = fund.principalUSD
+  fundSnapshot.volumeETH = fund.volumeETH
+  fundSnapshot.volumeUSD = fund.volumeUSD
+  fundSnapshot.liquidityVolumeETH = fund.liquidityVolumeETH
+  fundSnapshot.liquidityVolumeUSD = fund.liquidityVolumeUSD
+  fundSnapshot.tokens = fund.tokens
+  fundSnapshot.symbols = fund.symbols
+  fundSnapshot.tokensVolumeETH = fund.tokensVolumeETH
+  fundSnapshot.tokensVolumeUSD = fund.tokensVolumeUSD
   fundSnapshot.save()
 }
 
@@ -81,22 +77,20 @@ export function investorSnapshot(
     .concat('-').concat(timestamp.toString())
 
   let investorSnapshot = InvestorSnapshot.load(fundTimeID)
-  if (investorSnapshot === null) {
-    investorSnapshot = new InvestorSnapshot(fundTimeID)
-    investorSnapshot.timestamp = timestamp
-    investorSnapshot.fund = fundAddress
-    investorSnapshot.manager = managerAddress
-    investorSnapshot.investor = investorAddress
-    investorSnapshot.principalETH = investor.principalETH
-    investorSnapshot.principalUSD = investor.principalUSD
-    investorSnapshot.volumeETH = investor.volumeETH
-    investorSnapshot.volumeUSD = investor.volumeUSD
-    investorSnapshot.liquidityVolumeETH = investor.liquidityVolumeETH
-    investorSnapshot.liquidityVolumeUSD = investor.liquidityVolumeUSD
-    investorSnapshot.tokens = investor.tokens
-    investorSnapshot.symbols = investor.symbols
-    investorSnapshot.tokensVolumeETH = investor.tokensVolumeETH
-    investorSnapshot.tokensVolumeUSD = investor.tokensVolumeUSD
-  }
+  investorSnapshot = new InvestorSnapshot(fundTimeID)
+  investorSnapshot.timestamp = timestamp
+  investorSnapshot.fund = fundAddress
+  investorSnapshot.manager = managerAddress
+  investorSnapshot.investor = investorAddress
+  investorSnapshot.principalETH = investor.principalETH
+  investorSnapshot.principalUSD = investor.principalUSD
+  investorSnapshot.volumeETH = investor.volumeETH
+  investorSnapshot.volumeUSD = investor.volumeUSD
+  investorSnapshot.liquidityVolumeETH = investor.liquidityVolumeETH
+  investorSnapshot.liquidityVolumeUSD = investor.liquidityVolumeUSD
+  investorSnapshot.tokens = investor.tokens
+  investorSnapshot.symbols = investor.symbols
+  investorSnapshot.tokensVolumeETH = investor.tokensVolumeETH
+  investorSnapshot.tokensVolumeUSD = investor.tokensVolumeUSD
   investorSnapshot.save()
 }
