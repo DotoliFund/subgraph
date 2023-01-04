@@ -1,26 +1,37 @@
-import { Address, Bytes } from "@graphprotocol/graph-ts"
+import { Address, Bytes, BigInt, log } from "@graphprotocol/graph-ts"
 import {
+  FactoryCreated,
   FundCreated,
   OwnerChanged,
   Subscribe as SubscribeEvent,
+  WhiteListTokenAdded,
+  WhiteListTokenRemoved
 } from './types/XXXFactory/XXXFactory'
 import { 
   Factory,
   Fund,
   Investor,
-  Subscribe
+  Subscribe,
+  Token
 } from "./types/schema"
 import { 
   FACTORY_ADDRESS,
   ZERO_BD,
   ZERO_BI,
   ONE_BI,
-  ADDRESS_ZERO
+  ADDRESS_ZERO,
+  WETH9,
+  WBTC,
+  USDC,
+  DAI,
+  UNI,
+  XXX
 } from './utils/constants'
 import { getInvestorID } from "./utils/investor"
 import { fundSnapshot, investorSnapshot, xxxfund2Snapshot } from "./utils/snapshots"
 import { loadTransaction } from "./utils"
 import { XXXFund2 as FundTemplate } from './types/templates'
+import { ERC20 } from './types/templates/XXXFund2/ERC20'
 
 export function handleFundCreated(event: FundCreated): void {
   // load factory
@@ -134,15 +145,6 @@ export function handleFundCreated(event: FundCreated): void {
   // - contract.subscribedFunds(...)
 }
 
-export function handleOwnerChanged(event: OwnerChanged): void {
-  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
-  if (!factory) return
-  
-  factory.owner = event.params.newOwner
-  factory.save()
-  xxxfund2Snapshot(event)
-}
-
 export function handleSubscribe(event: SubscribeEvent): void {
   let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
   if (!factory) return
@@ -211,5 +213,60 @@ export function handleSubscribe(event: SubscribeEvent): void {
       event
     )
     xxxfund2Snapshot(event)
+  }
+}
+
+function addNewWhiteListToken(_token: Bytes, updatedTimestamp: BigInt): void  {
+  const token = new Token(_token)
+  token.id = _token
+  token.address = _token
+  log.info('12345: {}, {}', [_token.toHexString(), Address.fromBytes(_token).toHexString()])
+  token.symbol = ERC20.bind(Address.fromBytes(_token)).symbol()
+  token.updatedTimestamp = updatedTimestamp
+  token.active = true
+  token.save()
+}
+
+export function handleFactoryCreated(event: FactoryCreated): void {
+  addNewWhiteListToken(Bytes.fromHexString(WETH9), event.block.timestamp)
+  addNewWhiteListToken(Bytes.fromHexString(WBTC), event.block.timestamp)
+  addNewWhiteListToken(Bytes.fromHexString(USDC), event.block.timestamp)
+  addNewWhiteListToken(Bytes.fromHexString(DAI), event.block.timestamp)
+  addNewWhiteListToken(Bytes.fromHexString(UNI), event.block.timestamp)
+  addNewWhiteListToken(Bytes.fromHexString(XXX), event.block.timestamp)
+}
+
+export function handleOwnerChanged(event: OwnerChanged): void {
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  if (!factory) return
+  
+  factory.owner = event.params.newOwner
+  factory.save()
+  xxxfund2Snapshot(event)
+}
+
+export function handleWhiteListTokenAdded(event: WhiteListTokenAdded): void {
+  let token = Token.load(event.params.token)
+  if (!token) {
+    token = new Token(event.params.token)
+    token.id = event.params.token
+    token.address = event.params.token
+    token.symbol = ERC20.bind(event.params.token).symbol()
+    token.updatedTimestamp = event.block.timestamp
+    token.active = true
+    token.save()
+  } else {
+    token.updatedTimestamp = event.block.timestamp
+    token.active = true
+    token.save()
+  }
+}
+
+export function handleWhiteListTokenRemoved(event: WhiteListTokenRemoved): void {
+  let token = Token.load(event.params.token)
+  if (token) {
+    token.updatedTimestamp = event.block.timestamp
+    token.active = false
+    token.save()
   }
 }

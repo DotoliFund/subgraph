@@ -6,7 +6,7 @@ dataSources:
     name: XXXFactory
     network: goerli
     source:
-      address: "0x1bd5fD8015539Cc11CCf343B4493e8FC80279df1"
+      address: "0x67Aa3133070fDbA0A70Ad4D642A8b9cF47Cd214e"
       abi: XXXFactory
     mapping:
       kind: ethereum/events
@@ -15,16 +15,25 @@ dataSources:
       entities:
         - Factory
         - Fund
+        - Token
       abis:
         - name: XXXFactory
           file: ./abis/XXXFactory.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
+        - event: FactoryCreated()
+          handler: handleFactoryCreated
         - event: FundCreated(indexed address,indexed address)
           handler: handleFundCreated
         - event: Subscribe(indexed address,indexed address,indexed address)
           handler: handleSubscribe
         - event: OwnerChanged(indexed address,indexed address)
           handler: handleOwnerChanged
+        - event: WhiteListTokenAdded(indexed address)
+          handler: handleWhiteListTokenAdded
+        - event: WhiteListTokenRemoved(indexed address)
+          handler: handleWhiteListTokenRemoved
       file: ./src/xxx-factory.ts
 templates:
   - kind: ethereum

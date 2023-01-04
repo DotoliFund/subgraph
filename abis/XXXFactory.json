@@ -6,6 +6,12 @@
   },
   {
     "anonymous": false,
+    "inputs": [],
+    "name": "FactoryCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
         "indexed": true,
@@ -68,6 +74,32 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "WhiteListTokenAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "WhiteListTokenRemoved",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "createFund",
     "outputs": [
@@ -89,32 +121,6 @@
       }
     ],
     "name": "getFundByManager",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getManagerFee",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getSwapRouterAddress",
     "outputs": [
       {
         "internalType": "address",
@@ -150,19 +156,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      }
-    ],
-    "name": "isWhiteListToken",
+    "inputs": [],
+    "name": "managerFee",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "",
-        "type": "bool"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -250,19 +250,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_swapRouterAddress",
-        "type": "address"
-      }
-    ],
-    "name": "setSwapRouterAddress",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "_token",
         "type": "address"
       }
@@ -286,7 +273,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "investor",
+        "type": "address"
+      }
+    ],
     "name": "subscribedFunds",
     "outputs": [
       {

@@ -121,6 +121,19 @@ type Investor @entity {
   profitRatio: BigDecimal!
 }
 
+type Token @entity {
+  # fund address
+  id: Bytes!
+  # fund address
+  address: Bytes!
+  # token symbol
+  symbol: String!
+  # creation
+  updatedTimestamp: BigInt!
+  # true : added, false : removed
+  active: Boolean!
+}
+
 type Transaction @entity {
   # txn hash
   id: ID!
