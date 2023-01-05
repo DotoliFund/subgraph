@@ -59,7 +59,12 @@ export function updateInvestorTokens(
   for (let i=0; i<tokensInfo.length; i++) {
     const tokenAddress = tokensInfo[i].tokenAddress
     investorTokens.push(tokenAddress)
-    investorSymbols.push(ERC20.bind(tokenAddress).symbol())
+    const symbol = ERC20.bind(tokenAddress).try_symbol()
+    if (symbol.reverted) {
+      investorSymbols.push(tokenAddress.toHexString())
+    } else {
+      investorSymbols.push(symbol.value)
+    }
     const amount = tokensInfo[i].amount
     const decimals = ERC20.bind(tokenAddress).decimals()
     const deAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
@@ -112,7 +117,12 @@ export function updateInvestorLiquidityTokens(
       liquidityTokensVolumeUSD[token0Index] = liquidityTokensVolumeUSD[token0Index].plus(amount0USD)
     } else {
       liquidityTokens.push(token0)
-      liquiditySymbols.push(ERC20.bind(token0).symbol())
+      const symbol = ERC20.bind(token0).try_symbol()
+      if (symbol.reverted) {
+        liquiditySymbols.push(token0.toHexString())
+      } else {
+        liquiditySymbols.push(symbol.value)
+      }
       liquidityTokensAmount.push(deAmount0)
       liquidityTokensVolumeETH.push(getPriceETH(token0, amount0))
       liquidityTokensVolumeUSD.push(deAmount0.times(ethPriceInUSD))
@@ -131,7 +141,12 @@ export function updateInvestorLiquidityTokens(
       liquidityTokensVolumeUSD[token1Index] = liquidityTokensVolumeUSD[token1Index].plus(amount1USD)
     } else {
       liquidityTokens.push(token1)
-      liquiditySymbols.push(ERC20.bind(token1).symbol())
+      const symbol = ERC20.bind(token1).try_symbol()
+      if (symbol.reverted) {
+        liquiditySymbols.push(token1.toHexString())
+      } else {
+        liquiditySymbols.push(symbol.value)
+      }
       liquidityTokensAmount.push(deAmount1)
       liquidityTokensVolumeETH.push(getPriceETH(token1, amount1))
       liquidityTokensVolumeUSD.push(deAmount1.times(ethPriceInUSD))

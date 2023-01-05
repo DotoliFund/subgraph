@@ -153,10 +153,13 @@ export function updateFeeTokens(fundAddress: Address): void {
 
   for (let i=0; i<feeTokensInfo.length; i++) {
     const tokenAddress = feeTokensInfo[i].tokenAddress
-    const symbol = ERC20.bind(Address.fromBytes(tokenAddress)).symbol()
-
     feeTokens.push(tokenAddress)
-    feeSymbols.push(symbol)
+    const symbol = ERC20.bind(tokenAddress).try_symbol()
+    if (symbol.reverted) {
+      feeSymbols.push(tokenAddress.toHexString())
+    } else {
+      feeSymbols.push(symbol.value)
+    }
     const amount = feeTokensInfo[i].amount
     const decimal = ERC20.bind(tokenAddress).decimals()
     const deAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimal).toString()))

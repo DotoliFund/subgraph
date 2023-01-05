@@ -220,8 +220,12 @@ function addNewWhiteListToken(_token: Bytes, updatedTimestamp: BigInt): void  {
   const token = new Token(_token)
   token.id = _token
   token.address = _token
-  log.info('12345: {}, {}', [_token.toHexString(), Address.fromBytes(_token).toHexString()])
-  token.symbol = ERC20.bind(Address.fromBytes(_token)).symbol()
+  const symbol = ERC20.bind(Address.fromBytes(_token)).try_symbol()
+  if (symbol.reverted) {
+    token.symbol = _token.toHexString()
+  } else {
+    token.symbol = symbol.value
+  }
   token.updatedTimestamp = updatedTimestamp
   token.active = true
   token.save()
@@ -251,7 +255,12 @@ export function handleWhiteListTokenAdded(event: WhiteListTokenAdded): void {
     token = new Token(event.params.token)
     token.id = event.params.token
     token.address = event.params.token
-    token.symbol = ERC20.bind(event.params.token).symbol()
+    const symbol = ERC20.bind(Address.fromBytes(event.params.token)).try_symbol()
+    if (symbol.reverted) {
+      token.symbol = event.params.token.toHexString()
+    } else {
+      token.symbol = symbol.value
+    }
     token.updatedTimestamp = event.block.timestamp
     token.active = true
     token.save()
