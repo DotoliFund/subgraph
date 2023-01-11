@@ -4,9 +4,9 @@ schema:
 dataSources:
   - kind: ethereum
     name: XXXFactory
-    network: mainnet
+    network: goerli
     source:
-      address: "0x67Aa3133070fDbA0A70Ad4D642A8b9cF47Cd214e"
+      address: "0x748ff04d15Fa4620B697459f24aF5dC3804758D2"
       abi: XXXFactory
     mapping:
       kind: ethereum/events
@@ -38,7 +38,7 @@ dataSources:
 templates:
   - kind: ethereum
     name: XXXFund2
-    network: mainnet
+    network: goerli
     source:
       abi: XXXFund2
     mapping:
