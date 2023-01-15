@@ -5,12 +5,12 @@ type Factory @entity {
   fundCount: BigInt!
   # amount of investor
   investorCount: BigInt!
-  # white listed token
-  whitelistTokens: [String!]!
   # swap router contract address
   swapRouter: String!
   # manager fee
   managerFee: BigInt!
+  # white list token min pool amount in eth
+  minPoolAmount: BigInt!
   # total volume all time in derived ETH
   totalVolumeETH: BigDecimal!
   # total volume all time in derived USD
@@ -436,8 +436,6 @@ type XXXFund2Snapshot @entity {
   fundCount: BigInt!
   # amount of investor
   investorCount: BigInt!
-  # white listed token
-  whitelistTokens: [String!]!
   # total volume all time in derived ETH
   totalVolumeETH: BigDecimal!
   # total volume all time in derived USD

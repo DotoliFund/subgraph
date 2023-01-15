@@ -22,7 +22,6 @@ export function xxxfund2Snapshot(event: ethereum.Event): void {
   xxxfund2Snapshot.timestamp = event.block.timestamp
   xxxfund2Snapshot.fundCount = factory.fundCount
   xxxfund2Snapshot.investorCount = factory.investorCount
-  xxxfund2Snapshot.whitelistTokens = factory.whitelistTokens
   xxxfund2Snapshot.totalVolumeETH = factory.totalVolumeETH
   xxxfund2Snapshot.totalVolumeUSD = factory.totalVolumeUSD
   xxxfund2Snapshot.totalLiquidityVolumeETH = factory.totalLiquidityVolumeETH

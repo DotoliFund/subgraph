@@ -6,7 +6,7 @@ dataSources:
     name: XXXFactory
     network: goerli
     source:
-      address: "0x748ff04d15Fa4620B697459f24aF5dC3804758D2"
+      address: "0x44152A09350f61167403b34AC88523d24a74DFA2"
       abi: XXXFactory
     mapping:
       kind: ethereum/events
@@ -30,6 +30,10 @@ dataSources:
           handler: handleSubscribe
         - event: OwnerChanged(indexed address,indexed address)
           handler: handleOwnerChanged
+        - event: MinPoolAmountChanged(uint256)
+          handler: handleMinPoolAmountChanged
+        - event: ManagerFeeChanged(uint256)
+          handler: handleManagerFeeChanged
         - event: WhiteListTokenAdded(indexed address)
           handler: handleWhiteListTokenAdded
         - event: WhiteListTokenRemoved(indexed address)

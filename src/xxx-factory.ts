@@ -3,6 +3,8 @@ import {
   FactoryCreated,
   FundCreated,
   OwnerChanged,
+  MinPoolAmountChanged,
+  ManagerFeeChanged,
   Subscribe as SubscribeEvent,
   WhiteListTokenAdded,
   WhiteListTokenRemoved
@@ -17,14 +19,12 @@ import {
 import { 
   FACTORY_ADDRESS,
   ZERO_BD,
-  ZERO_BI,
   ONE_BI,
   ADDRESS_ZERO,
+  SWAP_ROUTER_ADDRESS,
+  UNKNWON_SYMBOL,
+  DECIMAL_18,
   WETH9,
-  WBTC,
-  USDC,
-  DAI,
-  UNI,
   XXX
 } from './utils/constants'
 import { getInvestorID } from "./utils/investor"
@@ -34,22 +34,6 @@ import { XXXFund2 as FundTemplate } from './types/templates'
 import { ERC20 } from './types/templates/XXXFund2/ERC20'
 
 export function handleFundCreated(event: FundCreated): void {
-  // load factory
-  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
-  if (factory === null) {
-    factory = new Factory(Bytes.fromHexString(FACTORY_ADDRESS))
-    factory.fundCount = ONE_BI
-    factory.investorCount = ONE_BI
-    factory.whitelistTokens = []
-    factory.swapRouter = ADDRESS_ZERO
-    factory.managerFee = ZERO_BI
-    factory.totalVolumeETH = ZERO_BD
-    factory.totalVolumeUSD = ZERO_BD
-    factory.totalLiquidityVolumeETH = ZERO_BD
-    factory.totalLiquidityVolumeUSD = ZERO_BD
-    factory.owner = Address.fromString(ADDRESS_ZERO)
-  }
-
   let fund = new Fund(event.params.fund)
   fund.address = event.params.fund
   fund.createdAtTimestamp = event.block.timestamp
@@ -105,7 +89,7 @@ export function handleFundCreated(event: FundCreated): void {
   fund.save()
   // create the tracked contract based on the template
   FundTemplate.create(event.params.fund)
-  factory.save()
+
   investorSnapshot(
     event.params.fund,
     event.params.manager,
@@ -216,28 +200,46 @@ export function handleSubscribe(event: SubscribeEvent): void {
   }
 }
 
-function addNewWhiteListToken(_token: Bytes, updatedTimestamp: BigInt): void  {
-  const token = new Token(_token)
-  token.id = _token
-  token.address = _token
-  const symbol = ERC20.bind(Address.fromBytes(_token)).try_symbol()
-  if (symbol.reverted) {
-    token.symbol = _token.toHexString()
-  } else {
-    token.symbol = symbol.value
-  }
-  token.updatedTimestamp = updatedTimestamp
-  token.active = true
-  token.save()
-}
-
 export function handleFactoryCreated(event: FactoryCreated): void {
-  addNewWhiteListToken(Bytes.fromHexString(WETH9), event.block.timestamp)
-  addNewWhiteListToken(Bytes.fromHexString(WBTC), event.block.timestamp)
-  addNewWhiteListToken(Bytes.fromHexString(USDC), event.block.timestamp)
-  addNewWhiteListToken(Bytes.fromHexString(DAI), event.block.timestamp)
-  addNewWhiteListToken(Bytes.fromHexString(UNI), event.block.timestamp)
-  addNewWhiteListToken(Bytes.fromHexString(XXX), event.block.timestamp)
+  // load factory
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  if (factory === null) {
+    factory = new Factory(Bytes.fromHexString(FACTORY_ADDRESS))
+    factory.fundCount = ONE_BI
+    factory.investorCount = ONE_BI
+    factory.swapRouter = SWAP_ROUTER_ADDRESS
+    factory.managerFee = BigInt.fromString("10000")
+    factory.minPoolAmount = BigInt.fromString(DECIMAL_18)
+    factory.totalVolumeETH = ZERO_BD
+    factory.totalVolumeUSD = ZERO_BD
+    factory.totalLiquidityVolumeETH = ZERO_BD
+    factory.totalLiquidityVolumeUSD = ZERO_BD
+    factory.owner = Address.fromString(ADDRESS_ZERO)
+    factory.save()
+  }
+  const test = 'test'
+
+  const weth9 = new Token(Address.fromHexString(WETH9))
+  weth9.id = Bytes.fromHexString(WETH9)
+  weth9.address = Bytes.fromHexString(WETH9)
+  const weth9Symbol = ERC20.bind(Address.fromString(WETH9)).try_symbol()
+  if (!weth9Symbol.reverted) {
+    weth9.symbol = weth9Symbol.value
+    weth9.updatedTimestamp = event.block.timestamp
+    weth9.active = true
+    weth9.save()
+  }
+
+  const xxx = new Token(Address.fromHexString(XXX))
+  xxx.id = Bytes.fromHexString(XXX)
+  xxx.address = Bytes.fromHexString(XXX)
+  const xxxSymbol = ERC20.bind(Address.fromString(XXX)).try_symbol()
+  if (!xxxSymbol.reverted) {
+    xxx.symbol = xxxSymbol.value
+    xxx.updatedTimestamp = event.block.timestamp
+    xxx.active = true
+    xxx.save()
+  }
 }
 
 export function handleOwnerChanged(event: OwnerChanged): void {
@@ -249,6 +251,20 @@ export function handleOwnerChanged(event: OwnerChanged): void {
   xxxfund2Snapshot(event)
 }
 
+export function handleMinPoolAmountChanged(event: MinPoolAmountChanged): void {
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  if (!factory) return
+  factory.minPoolAmount = event.params.amount
+  factory.save()
+}
+
+export function handleManagerFeeChanged(event: ManagerFeeChanged): void {
+  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  if (!factory) return
+  factory.managerFee = event.params.managerFee
+  factory.save()
+}
+
 export function handleWhiteListTokenAdded(event: WhiteListTokenAdded): void {
   let token = Token.load(event.params.token)
   if (!token) {
@@ -257,7 +273,7 @@ export function handleWhiteListTokenAdded(event: WhiteListTokenAdded): void {
     token.address = event.params.token
     const symbol = ERC20.bind(Address.fromBytes(event.params.token)).try_symbol()
     if (symbol.reverted) {
-      token.symbol = event.params.token.toHexString()
+      token.symbol = UNKNWON_SYMBOL
     } else {
       token.symbol = symbol.value
     }
