@@ -8,7 +8,7 @@ import {
   IncreaseLiquidity as IncreaseLiquidityEvent,
   CollectPositionFee as CollectPositionFeeEvent,
   DecreaseLiquidity as DecreaseLiquidityEvent
-} from './types/templates/XXXFund2/XXXFund2'
+} from './types/templates/DotoliFund/DotoliFund'
 import {
   Fund,
   Investor,
@@ -27,7 +27,7 @@ import {
 import { 
   fundSnapshot,
   investorSnapshot,
-  xxxfund2Snapshot
+  dotolifundSnapshot
 } from './utils/snapshots'
 import {
   loadTransaction,
@@ -52,13 +52,13 @@ import {
   getEthPriceInUSD,
   getPriceETH,
 } from './utils/pricing'
-import { ERC20 } from './types/templates/XXXFund2/ERC20'
-import { XXXFund2 } from './types/templates/XXXFund2/XXXFund2'
+import { ERC20 } from './types/templates/DotoliFund/ERC20'
+import { DotoliFund } from './types/templates/DotoliFund/DotoliFund'
 
 
 export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   const fundAddress = event.address
-  const managerAddress = XXXFund2.bind(fundAddress).manager()
+  const managerAddress = DotoliFund.bind(fundAddress).manager()
   const ethPriceInUSD = getEthPriceInUSD()
 
   let transaction = loadTransaction(event)
@@ -92,12 +92,12 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   updateFundVolume(fundAddress, ethPriceInUSD)
 
   fundSnapshot(fundAddress, managerAddress, event)
-  xxxfund2Snapshot(event)
+  dotolifundSnapshot(event)
 }
 
 export function handleDeposit(event: DepositEvent): void {
   const fundAddress = event.address
-  const managerAddress = XXXFund2.bind(fundAddress).manager()
+  const managerAddress = DotoliFund.bind(fundAddress).manager()
   const ethPriceInUSD = getEthPriceInUSD()
 
   let transaction = loadTransaction(event)
@@ -154,12 +154,12 @@ export function handleDeposit(event: DepositEvent): void {
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  xxxfund2Snapshot(event)
+  dotolifundSnapshot(event)
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
   const fundAddress = event.address
-  const managerAddress = XXXFund2.bind(fundAddress).manager()
+  const managerAddress = DotoliFund.bind(fundAddress).manager()
   const ethPriceInUSD = getEthPriceInUSD()
 
   let transaction = loadTransaction(event)
@@ -225,12 +225,12 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  xxxfund2Snapshot(event)
+  dotolifundSnapshot(event)
 }
 
 export function handleSwap(event: SwapEvent): void {
   const fundAddress = event.address
-  const managerAddress = XXXFund2.bind(fundAddress).manager()
+  const managerAddress = DotoliFund.bind(fundAddress).manager()
   const ethPriceInUSD = getEthPriceInUSD()
 
   const tokenIn = event.params.tokenIn.toHexString()
@@ -287,12 +287,12 @@ export function handleSwap(event: SwapEvent): void {
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  xxxfund2Snapshot(event)
+  dotolifundSnapshot(event)
 }
 
 export function handleMintNewPosition(event: MintNewPositionEvent): void {
   const fundAddress = event.address
-  const managerAddress = XXXFund2.bind(fundAddress).manager()
+  const managerAddress = DotoliFund.bind(fundAddress).manager()
   const ethPriceInUSD = getEthPriceInUSD()
 
   const token0 = event.params.token0.toHexString()
@@ -348,12 +348,12 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  xxxfund2Snapshot(event)
+  dotolifundSnapshot(event)
 }
 
 export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   const fundAddress = event.address
-  const managerAddress = XXXFund2.bind(fundAddress).manager()
+  const managerAddress = DotoliFund.bind(fundAddress).manager()
   const ethPriceInUSD = getEthPriceInUSD()
 
   const token0 = event.params.token0.toHexString()
@@ -409,12 +409,12 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  xxxfund2Snapshot(event)
+  dotolifundSnapshot(event)
 }
 
 export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   const fundAddress = event.address
-  const managerAddress = XXXFund2.bind(fundAddress).manager()
+  const managerAddress = DotoliFund.bind(fundAddress).manager()
   const ethPriceInUSD = getEthPriceInUSD()
 
   const token0 = event.params.token0.toHexString()
@@ -470,12 +470,12 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  xxxfund2Snapshot(event)
+  dotolifundSnapshot(event)
 }
 
 export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   const fundAddress = event.address
-  const managerAddress = XXXFund2.bind(fundAddress).manager()
+  const managerAddress = DotoliFund.bind(fundAddress).manager()
   const ethPriceInUSD = getEthPriceInUSD()
 
   const token0 = event.params.token0.toHexString()
@@ -531,5 +531,5 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  xxxfund2Snapshot(event)
+  dotolifundSnapshot(event)
 }

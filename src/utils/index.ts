@@ -3,13 +3,13 @@ import { BigDecimal, Address, ethereum, Bytes } from '@graphprotocol/graph-ts'
 import { Factory, Fund, Investor, Transaction } from '../types/schema'
 import {
   ZERO_BD,
-  FACTORY_ADDRESS,
+  DOTOLI_FACTORY_ADDRESS,
 } from './constants'
 import { 
   getEthPriceInUSD,
   getPriceETH,
 } from './pricing'
-import { ERC20 } from '../types/templates/XXXFund2/ERC20'
+import { ERC20 } from '../types/templates/DotoliFund/ERC20'
 import { getInvestorID } from './investor'
 import { getInvestorLiquidityVolumeETH } from './investor'
 
@@ -38,7 +38,7 @@ export function updateLiquidityVolume(
   investorAddress: Address,
   ethPriceInUSD: BigDecimal
 ): void {
-  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (!factory) return
 
   let fund = Fund.load(fundAddress)

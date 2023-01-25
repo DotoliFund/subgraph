@@ -4,7 +4,7 @@
 import { BigDecimal, Address, Bytes, log } from '@graphprotocol/graph-ts'
 import { Fund, Factory } from '../types/schema'
 import {
-  FACTORY_ADDRESS,
+  DOTOLI_FACTORY_ADDRESS,
   ZERO_BI,
   ZERO_BD
 } from './constants'
@@ -12,14 +12,14 @@ import {
   getEthPriceInUSD,
   getPriceETH
 } from './pricing'
-import { ERC20 } from '../types/templates/XXXFund2/ERC20'
-import { XXXFund2 } from '../types/templates/XXXFund2/XXXFund2'
+import { ERC20 } from '../types/templates/DotoliFund/ERC20'
+import { DotoliFund } from '../types/templates/DotoliFund/DotoliFund'
 
 export function updateFundVolume(
   fundAddress: Address,
   ethPriceInUSD: BigDecimal
 ): void {
-  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (!factory) return
 
   let fund = Fund.load(fundAddress)
@@ -144,8 +144,8 @@ export function updateFeeTokens(fundAddress: Address): void {
   let fund = Fund.load(fundAddress)
   if (!fund) return
 
-  const xxxFund2 = XXXFund2.bind(fundAddress)
-  const feeTokensInfo = xxxFund2.getFeeTokens()
+  const dotolifund = DotoliFund.bind(fundAddress)
+  const feeTokensInfo = dotolifund.getFeeTokens()
 
   let feeTokens: Bytes[] = []
   let feeSymbols: string[] = []

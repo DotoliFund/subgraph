@@ -8,7 +8,7 @@ import {
   Subscribe as SubscribeEvent,
   WhiteListTokenAdded,
   WhiteListTokenRemoved
-} from './types/XXXFactory/XXXFactory'
+} from './types/DotoliFactory/DotoliFactory'
 import { 
   Factory,
   Fund,
@@ -17,7 +17,7 @@ import {
   Token
 } from "./types/schema"
 import { 
-  FACTORY_ADDRESS,
+  DOTOLI_FACTORY_ADDRESS,
   ZERO_BD,
   ONE_BI,
   ADDRESS_ZERO,
@@ -25,13 +25,13 @@ import {
   UNKNWON_SYMBOL,
   DECIMAL_18,
   WETH9,
-  XXX
+  DTL
 } from './utils/constants'
 import { getInvestorID } from "./utils/investor"
-import { fundSnapshot, investorSnapshot, xxxfund2Snapshot } from "./utils/snapshots"
+import { fundSnapshot, investorSnapshot, dotolifundSnapshot } from "./utils/snapshots"
 import { loadTransaction } from "./utils"
-import { XXXFund2 as FundTemplate } from './types/templates'
-import { ERC20 } from './types/templates/XXXFund2/ERC20'
+import { DotoliFund as FundTemplate } from './types/templates'
+import { ERC20 } from './types/templates/DotoliFund/ERC20'
 
 export function handleFundCreated(event: FundCreated): void {
   let fund = new Fund(event.params.fund)
@@ -73,11 +73,13 @@ export function handleFundCreated(event: FundCreated): void {
     investor.liquidityVolumeUSD = ZERO_BD  
     investor.tokens = []
     investor.symbols = []
+    investor.decimals = []
     investor.tokensAmount = []
     investor.tokensVolumeETH = []
     investor.tokensVolumeUSD = []
     investor.liquidityTokens = []
     investor.liquiditySymbols = []
+    investor.liquidityDecimals = []
     investor.liquidityTokensAmount = []
     investor.liquidityTokensVolumeETH = []
     investor.liquidityTokensVolumeUSD = []
@@ -101,7 +103,7 @@ export function handleFundCreated(event: FundCreated): void {
     event.params.manager,
     event
   )
-  xxxfund2Snapshot(event)
+  dotolifundSnapshot(event)
 
   // Note: If a handler doesn't require existing field values, it is faster
   // _not_ to load the entity from the store. Instead, create it fresh with
@@ -130,7 +132,7 @@ export function handleFundCreated(event: FundCreated): void {
 }
 
 export function handleSubscribe(event: SubscribeEvent): void {
-  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (!factory) return
 
   factory.investorCount = factory.investorCount.plus(ONE_BI)
@@ -169,11 +171,13 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.liquidityVolumeUSD = ZERO_BD    
       investor.tokens = []
       investor.symbols = []
+      investor.decimals = []
       investor.tokensAmount = []
       investor.tokensVolumeETH = []
       investor.tokensVolumeUSD = []
       investor.liquidityTokens = []
       investor.liquiditySymbols = []
+      investor.liquidityDecimals = []
       investor.liquidityTokensAmount = []
       investor.liquidityTokensVolumeETH = []
       investor.liquidityTokensVolumeUSD = []
@@ -196,15 +200,15 @@ export function handleSubscribe(event: SubscribeEvent): void {
       event.params.manager,
       event
     )
-    xxxfund2Snapshot(event)
+    dotolifundSnapshot(event)
   }
 }
 
 export function handleFactoryCreated(event: FactoryCreated): void {
   // load factory
-  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (factory === null) {
-    factory = new Factory(Bytes.fromHexString(FACTORY_ADDRESS))
+    factory = new Factory(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
     factory.fundCount = ONE_BI
     factory.investorCount = ONE_BI
     factory.swapRouter = SWAP_ROUTER_ADDRESS
@@ -230,36 +234,36 @@ export function handleFactoryCreated(event: FactoryCreated): void {
     weth9.save()
   }
 
-  const xxx = new Token(Address.fromHexString(XXX))
-  xxx.id = Bytes.fromHexString(XXX)
-  xxx.address = Bytes.fromHexString(XXX)
-  const xxxSymbol = ERC20.bind(Address.fromString(XXX)).try_symbol()
-  if (!xxxSymbol.reverted) {
-    xxx.symbol = xxxSymbol.value
-    xxx.updatedTimestamp = event.block.timestamp
-    xxx.active = true
-    xxx.save()
+  const dtl = new Token(Address.fromHexString(DTL))
+  dtl.id = Bytes.fromHexString(DTL)
+  dtl.address = Bytes.fromHexString(DTL)
+  const dtlSymbol = ERC20.bind(Address.fromString(DTL)).try_symbol()
+  if (!dtlSymbol.reverted) {
+    dtl.symbol = dtlSymbol.value
+    dtl.updatedTimestamp = event.block.timestamp
+    dtl.active = true
+    dtl.save()
   }
 }
 
 export function handleOwnerChanged(event: OwnerChanged): void {
-  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (!factory) return
   
   factory.owner = event.params.newOwner
   factory.save()
-  xxxfund2Snapshot(event)
+  dotolifundSnapshot(event)
 }
 
 export function handleMinPoolAmountChanged(event: MinPoolAmountChanged): void {
-  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (!factory) return
   factory.minPoolAmount = event.params.amount
   factory.save()
 }
 
 export function handleManagerFeeChanged(event: ManagerFeeChanged): void {
-  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (!factory) return
   factory.managerFee = event.params.managerFee
   factory.save()

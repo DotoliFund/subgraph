@@ -3,11 +3,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: XXXFactory
+    name: DotoliFactory
     network: goerli
     source:
       address: "0x44152A09350f61167403b34AC88523d24a74DFA2"
-      abi: XXXFactory
+      abi: DotoliFactory
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -17,8 +17,8 @@ dataSources:
         - Fund
         - Token
       abis:
-        - name: XXXFactory
-          file: ./abis/XXXFactory.json
+        - name: DotoliFactory
+          file: ./abis/DotoliFactory.json
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
@@ -38,13 +38,13 @@ dataSources:
           handler: handleWhiteListTokenAdded
         - event: WhiteListTokenRemoved(indexed address)
           handler: handleWhiteListTokenRemoved
-      file: ./src/xxx-factory.ts
+      file: ./src/dotolifactory.ts
 templates:
   - kind: ethereum
-    name: XXXFund2
+    name: DotoliFund
     network: goerli
     source:
-      abi: XXXFund2
+      abi: DotoliFund
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -53,8 +53,8 @@ templates:
         - Fund
         - Investor
       abis:
-        - name: XXXFund2
-          file: ./abis/XXXFund2.json
+        - name: DotoliFund
+          file: ./abis/DotoliFund.json
         - name: LiquidityOracle
           file: ./abis/LiquidityOracle.json
         - name: ERC20
@@ -80,4 +80,4 @@ templates:
           handler: handleCollectPositionFee
         - event: DecreaseLiquidity(indexed address,address,address,uint256,uint256)
           handler: handleDecreaseLiquidity
-      file: ./src/xxx-fund2.ts
+      file: ./src/dotolifund.ts

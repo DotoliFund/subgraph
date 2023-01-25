@@ -9,26 +9,12 @@ import {
     ZERO_BI,
 } from './constants'
 import { safeDiv } from '../utils'
-import { ERC20 } from '../types/templates/XXXFund2/ERC20'
-import { UniswapV3Factory } from '../types/templates/XXXFund2/UniswapV3Factory'
-import { UniswapV3Pool } from '../types/templates/XXXFund2/UniswapV3Pool'
+import { ERC20 } from '../types/templates/DotoliFund/ERC20'
+import { UniswapV3Factory } from '../types/templates/DotoliFund/UniswapV3Factory'
+import { UniswapV3Pool } from '../types/templates/DotoliFund/UniswapV3Pool'
 
 const Q192 = f64(2 ** 192)
-// export function sqrtPriceX96ToTokenPrices(sqrtPriceX96: BigInt, token0: Address, token1: Address): BigDecimal[] {
-//   let num = sqrtPriceX96.times(sqrtPriceX96).toBigDecimal()
-//   let denom = BigDecimal.fromString(Q192.toString())
-//   const token0Decimals = ERC20.bind(token0).decimals()
-//   const token1Decimals = ERC20.bind(token1).decimals()
 
-//   let price1 = num
-//     .div(denom)
-//     .times(BigDecimal.fromString(f64(10 ** token1Decimals).toString()))
-//     .div(BigDecimal.fromString(f64(10 ** token0Decimals).toString()))
-
-//   let price0 = safeDiv(BigDecimal.fromString('1'), price1)
-  
-//   return [price0, price1]
-// }
 export function sqrtPriceX96ToTokenPrices(sqrtPriceX96: BigInt, token0: Address, token1: Address): BigDecimal[] {
   let num = sqrtPriceX96.times(sqrtPriceX96).toBigDecimal()
   let denom = BigDecimal.fromString(Q192.toString())
@@ -41,9 +27,6 @@ export function sqrtPriceX96ToTokenPrices(sqrtPriceX96: BigInt, token0: Address,
     .div(BigDecimal.fromString(f64(10 ** token1Decimals).toString()))
 
   let price0 = safeDiv(BigDecimal.fromString('1'), price1)
-  log.info('test1234 token0 token1: {}, {}', [token0.toHexString(), token1.toHexString()])
-  log.info('test1234 price0 : {}', [price0.toString()])
-  log.info('test1234 price1 : {}', [price1.toString()])
 
   return [price0, price1]
 }
@@ -67,7 +50,6 @@ export function getEthPriceInUSD(): BigDecimal {
     if (liquidity.reverted) {
       continue
     }
-    log.info('test1234 getEthPriceInUSD liquiditiy : {}', [liquidity.value.toString()])
     if (liquidity.value.gt(ZERO_BI) && liquidity.value.gt(largestLiquidity)) {
       const token0 = UniswapV3Pool.bind(poolAddress.value).token0()
       const token1 = UniswapV3Pool.bind(poolAddress.value).token1()
@@ -75,12 +57,8 @@ export function getEthPriceInUSD(): BigDecimal {
       const sqrtPriceX96 = slot0.getSqrtPriceX96()
       if (token0.equals(Address.fromHexString(WETH9))) {
         ethPrice = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[1]
-        log.info('test1234 ethprice[0] : {}', [ethPrice.toString()])
       } else {
         ethPrice = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[0]
-        const ethPrice2 = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[1]
-        log.info('test1234 ethprice[1] : {}', [ethPrice.toString()])
-        log.info('test1234 ethprice[0] : {}', [ethPrice2.toString()])
       }
       largestLiquidity = liquidity.value
     }

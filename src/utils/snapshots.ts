@@ -1,32 +1,31 @@
-import { ZERO_BI } from './constants'
 /* eslint-disable prefer-const */
 import {
   Factory,
-  XXXFund2Snapshot,
+  DotoliFundSnapshot,
   Fund,
   FundSnapshot,
   Investor,
   InvestorSnapshot,
 } from '../types/schema'
 import { getInvestorID } from './investor'
-import { FACTORY_ADDRESS } from './constants'
+import { DOTOLI_FACTORY_ADDRESS } from './constants'
 import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
 
 
-export function xxxfund2Snapshot(event: ethereum.Event): void {
-  let factory = Factory.load(Bytes.fromHexString(FACTORY_ADDRESS))
+export function dotolifundSnapshot(event: ethereum.Event): void {
+  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (!factory) return 
 
-  let xxxfund2Snapshot = XXXFund2Snapshot.load(event.block.timestamp.toString())
-  xxxfund2Snapshot = new XXXFund2Snapshot(event.block.timestamp.toString())
-  xxxfund2Snapshot.timestamp = event.block.timestamp
-  xxxfund2Snapshot.fundCount = factory.fundCount
-  xxxfund2Snapshot.investorCount = factory.investorCount
-  xxxfund2Snapshot.totalVolumeETH = factory.totalVolumeETH
-  xxxfund2Snapshot.totalVolumeUSD = factory.totalVolumeUSD
-  xxxfund2Snapshot.totalLiquidityVolumeETH = factory.totalLiquidityVolumeETH
-  xxxfund2Snapshot.totalLiquidityVolumeUSD = factory.totalLiquidityVolumeUSD
-  xxxfund2Snapshot.save()
+  let dotolifundSnapshot = DotoliFundSnapshot.load(event.block.timestamp.toString())
+  dotolifundSnapshot = new DotoliFundSnapshot(event.block.timestamp.toString())
+  dotolifundSnapshot.timestamp = event.block.timestamp
+  dotolifundSnapshot.fundCount = factory.fundCount
+  dotolifundSnapshot.investorCount = factory.investorCount
+  dotolifundSnapshot.totalVolumeETH = factory.totalVolumeETH
+  dotolifundSnapshot.totalVolumeUSD = factory.totalVolumeUSD
+  dotolifundSnapshot.totalLiquidityVolumeETH = factory.totalLiquidityVolumeETH
+  dotolifundSnapshot.totalLiquidityVolumeUSD = factory.totalLiquidityVolumeUSD
+  dotolifundSnapshot.save()
 }
 
 export function fundSnapshot(

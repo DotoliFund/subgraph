@@ -97,6 +97,8 @@ type Investor @entity {
   tokens: [Bytes!]!
   # tokens symbol not liquidity
   symbols: [String!]!
+  # tokens decimals not liquidity
+  decimals: [BigInt!]!
   # tokens amount not liquidity
   tokensAmount: [BigDecimal!]!
   # tokens volumeETH not liquidity
@@ -107,6 +109,8 @@ type Investor @entity {
   liquidityTokens: [Bytes!]!
   # liquidity tokens symbol
   liquiditySymbols: [String!]!
+  # liquidity tokens decimal
+  liquidityDecimals: [BigInt!]!
   # liquidity tokens amount
   liquidityTokensAmount: [BigDecimal!]!
   # liquidity tokens volumeETH
@@ -426,8 +430,8 @@ type DecreaseLiquidity @entity {
   logIndex: BigInt
 }
 
-# daily stats tracker for XXX
-type XXXFund2Snapshot @entity {
+# daily stats tracker for Dotoli Fund
+type DotoliFundSnapshot @entity {
   # txn hash
   id: ID!
   # timestamp
