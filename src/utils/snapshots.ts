@@ -23,8 +23,6 @@ export function dotolifundSnapshot(event: ethereum.Event): void {
   dotolifundSnapshot.investorCount = factory.investorCount
   dotolifundSnapshot.totalVolumeETH = factory.totalVolumeETH
   dotolifundSnapshot.totalVolumeUSD = factory.totalVolumeUSD
-  dotolifundSnapshot.totalLiquidityVolumeETH = factory.totalLiquidityVolumeETH
-  dotolifundSnapshot.totalLiquidityVolumeUSD = factory.totalLiquidityVolumeUSD
   dotolifundSnapshot.save()
 }
 
@@ -46,14 +44,11 @@ export function fundSnapshot(
   fundSnapshot.fund = fundAddress
   fundSnapshot.manager = managerAddress
   fundSnapshot.investorCount = fund.investorCount
-  fundSnapshot.principalETH = fund.principalETH
-  fundSnapshot.principalUSD = fund.principalUSD
   fundSnapshot.volumeETH = fund.volumeETH
   fundSnapshot.volumeUSD = fund.volumeUSD
-  fundSnapshot.liquidityVolumeETH = fund.liquidityVolumeETH
-  fundSnapshot.liquidityVolumeUSD = fund.liquidityVolumeUSD
   fundSnapshot.tokens = fund.tokens
   fundSnapshot.symbols = fund.symbols
+  fundSnapshot.decimals = fund.decimals
   fundSnapshot.tokensVolumeETH = fund.tokensVolumeETH
   fundSnapshot.tokensVolumeUSD = fund.tokensVolumeUSD
   fundSnapshot.save()

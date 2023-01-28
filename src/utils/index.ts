@@ -38,29 +38,10 @@ export function updateLiquidityVolume(
   investorAddress: Address,
   ethPriceInUSD: BigDecimal
 ): void {
-  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
-  if (!factory) return
-
-  let fund = Fund.load(fundAddress)
-  if (!fund) return
-
   let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
   if (!investor) return
-
-  factory.totalLiquidityVolumeETH = factory.totalLiquidityVolumeETH.minus(fund.liquidityVolumeETH)
-  fund.liquidityVolumeETH = fund.liquidityVolumeETH.minus(investor.liquidityVolumeETH)
-
   investor.liquidityVolumeETH = getInvestorLiquidityVolumeETH(fundAddress, investorAddress)
   investor.liquidityVolumeUSD = investor.liquidityVolumeETH.times(ethPriceInUSD)
-
-  fund.liquidityVolumeETH = fund.liquidityVolumeETH.plus(investor.liquidityVolumeETH)
-  fund.liquidityVolumeUSD = fund.liquidityVolumeETH.times(ethPriceInUSD)
-  
-  factory.totalLiquidityVolumeETH = factory.totalLiquidityVolumeETH.plus(fund.liquidityVolumeETH)
-  factory.totalLiquidityVolumeUSD = factory.totalLiquidityVolumeETH.times(ethPriceInUSD)
-
-  factory.save()
-  fund.save()
   investor.save()
 }
 
@@ -68,22 +49,12 @@ export function updateLiquidityVolume(
 export function updateProfit(
   fundAddress: Address,
   investorAddress: Address,
-  ethPriceInUSD: BigDecimal
 ): void {
-  let fund = Fund.load(fundAddress)
-  if (!fund) return
-
   let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
   if (!investor) return
-
   investor.profitETH = investor.volumeETH.plus(investor.liquidityVolumeETH).minus(investor.principalETH)
   investor.profitUSD = investor.volumeUSD.plus(investor.liquidityVolumeUSD).minus(investor.principalUSD)
   investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
-  fund.profitETH = fund.volumeETH.plus(fund.liquidityVolumeETH).minus(fund.principalETH)
-  fund.profitUSD = fund.volumeUSD.plus(fund.liquidityVolumeUSD).minus(fund.principalUSD)
-  fund.profitRatio = safeDiv(fund.profitUSD, fund.principalUSD).times(BigDecimal.fromString('100'))
-  
-  fund.save()
   investor.save()
 }
 

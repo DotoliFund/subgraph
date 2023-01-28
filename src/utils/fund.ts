@@ -1,7 +1,4 @@
-
-
-
-import { BigDecimal, Address, Bytes, log } from '@graphprotocol/graph-ts'
+import { BigDecimal, Address, Bytes, log, BigInt } from '@graphprotocol/graph-ts'
 import { Fund, Factory } from '../types/schema'
 import {
   DOTOLI_FACTORY_ADDRESS,
@@ -92,13 +89,16 @@ export function updateEmptyFundToken(
   if (isEmptyFundToken(fundAddress, token)) {
     let fundTokens: Bytes[] = []
     let fundSymbols: string[] = []
+    let fundDecimals: BigInt[] = []
     for (let i=0; i<fund.tokens.length; i++) {
       if(fund.tokens[i].equals(token)) continue
       fundTokens.push(fund.tokens[i])
       fundSymbols.push(fund.symbols[i])
+      fundDecimals.push(fund.decimals[i])
     }
     fund.tokens = fundTokens
     fund.symbols = fundSymbols
+    fund.decimals = fundDecimals
     fund.save()
   }
 }
@@ -106,7 +106,8 @@ export function updateEmptyFundToken(
 export function updateNewFundToken(
   fundAddress: Address,
   token: Bytes,
-  tokenSymbol: string
+  tokenSymbol: string,
+  tokenDecimal: BigInt
 ): void {
   let fund = Fund.load(fundAddress)
   if (!fund) return
@@ -114,11 +115,14 @@ export function updateNewFundToken(
   if (isNewFundToken(fund.tokens, token)) {
     let fundTokens: Bytes[] = fund.tokens
     let fundSymbols: string[] = fund.symbols
+    let fundDecimals: BigInt[] = fund.decimals
 
     fundTokens.push(token)
     fundSymbols.push(tokenSymbol)
+    fundDecimals.push(tokenDecimal)
     fund.tokens = fundTokens
     fund.symbols = fundSymbols
+    fund.decimals = fundDecimals
     fund.save()
   }
 }

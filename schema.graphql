@@ -15,10 +15,6 @@ type Factory @entity {
   totalVolumeETH: BigDecimal!
   # total volume all time in derived USD
   totalVolumeUSD: BigDecimal!
-  # total liquidity volume in derived ETH
-  totalLiquidityVolumeETH: BigDecimal!
-  # total liquidity volume in derived USD
-  totalLiquidityVolumeUSD: BigDecimal!
   # current owner of the factory
   owner: Bytes!
 }
@@ -34,27 +30,21 @@ type Fund @entity {
   manager: Bytes!
   # investorCount
   investorCount: BigInt!
-  # principal ETH
-  principalETH: BigDecimal!
-  # principal USD
-  principalUSD: BigDecimal!
   # volumeETH
   volumeETH: BigDecimal!
   # volumeUSD
   volumeUSD: BigDecimal!
-  # liquidity VolumeETH
-  liquidityVolumeETH: BigDecimal!
-  # liquidity VolumeUSD
-  liquidityVolumeUSD: BigDecimal!
-  # tokens address not liquidity
+  # tokens address
   tokens: [Bytes!]!
-  # tokens symbol not liquidity
+  # tokens symbol
   symbols: [String!]!
-  # tokens amount not liquidity
+  # tokens decimals
+  decimals: [BigInt!]!
+  # tokens amount
   tokensAmount: [BigDecimal!]!
-  # tokens volumeETH not liquidity
+  # tokens volumeETH
   tokensVolumeETH: [BigDecimal!]!
-  # tokens volumeUSD not liquidity
+  # tokens volumeUSD
   tokensVolumeUSD: [BigDecimal!]!
   # fee tokens address
   feeTokens: [Bytes!]!
@@ -62,12 +52,6 @@ type Fund @entity {
   feeSymbols: [String!]!
   # fee tokens amount
   feeTokensAmount: [BigDecimal!]!
-  # profit ETH
-  profitETH: BigDecimal!
-  # profit USD
-  profitUSD: BigDecimal!
-  # profit ratio
-  profitRatio: BigDecimal!
 }
 
 type Investor @entity {
@@ -89,10 +73,6 @@ type Investor @entity {
   volumeETH: BigDecimal!
   # volumeUSD
   volumeUSD: BigDecimal!
-  # liquidity VolumeETH
-  liquidityVolumeETH: BigDecimal!
-  # liquidity VolumeUSD
-  liquidityVolumeUSD: BigDecimal!
   # tokens address not liquidity
   tokens: [Bytes!]!
   # tokens symbol not liquidity
@@ -105,6 +85,10 @@ type Investor @entity {
   tokensVolumeETH: [BigDecimal!]!
   # tokens volumeUSD not liquidity
   tokensVolumeUSD: [BigDecimal!]!
+  # liquidity VolumeETH
+  liquidityVolumeETH: BigDecimal!
+  # liquidity VolumeUSD
+  liquidityVolumeUSD: BigDecimal!
   # liquidity tokens address
   liquidityTokens: [Bytes!]!
   # liquidity tokens symbol
@@ -113,10 +97,6 @@ type Investor @entity {
   liquidityDecimals: [BigInt!]!
   # liquidity tokens amount
   liquidityTokensAmount: [BigDecimal!]!
-  # liquidity tokens volumeETH
-  liquidityTokensVolumeETH: [BigDecimal!]!
-  # liquidity tokens volumeUSD
-  liquidityTokensVolumeUSD: [BigDecimal!]!
   # profit ETH
   profitETH: BigDecimal!
   # profit USD
@@ -444,10 +424,6 @@ type DotoliFundSnapshot @entity {
   totalVolumeETH: BigDecimal!
   # total volume all time in derived USD
   totalVolumeUSD: BigDecimal!
-  # total liquidity volume in derived ETH
-  totalLiquidityVolumeETH: BigDecimal!
-  # total liquidity volume in derived USD
-  totalLiquidityVolumeUSD: BigDecimal!
 }
 
 # daily stats tracker for fund
@@ -462,22 +438,16 @@ type FundSnapshot @entity {
   manager: Bytes!
   # investorCount
   investorCount: BigInt!
-  # principal ETH
-  principalETH: BigDecimal!
-  # principal USD
-  principalUSD: BigDecimal!
   # volumeETH
   volumeETH: BigDecimal!
   # volume in USD
   volumeUSD: BigDecimal!
-  # liquidity VolumeETH
-  liquidityVolumeETH: BigDecimal!
-  # liquidity VolumeUSD
-  liquidityVolumeUSD: BigDecimal!
   # fund tokens address
   tokens: [Bytes!]!
   # fund tokens symbol
   symbols: [String!]!
+  # tokens decimals
+  decimals: [BigInt!]!
   # fund tokens volumeETH
   tokensVolumeETH: [BigDecimal!]!
   # fund tokens volumeUSD

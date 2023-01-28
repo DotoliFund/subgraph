@@ -39,23 +39,17 @@ export function handleFundCreated(event: FundCreated): void {
   fund.createdAtTimestamp = event.block.timestamp
   fund.manager = event.params.manager
   fund.investorCount = ONE_BI
-  fund.principalETH = ZERO_BD
-  fund.principalUSD = ZERO_BD
   fund.volumeETH = ZERO_BD
   fund.volumeUSD = ZERO_BD
-  fund.liquidityVolumeETH = ZERO_BD
-  fund.liquidityVolumeUSD = ZERO_BD
   fund.feeTokens = []
   fund.feeSymbols = []
   fund.feeTokensAmount = []
   fund.tokens = []
   fund.symbols = []
+  fund.decimals = []
   fund.tokensAmount = []
   fund.tokensVolumeETH = []
   fund.tokensVolumeUSD = []
-  fund.profitETH = ZERO_BD
-  fund.profitUSD = ZERO_BD
-  fund.profitRatio = ZERO_BD
 
   const investorID = getInvestorID(event.params.fund, event.params.manager)
   let investor = Investor.load(investorID)
@@ -81,8 +75,6 @@ export function handleFundCreated(event: FundCreated): void {
     investor.liquiditySymbols = []
     investor.liquidityDecimals = []
     investor.liquidityTokensAmount = []
-    investor.liquidityTokensVolumeETH = []
-    investor.liquidityTokensVolumeUSD = []
     investor.profitETH = ZERO_BD
     investor.profitUSD = ZERO_BD
     investor.profitRatio = ZERO_BD
@@ -179,8 +171,6 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.liquiditySymbols = []
       investor.liquidityDecimals = []
       investor.liquidityTokensAmount = []
-      investor.liquidityTokensVolumeETH = []
-      investor.liquidityTokensVolumeUSD = []
       investor.profitETH = ZERO_BD
       investor.profitUSD = ZERO_BD
       investor.profitRatio = ZERO_BD
@@ -216,8 +206,6 @@ export function handleFactoryCreated(event: FactoryCreated): void {
     factory.minPoolAmount = BigInt.fromString(DECIMAL_18)
     factory.totalVolumeETH = ZERO_BD
     factory.totalVolumeUSD = ZERO_BD
-    factory.totalLiquidityVolumeETH = ZERO_BD
-    factory.totalLiquidityVolumeUSD = ZERO_BD
     factory.owner = Address.fromString(ADDRESS_ZERO)
     factory.save()
   }
