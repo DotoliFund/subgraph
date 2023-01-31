@@ -1,4 +1,5 @@
 /* eslint-disable prefer-const */
+import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
 import {
   Factory,
   FactorySnapshot,
@@ -8,8 +9,9 @@ import {
   InvestorSnapshot,
 } from '../types/schema'
 import { getInvestorID } from './investor'
-import { DOTOLI_FACTORY_ADDRESS } from './constants'
+import { DOTOLI_FACTORY_ADDRESS, LIQUIDITY_ORACLE_ADDRESS } from './constants'
 import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
+import { LiquidityOracle  } from '../types/templates/DotoliFund/LiquidityOracle'
 
 
 export function factorySnapshot(event: ethereum.Event): void {
@@ -78,14 +80,69 @@ export function investorSnapshot(
   investorSnapshot.investor = investorAddress
   investorSnapshot.investAmountETH = investor.investAmountETH
   investorSnapshot.investAmountUSD = investor.investAmountUSD
+  investorSnapshot.investAmountUSD = investor.investAmountUSD
+  investorSnapshot.tokenIds = investor.tokenIds
+
+  //sum current, pool token's amountETH, amountUSD
+  const tokens: Bytes[] = []
+  const tokensSymbols: string[] = []
+  const tokensDecimals: BigInt[] = []
+  const tokensAmountETH: BigDecimal[] = []
+  const tokensAmountUSD: BigDecimal[] = []
+
+  const currentTokens = investor.currentTokens
+  for (let i=0; i<currentTokens.length; i++) {
+    tokens.push(currentTokens[i])
+    tokensSymbols.push(investor.currentTokensSymbols[i])
+    tokensDecimals.push(investor.currentTokensDecimals[i])
+    tokensAmountETH.push(investor.currentTokensAmountETH[i])
+    tokensAmountUSD.push(investor.currentTokensAmountUSD[i])
+  }
+
+  const liquidityOracle = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
+  const tokenIds = investor.tokenIds
+
+  for (let i=0; i<tokenIds.length; i++) {
+    const positionTokens = liquidityOracle.getPositionTokenAmount(tokenIds[i])
+  
+    const token0 = positionTokens.getToken0()
+    const amount0 = positionTokens.getAmount0()
+    const decimal0 = ERC20.bind(token0).decimals()
+    const deAmount0 = amount0.divDecimal(BigDecimal.fromString(f64(10 ** decimal0).toString()))
+    const token0Index = poolTokens.indexOf(token0)
+
+
+
+
+
+
+
+    let added = false
+    for (let j=0; j<tokens.length; j++) {
+      if (poolTokens[i].equals(tokens[j])) {
+        tokensAmountETH[j] = tokensAmountETH[j].plus(investor.poolTokensAmountETH[i])
+        tokensAmountUSD[j] = tokensAmountUSD[j].plus(investor.poolTokensAmountUSD[i])
+        added = true 
+        break  
+      }
+    }
+
+    if (!added) {
+      tokens.push(poolTokens[i])
+      tokensSymbols.push(investor.poolTokensSymbols[i])
+      tokensDecimals.push(investor.poolTokensDecimals[i])
+      tokensAmountETH.push(investor.poolTokensAmountETH[i])
+      tokensAmountUSD.push(investor.poolTokensAmountUSD[i])  
+    }
+  }
+
+  investorSnapshot.tokens = tokens
+  investorSnapshot.tokensSymbols = tokensSymbols
+  investorSnapshot.tokensDecimals = tokensDecimals
+  investorSnapshot.tokensAmountETH = tokensAmountETH
+  investorSnapshot.tokensAmountUSD = tokensAmountUSD
   investorSnapshot.currentETH = investor.currentETH
   investorSnapshot.currentUSD = investor.currentUSD
-  investorSnapshot.currentTokens = investor.currentTokens
-  investorSnapshot.currentTokensSymbols = investor.currentTokensSymbols
-  investorSnapshot.currentTokensDecimals = investor.currentTokensDecimals
-  investorSnapshot.currentTokensAmount = investor.currentTokensAmount
-  investorSnapshot.currentTokensAmountETH = investor.currentTokensAmountETH
-  investorSnapshot.currentTokensAmountUSD = investor.currentTokensAmountUSD
   investorSnapshot.poolETH = investor.poolETH
   investorSnapshot.poolUSD = investor.poolUSD
   investorSnapshot.save()

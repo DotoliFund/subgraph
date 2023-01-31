@@ -84,6 +84,8 @@ type Investor @entity {
   currentTokensAmountETH: [BigDecimal!]!
   # USD amount of tokens held by the contract
   currentTokensAmountUSD: [BigDecimal!]!
+  # investor's liquidity position's tokenIds
+  tokenIds: [BigInt!]!
   # ETH value of the token held by the pool
   poolETH: BigDecimal!
   # USD value of the token held by the pool
@@ -96,6 +98,10 @@ type Investor @entity {
   poolTokensDecimals: [BigInt!]!
   # amount of tokens held by the pool
   poolTokensAmount: [BigDecimal!]!
+  # ETH amount of tokens held by the pool
+  poolTokensAmountETH: [BigDecimal!]!
+  # USD amount of tokens held by the pool
+  poolTokensAmountUSD: [BigDecimal!]!
   # profit ETH
   profitETH: BigDecimal!
   # profit USD
@@ -471,22 +477,22 @@ type InvestorSnapshot @entity {
   investAmountETH: BigDecimal!
   # USD value of investment
   investAmountUSD: BigDecimal!
+  # address of tokens held by the contract + pool
+  tokens: [Bytes!]!
+  # symbol of tokens held by the contract + pool
+  tokensSymbols: [String!]!
+  # decimals of tokens held by the contract + pool
+  tokensDecimals: [BigInt!]!
+  # ETH amount of tokens held by the contract + pool
+  tokensAmountETH: [BigDecimal!]!
+  # USD amount of tokens held by the contract + pool
+  tokensAmountUSD: [BigDecimal!]!
   # ETH value of the token held by the contract
   currentETH: BigDecimal!
   # USD value of the token held by the contract
   currentUSD: BigDecimal!
-  # address of tokens held by the contract
-  currentTokens: [Bytes!]!
-  # symbol of tokens held by the contract
-  currentTokensSymbols: [String!]!
-  # decimals of tokens held by the contract
-  currentTokensDecimals: [BigInt!]!
-  # amount of tokens held by the contract
-  currentTokensAmount: [BigDecimal!]!
-  # ETH amount of tokens held by the contract
-  currentTokensAmountETH: [BigDecimal!]!
-  # USD amount of tokens held by the contract
-  currentTokensAmountUSD: [BigDecimal!]!
+  # investor's liquidity position's tokenIds
+  tokenIds: [BigInt!]!
   # ETH value of the token held by the pool
   poolETH: BigDecimal!
   # USD value of the token held by the pool

@@ -21,7 +21,6 @@ import {
   ZERO_BD,
   ONE_BI,
   ADDRESS_ZERO,
-  SWAP_ROUTER_ADDRESS,
   UNKNWON_SYMBOL,
   DECIMAL_18,
   WETH9,
@@ -69,12 +68,15 @@ export function handleFundCreated(event: FundCreated): void {
     investor.currentTokensAmount = []
     investor.currentTokensAmountETH = []
     investor.currentTokensAmountUSD = []
+    investor.tokenIds = []
     investor.poolETH = ZERO_BD
     investor.poolUSD = ZERO_BD  
     investor.poolTokens = []
     investor.poolTokensSymbols = []
     investor.poolTokensDecimals = []
     investor.poolTokensAmount = []
+    investor.poolTokensAmountETH = []
+    investor.poolTokensAmountUSD = []
     investor.profitETH = ZERO_BD
     investor.profitUSD = ZERO_BD
     investor.profitRatio = ZERO_BD
@@ -165,12 +167,15 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.currentTokensAmount = []
       investor.currentTokensAmountETH = []
       investor.currentTokensAmountUSD = []
+      investor.tokenIds = []
       investor.poolETH = ZERO_BD
       investor.poolUSD = ZERO_BD    
       investor.poolTokens = []
       investor.poolTokensSymbols = []
       investor.poolTokensDecimals = []
       investor.poolTokensAmount = []
+      investor.poolTokensAmountETH = []
+      investor.poolTokensAmountUSD = []
       investor.profitETH = ZERO_BD
       investor.profitUSD = ZERO_BD
       investor.profitRatio = ZERO_BD

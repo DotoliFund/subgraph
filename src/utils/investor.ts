@@ -50,12 +50,12 @@ export function updateInvestorCurrentTokens(
   if (!investor) return
   
   const dotolifund = DotoliFund.bind(fundAddress)
-  let investorTokens: Bytes[] = []
-  let investorSymbols: string[] = []
-  let investorDecimals: BigInt[] = []
-  let investorTokensAmount: BigDecimal[] = []
-  let investorTokensAmountETH: BigDecimal[] = []
-  let investorTokensAmountUSD: BigDecimal[] = []
+  const investorTokens: Bytes[] = []
+  const investorSymbols: string[] = []
+  const investorDecimals: BigInt[] = []
+  const investorTokensAmount: BigDecimal[] = []
+  const investorTokensAmountETH: BigDecimal[] = []
+  const investorTokensAmountUSD: BigDecimal[] = []
   const tokensInfo = dotolifund.getInvestorTokens(investorAddress)
   for (let i=0; i<tokensInfo.length; i++) {
     const tokenAddress = tokensInfo[i].tokenAddress
@@ -85,6 +85,26 @@ export function updateInvestorCurrentTokens(
   investor.save()
 }
 
+
+export function updateInvestorTokenIds(
+  fundAddress: Address,
+  investorAddress: Address,
+): void {
+  let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
+  if (!investor) return
+  
+  const dotolifund = DotoliFund.bind(fundAddress)
+  let tokenIds: BigInt[] = []
+
+  const investorTokenIds = dotolifund.getPositionTokenIds(investorAddress)
+  for (let i=0; i<investorTokenIds.length; i++) {
+    const tokenId = investorTokenIds[i]
+    tokenIds.push(tokenId)    
+  }
+  investor.tokenIds = tokenIds
+  investor.save()
+}
+
 export function updateInvestorPoolTokens(
   fundAddress: Address,
   investorAddress: Address,
@@ -99,6 +119,8 @@ export function updateInvestorPoolTokens(
   let poolTokensSymbols: string[] = []
   let poolTokensDecimals: BigInt[] = []
   let poolTokensAmount: BigDecimal[] = []
+  let poolTokensAmountETH: BigDecimal[] = []
+  let poolTokensAmountUSD: BigDecimal[] = []
 
   const investorTokenIds = dotolifund.getPositionTokenIds(investorAddress)
   for (let i=0; i<investorTokenIds.length; i++) {
@@ -147,6 +169,8 @@ export function updateInvestorPoolTokens(
   investor.poolTokensSymbols = poolTokensSymbols
   investor.poolTokensDecimals = poolTokensDecimals
   investor.poolTokensAmount = poolTokensAmount
+  investor.poolTokensAmountETH = poolTokensAmountETH
+  investor.poolTokensAmountUSD = poolTokensAmountUSD
   investor.save()
 }
 

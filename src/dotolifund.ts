@@ -45,6 +45,7 @@ import {
   getInvestorID,
   updateInvestorCurrentTokens,
   updateInvestorPoolTokens,
+  updateInvestorTokenIds,
   updateInvestorCurrent
 } from "./utils/investor"
 import { 
@@ -124,6 +125,7 @@ export function handleDeposit(event: DepositEvent): void {
 
   updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorPoolTokens(fundAddress, event.params.investor)
+  updateInvestorTokenIds(fundAddress, event.params.investor)
   updateNewFundToken(
     fundAddress,
     deposit.token,
@@ -181,6 +183,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorPoolTokens(fundAddress, event.params.investor)
+  updateInvestorTokenIds(fundAddress, event.params.investor)
   updateFeeTokens(fundAddress)
   updateEmptyFundToken(fundAddress, withdraw.token)
   updateFundTokens(fundAddress)
@@ -266,6 +269,7 @@ export function handleSwap(event: SwapEvent): void {
 
   updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorPoolTokens(fundAddress, event.params.investor)  
+  updateInvestorTokenIds(fundAddress, event.params.investor)
   updateEmptyFundToken(fundAddress, event.params.tokenIn)
   updateNewFundToken(
     fundAddress,
@@ -334,6 +338,7 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
 
   updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorPoolTokens(fundAddress, event.params.investor)
+  updateInvestorTokenIds(fundAddress, event.params.investor)
   updateFundTokens(fundAddress)
 
   // update volume must be after update tokens
@@ -395,6 +400,7 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
 
   updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorPoolTokens(fundAddress, event.params.investor)
+  updateInvestorTokenIds(fundAddress, event.params.investor)
   updateFundTokens(fundAddress)
   
   // update volume must be after update tokens
@@ -456,6 +462,7 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
 
   updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorPoolTokens(fundAddress, event.params.investor)
+  updateInvestorTokenIds(fundAddress, event.params.investor)
   updateFundTokens(fundAddress)
 
   // update volume must be after update tokens
@@ -517,6 +524,7 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
 
   updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
   updateInvestorPoolTokens(fundAddress, event.params.investor)
+  updateInvestorTokenIds(fundAddress, event.params.investor)
   updateFundTokens(fundAddress)
 
   // update volume must be after update tokens
