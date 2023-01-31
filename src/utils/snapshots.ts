@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import {
   Factory,
-  DotoliFundSnapshot,
+  FactorySnapshot,
   Fund,
   FundSnapshot,
   Investor,
@@ -12,18 +12,18 @@ import { DOTOLI_FACTORY_ADDRESS } from './constants'
 import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
 
 
-export function dotolifundSnapshot(event: ethereum.Event): void {
+export function factorySnapshot(event: ethereum.Event): void {
   let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (!factory) return 
 
-  let dotolifundSnapshot = DotoliFundSnapshot.load(event.block.timestamp.toString())
-  dotolifundSnapshot = new DotoliFundSnapshot(event.block.timestamp.toString())
-  dotolifundSnapshot.timestamp = event.block.timestamp
-  dotolifundSnapshot.fundCount = factory.fundCount
-  dotolifundSnapshot.investorCount = factory.investorCount
-  dotolifundSnapshot.totalVolumeETH = factory.totalVolumeETH
-  dotolifundSnapshot.totalVolumeUSD = factory.totalVolumeUSD
-  dotolifundSnapshot.save()
+  let factorySnapshot = FactorySnapshot.load(event.block.timestamp.toString())
+  factorySnapshot = new FactorySnapshot(event.block.timestamp.toString())
+  factorySnapshot.timestamp = event.block.timestamp
+  factorySnapshot.fundCount = factory.fundCount
+  factorySnapshot.investorCount = factory.investorCount
+  factorySnapshot.totalCurrentETH = factory.totalCurrentETH
+  factorySnapshot.totalCurrentUSD = factory.totalCurrentUSD
+  factorySnapshot.save()
 }
 
 export function fundSnapshot(
@@ -44,13 +44,14 @@ export function fundSnapshot(
   fundSnapshot.fund = fundAddress
   fundSnapshot.manager = managerAddress
   fundSnapshot.investorCount = fund.investorCount
-  fundSnapshot.volumeETH = fund.volumeETH
-  fundSnapshot.volumeUSD = fund.volumeUSD
-  fundSnapshot.tokens = fund.tokens
-  fundSnapshot.symbols = fund.symbols
-  fundSnapshot.decimals = fund.decimals
-  fundSnapshot.tokensVolumeETH = fund.tokensVolumeETH
-  fundSnapshot.tokensVolumeUSD = fund.tokensVolumeUSD
+  fundSnapshot.currentETH = fund.currentETH
+  fundSnapshot.currentUSD = fund.currentUSD
+  fundSnapshot.currentTokens = fund.currentTokens
+  fundSnapshot.currentTokensSymbols = fund.currentTokensSymbols
+  fundSnapshot.currentTokensDecimals = fund.currentTokensDecimals
+  fundSnapshot.currentTokensAmount = fund.currentTokensAmount
+  fundSnapshot.currentTokensAmountETH = fund.currentTokensAmountETH
+  fundSnapshot.currentTokensAmountUSD = fund.currentTokensAmountUSD
   fundSnapshot.save()
 }
 
@@ -75,15 +76,17 @@ export function investorSnapshot(
   investorSnapshot.fund = fundAddress
   investorSnapshot.manager = managerAddress
   investorSnapshot.investor = investorAddress
-  investorSnapshot.principalETH = investor.principalETH
-  investorSnapshot.principalUSD = investor.principalUSD
-  investorSnapshot.volumeETH = investor.volumeETH
-  investorSnapshot.volumeUSD = investor.volumeUSD
-  investorSnapshot.liquidityVolumeETH = investor.liquidityVolumeETH
-  investorSnapshot.liquidityVolumeUSD = investor.liquidityVolumeUSD
-  investorSnapshot.tokens = investor.tokens
-  investorSnapshot.symbols = investor.symbols
-  investorSnapshot.tokensVolumeETH = investor.tokensVolumeETH
-  investorSnapshot.tokensVolumeUSD = investor.tokensVolumeUSD
+  investorSnapshot.investAmountETH = investor.investAmountETH
+  investorSnapshot.investAmountUSD = investor.investAmountUSD
+  investorSnapshot.currentETH = investor.currentETH
+  investorSnapshot.currentUSD = investor.currentUSD
+  investorSnapshot.currentTokens = investor.currentTokens
+  investorSnapshot.currentTokensSymbols = investor.currentTokensSymbols
+  investorSnapshot.currentTokensDecimals = investor.currentTokensDecimals
+  investorSnapshot.currentTokensAmount = investor.currentTokensAmount
+  investorSnapshot.currentTokensAmountETH = investor.currentTokensAmountETH
+  investorSnapshot.currentTokensAmountUSD = investor.currentTokensAmountUSD
+  investorSnapshot.poolETH = investor.poolETH
+  investorSnapshot.poolUSD = investor.poolUSD
   investorSnapshot.save()
 }

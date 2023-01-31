@@ -10,7 +10,6 @@ import {
   DecreaseLiquidity as DecreaseLiquidityEvent
 } from './types/templates/DotoliFund/DotoliFund'
 import {
-  Fund,
   Investor,
   ManagerFeeOut,
   Deposit,
@@ -27,16 +26,16 @@ import {
 import { 
   fundSnapshot,
   investorSnapshot,
-  dotolifundSnapshot
+  factorySnapshot
 } from './utils/snapshots'
 import {
   loadTransaction,
   safeDiv,
-  updateLiquidityVolume,
+  updatePool,
   updateProfit,
 } from './utils'
 import {
-  updateFundVolume,
+  updateFundCurrent,
   updateFundTokens,
   updateEmptyFundToken,
   updateNewFundToken,
@@ -44,9 +43,9 @@ import {
 } from "./utils/fund"
 import {
   getInvestorID,
-  updateInvestorTokens,
-  updateInvestorLiquidityTokens,
-  updateInvestorVolume
+  updateInvestorCurrentTokens,
+  updateInvestorPoolTokens,
+  updateInvestorCurrent
 } from "./utils/investor"
 import { 
   getEthPriceInUSD,
@@ -88,11 +87,11 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   updateFundTokens(fundAddress)
   updateFeeTokens(fundAddress)
 
-  // update volume must be after update tokens
-  updateFundVolume(fundAddress, ethPriceInUSD)
+  // update current must be after update tokens
+  updateFundCurrent(fundAddress, ethPriceInUSD)
 
   fundSnapshot(fundAddress, managerAddress, event)
-  dotolifundSnapshot(event)
+  factorySnapshot(event)
 }
 
 export function handleDeposit(event: DepositEvent): void {
@@ -123,8 +122,8 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.logIndex = event.logIndex
   deposit.save()
 
-  updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorLiquidityTokens(fundAddress, event.params.investor)
+  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
+  updateInvestorPoolTokens(fundAddress, event.params.investor)
   updateNewFundToken(
     fundAddress,
     deposit.token,
@@ -134,22 +133,22 @@ export function handleDeposit(event: DepositEvent): void {
   updateFundTokens(fundAddress)
 
   // update volume must be after update tokens
-  updateInvestorVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateFundVolume(fundAddress, ethPriceInUSD)
+  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  updatePool(fundAddress, event.params.investor, ethPriceInUSD)
+  updateFundCurrent(fundAddress, ethPriceInUSD)
 
   let investor = Investor.load(getInvestorID(fundAddress, event.params.investor))
   if (!investor) return
-  investor.principalETH = investor.principalETH.plus(deposit.amountETH)
-  investor.principalUSD = investor.principalUSD.plus(deposit.amountUSD)
+  investor.investAmountETH = investor.investAmountETH.plus(deposit.amountETH)
+  investor.investAmountUSD = investor.investAmountUSD.plus(deposit.amountUSD)
   investor.save()
 
-  // updateProfit must be after update principalETH
+  // updateProfit must be after update investAmountETH
   updateProfit(fundAddress, event.params.investor)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  dotolifundSnapshot(event)
+  factorySnapshot(event)
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
@@ -180,40 +179,40 @@ export function handleWithdraw(event: WithdrawEvent): void {
   withdraw.logIndex = event.logIndex
   withdraw.save()
 
-  updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorLiquidityTokens(fundAddress, event.params.investor)
+  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
+  updateInvestorPoolTokens(fundAddress, event.params.investor)
   updateFeeTokens(fundAddress)
   updateEmptyFundToken(fundAddress, withdraw.token)
   updateFundTokens(fundAddress)
 
   // update volume must be after update tokens
-  updateInvestorVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateFundVolume(fundAddress, ethPriceInUSD)
+  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  updatePool(fundAddress, event.params.investor, ethPriceInUSD)
+  updateFundCurrent(fundAddress, ethPriceInUSD)
 
   let investor = Investor.load(getInvestorID(fundAddress, event.params.investor))
   if (!investor) return
 
-  const prevVolumeETH = investor.volumeETH.plus(investor.liquidityVolumeETH)
+  const prevVolumeETH = investor.currentETH.plus(investor.poolETH)
     .plus(withdraw.amountETH)
   const withdrawRatioETH = safeDiv(withdraw.amountETH, prevVolumeETH)
   const afterWithdrawETH = ONE_BD.minus(withdrawRatioETH)
-  investor.principalETH = investor.principalETH.times(afterWithdrawETH)
+  investor.investAmountETH = investor.investAmountETH.times(afterWithdrawETH)
 
-  const prevVolumeUSD = investor.volumeUSD.plus(investor.liquidityVolumeUSD)
+  const prevVolumeUSD = investor.currentUSD.plus(investor.poolUSD)
     .plus(withdraw.amountUSD)
   const withdrawRatioUSD = safeDiv(withdraw.amountUSD, prevVolumeUSD)
   const afterWithdrawUSD= ONE_BD.minus(withdrawRatioUSD)
-  investor.principalUSD = investor.principalUSD.times(afterWithdrawUSD)
+  investor.investAmountUSD = investor.investAmountUSD.times(afterWithdrawUSD)
 
   investor.save()
 
-  // updateProfit must be after update principalUSD
+  // updateProfit must be after update investAmountUSD
   updateProfit(fundAddress, event.params.investor)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  dotolifundSnapshot(event)
+  factorySnapshot(event)
 }
 
 export function handleSwap(event: SwapEvent): void {
@@ -265,8 +264,8 @@ export function handleSwap(event: SwapEvent): void {
   swap.logIndex = event.logIndex
   swap.save()
 
-  updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorLiquidityTokens(fundAddress, event.params.investor)  
+  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
+  updateInvestorPoolTokens(fundAddress, event.params.investor)  
   updateEmptyFundToken(fundAddress, event.params.tokenIn)
   updateNewFundToken(
     fundAddress,
@@ -277,15 +276,15 @@ export function handleSwap(event: SwapEvent): void {
   updateFundTokens(fundAddress)
 
   // update volume must be after update tokens
-  updateInvestorVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateFundVolume(fundAddress, ethPriceInUSD)
+  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  updatePool(fundAddress, event.params.investor, ethPriceInUSD)
+  updateFundCurrent(fundAddress, ethPriceInUSD)
   
   updateProfit(fundAddress, event.params.investor)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  dotolifundSnapshot(event)
+  factorySnapshot(event)
 }
 
 export function handleMintNewPosition(event: MintNewPositionEvent): void {
@@ -333,20 +332,20 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   mintNewPosition.logIndex = event.logIndex
   mintNewPosition.save()
 
-  updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorLiquidityTokens(fundAddress, event.params.investor)
+  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
+  updateInvestorPoolTokens(fundAddress, event.params.investor)
   updateFundTokens(fundAddress)
 
   // update volume must be after update tokens
-  updateInvestorVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateFundVolume(fundAddress, ethPriceInUSD)
+  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  updatePool(fundAddress, event.params.investor, ethPriceInUSD)
+  updateFundCurrent(fundAddress, ethPriceInUSD)
   
   updateProfit(fundAddress, event.params.investor)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  dotolifundSnapshot(event)
+  factorySnapshot(event)
 }
 
 export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
@@ -394,20 +393,20 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   increaseLiquidity.logIndex = event.logIndex
   increaseLiquidity.save()
 
-  updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorLiquidityTokens(fundAddress, event.params.investor)
+  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
+  updateInvestorPoolTokens(fundAddress, event.params.investor)
   updateFundTokens(fundAddress)
   
   // update volume must be after update tokens
-  updateInvestorVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateFundVolume(fundAddress, ethPriceInUSD)
+  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  updatePool(fundAddress, event.params.investor, ethPriceInUSD)
+  updateFundCurrent(fundAddress, ethPriceInUSD)
   
   updateProfit(fundAddress, event.params.investor)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  dotolifundSnapshot(event)
+  factorySnapshot(event)
 }
 
 export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
@@ -455,20 +454,20 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   collectPositionFee.logIndex = event.logIndex
   collectPositionFee.save()
 
-  updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorLiquidityTokens(fundAddress, event.params.investor)
+  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
+  updateInvestorPoolTokens(fundAddress, event.params.investor)
   updateFundTokens(fundAddress)
 
   // update volume must be after update tokens
-  updateInvestorVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateFundVolume(fundAddress, ethPriceInUSD)
+  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  updatePool(fundAddress, event.params.investor, ethPriceInUSD)
+  updateFundCurrent(fundAddress, ethPriceInUSD)
   
   updateProfit(fundAddress, event.params.investor)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  dotolifundSnapshot(event)
+  factorySnapshot(event)
 }
 
 export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
@@ -516,18 +515,18 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   decreaseLiquidity.logIndex = event.logIndex
   decreaseLiquidity.save()
 
-  updateInvestorTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorLiquidityTokens(fundAddress, event.params.investor)
+  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
+  updateInvestorPoolTokens(fundAddress, event.params.investor)
   updateFundTokens(fundAddress)
 
   // update volume must be after update tokens
-  updateInvestorVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateLiquidityVolume(fundAddress, event.params.investor, ethPriceInUSD)
-  updateFundVolume(fundAddress, ethPriceInUSD)
+  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  updatePool(fundAddress, event.params.investor, ethPriceInUSD)
+  updateFundCurrent(fundAddress, ethPriceInUSD)
   
   updateProfit(fundAddress, event.params.investor)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, event)
   fundSnapshot(fundAddress, managerAddress, event)
-  dotolifundSnapshot(event)
+  factorySnapshot(event)
 }

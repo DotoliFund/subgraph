@@ -28,7 +28,7 @@ import {
   DTL
 } from './utils/constants'
 import { getInvestorID } from "./utils/investor"
-import { fundSnapshot, investorSnapshot, dotolifundSnapshot } from "./utils/snapshots"
+import { fundSnapshot, investorSnapshot, factorySnapshot } from "./utils/snapshots"
 import { loadTransaction } from "./utils"
 import { DotoliFund as FundTemplate } from './types/templates'
 import { ERC20 } from './types/templates/DotoliFund/ERC20'
@@ -39,17 +39,17 @@ export function handleFundCreated(event: FundCreated): void {
   fund.createdAtTimestamp = event.block.timestamp
   fund.manager = event.params.manager
   fund.investorCount = ONE_BI
-  fund.volumeETH = ZERO_BD
-  fund.volumeUSD = ZERO_BD
+  fund.currentETH = ZERO_BD
+  fund.currentUSD = ZERO_BD
   fund.feeTokens = []
   fund.feeSymbols = []
   fund.feeTokensAmount = []
-  fund.tokens = []
-  fund.symbols = []
-  fund.decimals = []
-  fund.tokensAmount = []
-  fund.tokensVolumeETH = []
-  fund.tokensVolumeUSD = []
+  fund.currentTokens = []
+  fund.currentTokensSymbols = []
+  fund.currentTokensDecimals = []
+  fund.currentTokensAmount = []
+  fund.currentTokensAmountETH = []
+  fund.currentTokensAmountUSD = []
 
   const investorID = getInvestorID(event.params.fund, event.params.manager)
   let investor = Investor.load(investorID)
@@ -59,22 +59,22 @@ export function handleFundCreated(event: FundCreated): void {
     investor.fund = event.params.fund
     investor.manager = event.params.manager
     investor.investor = event.params.manager
-    investor.principalETH = ZERO_BD
-    investor.principalUSD = ZERO_BD
-    investor.volumeETH = ZERO_BD
-    investor.volumeUSD = ZERO_BD
-    investor.liquidityVolumeETH = ZERO_BD
-    investor.liquidityVolumeUSD = ZERO_BD  
-    investor.tokens = []
-    investor.symbols = []
-    investor.decimals = []
-    investor.tokensAmount = []
-    investor.tokensVolumeETH = []
-    investor.tokensVolumeUSD = []
-    investor.liquidityTokens = []
-    investor.liquiditySymbols = []
-    investor.liquidityDecimals = []
-    investor.liquidityTokensAmount = []
+    investor.investAmountETH = ZERO_BD
+    investor.investAmountUSD = ZERO_BD
+    investor.currentETH = ZERO_BD
+    investor.currentUSD = ZERO_BD
+    investor.currentTokens = []
+    investor.currentTokensSymbols = []
+    investor.currentTokensDecimals = []
+    investor.currentTokensAmount = []
+    investor.currentTokensAmountETH = []
+    investor.currentTokensAmountUSD = []
+    investor.poolETH = ZERO_BD
+    investor.poolUSD = ZERO_BD  
+    investor.poolTokens = []
+    investor.poolTokensSymbols = []
+    investor.poolTokensDecimals = []
+    investor.poolTokensAmount = []
     investor.profitETH = ZERO_BD
     investor.profitUSD = ZERO_BD
     investor.profitRatio = ZERO_BD
@@ -95,7 +95,7 @@ export function handleFundCreated(event: FundCreated): void {
     event.params.manager,
     event
   )
-  dotolifundSnapshot(event)
+  factorySnapshot(event)
 
   // Note: If a handler doesn't require existing field values, it is faster
   // _not_ to load the entity from the store. Instead, create it fresh with
@@ -155,22 +155,22 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.fund = event.params.fund
       investor.manager = event.params.manager
       investor.investor = event.params.investor
-      investor.principalETH = ZERO_BD
-      investor.principalUSD = ZERO_BD
-      investor.volumeETH = ZERO_BD
-      investor.volumeUSD = ZERO_BD
-      investor.liquidityVolumeETH = ZERO_BD
-      investor.liquidityVolumeUSD = ZERO_BD    
-      investor.tokens = []
-      investor.symbols = []
-      investor.decimals = []
-      investor.tokensAmount = []
-      investor.tokensVolumeETH = []
-      investor.tokensVolumeUSD = []
-      investor.liquidityTokens = []
-      investor.liquiditySymbols = []
-      investor.liquidityDecimals = []
-      investor.liquidityTokensAmount = []
+      investor.investAmountETH = ZERO_BD
+      investor.investAmountUSD = ZERO_BD
+      investor.currentETH = ZERO_BD
+      investor.currentUSD = ZERO_BD
+      investor.currentTokens = []
+      investor.currentTokensSymbols = []
+      investor.currentTokensDecimals = []
+      investor.currentTokensAmount = []
+      investor.currentTokensAmountETH = []
+      investor.currentTokensAmountUSD = []
+      investor.poolETH = ZERO_BD
+      investor.poolUSD = ZERO_BD    
+      investor.poolTokens = []
+      investor.poolTokensSymbols = []
+      investor.poolTokensDecimals = []
+      investor.poolTokensAmount = []
       investor.profitETH = ZERO_BD
       investor.profitUSD = ZERO_BD
       investor.profitRatio = ZERO_BD
@@ -190,7 +190,7 @@ export function handleSubscribe(event: SubscribeEvent): void {
       event.params.manager,
       event
     )
-    dotolifundSnapshot(event)
+    factorySnapshot(event)
   }
 }
 
@@ -201,11 +201,10 @@ export function handleFactoryCreated(event: FactoryCreated): void {
     factory = new Factory(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
     factory.fundCount = ONE_BI
     factory.investorCount = ONE_BI
-    factory.swapRouter = SWAP_ROUTER_ADDRESS
     factory.managerFee = BigInt.fromString("10000")
     factory.minPoolAmount = BigInt.fromString(DECIMAL_18)
-    factory.totalVolumeETH = ZERO_BD
-    factory.totalVolumeUSD = ZERO_BD
+    factory.totalCurrentETH = ZERO_BD
+    factory.totalCurrentUSD = ZERO_BD
     factory.owner = Address.fromString(ADDRESS_ZERO)
     factory.save()
   }
@@ -240,7 +239,7 @@ export function handleOwnerChanged(event: OwnerChanged): void {
   
   factory.owner = event.params.newOwner
   factory.save()
-  dotolifundSnapshot(event)
+  factorySnapshot(event)
 }
 
 export function handleMinPoolAmountChanged(event: MinPoolAmountChanged): void {

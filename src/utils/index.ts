@@ -1,9 +1,8 @@
 /* eslint-disable prefer-const */
 import { BigDecimal, Address, ethereum, Bytes } from '@graphprotocol/graph-ts'
-import { Factory, Fund, Investor, Transaction } from '../types/schema'
+import { Investor, Transaction } from '../types/schema'
 import {
   ZERO_BD,
-  DOTOLI_FACTORY_ADDRESS,
 } from './constants'
 import { 
   getEthPriceInUSD,
@@ -11,7 +10,7 @@ import {
 } from './pricing'
 import { ERC20 } from '../types/templates/DotoliFund/ERC20'
 import { getInvestorID } from './investor'
-import { getInvestorLiquidityVolumeETH } from './investor'
+import { getInvestorPoolETH } from './investor'
 
 export function loadTransaction(event: ethereum.Event): Transaction {
   let transaction = Transaction.load(event.transaction.hash.toHexString())
@@ -33,51 +32,51 @@ export function safeDiv(amount0: BigDecimal, amount1: BigDecimal): BigDecimal {
   }
 }
 
-export function updateLiquidityVolume(
+export function updatePool(
   fundAddress: Address,
   investorAddress: Address,
   ethPriceInUSD: BigDecimal
 ): void {
   let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
   if (!investor) return
-  investor.liquidityVolumeETH = getInvestorLiquidityVolumeETH(fundAddress, investorAddress)
-  investor.liquidityVolumeUSD = investor.liquidityVolumeETH.times(ethPriceInUSD)
+  investor.poolETH = getInvestorPoolETH(fundAddress, investorAddress)
+  investor.poolUSD = investor.poolETH.times(ethPriceInUSD)
   investor.save()
 }
 
-// updateProfit must be after update principalUSD
+// updateProfit must be after update investAmountUSD
 export function updateProfit(
   fundAddress: Address,
   investorAddress: Address,
 ): void {
   let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
   if (!investor) return
-  investor.profitETH = investor.volumeETH.plus(investor.liquidityVolumeETH).minus(investor.principalETH)
-  investor.profitUSD = investor.volumeUSD.plus(investor.liquidityVolumeUSD).minus(investor.principalUSD)
-  investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
+  investor.profitETH = investor.currentETH.plus(investor.poolETH).minus(investor.investAmountETH)
+  investor.profitUSD = investor.currentUSD.plus(investor.poolUSD).minus(investor.investAmountUSD)
+  investor.profitRatio = safeDiv(investor.profitUSD, investor.investAmountUSD).times(BigDecimal.fromString('100'))
   investor.save()
 }
 
-export function getTokensVolumeETH(owner: Address, tokens: Bytes[]): BigDecimal[] {
-  let tokensVolumeETH: BigDecimal[] = []
+export function getTokensCurrentETH(owner: Address, tokens: Bytes[]): BigDecimal[] {
+  let tokensCurrentETH: BigDecimal[] = []
   for (let i=0; i<tokens.length; i++) {
     const balance = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(owner)
     const amountETH = getPriceETH(Address.fromBytes(tokens[i]), balance)
-    tokensVolumeETH.push(amountETH)
+    tokensCurrentETH.push(amountETH)
   }
-  return tokensVolumeETH
+  return tokensCurrentETH
 }
 
-export function getTokensVolumeUSD(owner: Address, tokens: Bytes[]): BigDecimal[] {
+export function getTokensCurrentUSD(owner: Address, tokens: Bytes[]): BigDecimal[] {
   const ethPriceInUSD = getEthPriceInUSD()
   
-  let tokensVolumeUSD: BigDecimal[] = []
+  let tokensCurrentUSD: BigDecimal[] = []
   for (let i=0; i<tokens.length; i++) {
     const balance = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(owner)
     const amountETH = getPriceETH(Address.fromBytes(tokens[i]), balance)
     const deAmountETH = amountETH
     const amountUSD = deAmountETH.times(ethPriceInUSD)
-    tokensVolumeUSD.push(amountUSD)
+    tokensCurrentUSD.push(amountUSD)
   }
-  return tokensVolumeUSD
+  return tokensCurrentUSD
 }

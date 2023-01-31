@@ -1,3 +1,4 @@
+# DotoliFund Factory
 type Factory @entity {
   # factory address
   id: Bytes!
@@ -5,17 +6,15 @@ type Factory @entity {
   fundCount: BigInt!
   # amount of investor
   investorCount: BigInt!
-  # swap router contract address
-  swapRouter: String!
-  # manager fee
+  # manager fee ratio
   managerFee: BigInt!
-  # white list token min pool amount in eth
+  # minimum ETH value of token + ETH pool to be whitelist token
   minPoolAmount: BigInt!
-  # total volume all time in derived ETH
-  totalVolumeETH: BigDecimal!
-  # total volume all time in derived USD
-  totalVolumeUSD: BigDecimal!
-  # current owner of the factory
+  # all fund's ETH value of the token held by the contract
+  totalCurrentETH: BigDecimal!
+  # all fund's USD value of the token held by the contract
+  totalCurrentUSD: BigDecimal!
+  # owner of the factory
   owner: Bytes!
 }
 
@@ -30,22 +29,22 @@ type Fund @entity {
   manager: Bytes!
   # investorCount
   investorCount: BigInt!
-  # volumeETH
-  volumeETH: BigDecimal!
-  # volumeUSD
-  volumeUSD: BigDecimal!
-  # tokens address
-  tokens: [Bytes!]!
-  # tokens symbol
-  symbols: [String!]!
-  # tokens decimals
-  decimals: [BigInt!]!
-  # tokens amount
-  tokensAmount: [BigDecimal!]!
-  # tokens volumeETH
-  tokensVolumeETH: [BigDecimal!]!
-  # tokens volumeUSD
-  tokensVolumeUSD: [BigDecimal!]!
+  # ETH value of the token held by the contract
+  currentETH: BigDecimal!
+  # USD value of the token held by the contract
+  currentUSD: BigDecimal!
+  # address of tokens held by the contract
+  currentTokens: [Bytes!]!
+  # symbol of tokens held by the contract
+  currentTokensSymbols: [String!]!
+  # decimals of tokens held by the contract
+  currentTokensDecimals: [BigInt!]!
+  # amount of tokens held by the contract
+  currentTokensAmount: [BigDecimal!]!
+  # ETH amount of tokens held by the contract
+  currentTokensAmountETH: [BigDecimal!]!
+  # USD amount of tokens held by the contract
+  currentTokensAmountUSD: [BigDecimal!]!
   # fee tokens address
   feeTokens: [Bytes!]!
   # fee tokens symbol
@@ -65,38 +64,38 @@ type Investor @entity {
   manager: Bytes!
   # investor address
   investor: Bytes!
-  # principal ETH
-  principalETH: BigDecimal!
-  # principal USD
-  principalUSD: BigDecimal!
-  # volumeETH
-  volumeETH: BigDecimal!
-  # volumeUSD
-  volumeUSD: BigDecimal!
-  # tokens address not liquidity
-  tokens: [Bytes!]!
-  # tokens symbol not liquidity
-  symbols: [String!]!
-  # tokens decimals not liquidity
-  decimals: [BigInt!]!
-  # tokens amount not liquidity
-  tokensAmount: [BigDecimal!]!
-  # tokens volumeETH not liquidity
-  tokensVolumeETH: [BigDecimal!]!
-  # tokens volumeUSD not liquidity
-  tokensVolumeUSD: [BigDecimal!]!
-  # liquidity VolumeETH
-  liquidityVolumeETH: BigDecimal!
-  # liquidity VolumeUSD
-  liquidityVolumeUSD: BigDecimal!
-  # liquidity tokens address
-  liquidityTokens: [Bytes!]!
-  # liquidity tokens symbol
-  liquiditySymbols: [String!]!
-  # liquidity tokens decimal
-  liquidityDecimals: [BigInt!]!
-  # liquidity tokens amount
-  liquidityTokensAmount: [BigDecimal!]!
+  # ETH value of investment
+  investAmountETH: BigDecimal!
+  # USD value of investment
+  investAmountUSD: BigDecimal!
+  # ETH value of the token held by the contract
+  currentETH: BigDecimal!
+  # USD value of the token held by the contract
+  currentUSD: BigDecimal!
+  # address of tokens held by the contract
+  currentTokens: [Bytes!]!
+  # symbol of tokens held by the contract
+  currentTokensSymbols: [String!]!
+  # decimals of tokens held by the contract
+  currentTokensDecimals: [BigInt!]!
+  # amount of tokens held by the contract
+  currentTokensAmount: [BigDecimal!]!
+  # ETH amount of tokens held by the contract
+  currentTokensAmountETH: [BigDecimal!]!
+  # USD amount of tokens held by the contract
+  currentTokensAmountUSD: [BigDecimal!]!
+  # ETH value of the token held by the pool
+  poolETH: BigDecimal!
+  # USD value of the token held by the pool
+  poolUSD: BigDecimal!
+  # address of tokens held by the pool
+  poolTokens: [Bytes!]!
+  # symbol of tokens held by the pool
+  poolTokensSymbols: [String!]!
+  # decimals of tokens held by the pool
+  poolTokensDecimals: [BigInt!]!
+  # amount of tokens held by the pool
+  poolTokensAmount: [BigDecimal!]!
   # profit ETH
   profitETH: BigDecimal!
   # profit USD
@@ -410,8 +409,8 @@ type DecreaseLiquidity @entity {
   logIndex: BigInt
 }
 
-# daily stats tracker for Dotoli Fund
-type DotoliFundSnapshot @entity {
+# daily stats tracker for DotoliFund Factory
+type FactorySnapshot @entity {
   # txn hash
   id: ID!
   # timestamp
@@ -420,10 +419,10 @@ type DotoliFundSnapshot @entity {
   fundCount: BigInt!
   # amount of investor
   investorCount: BigInt!
-  # total volume all time in derived ETH
-  totalVolumeETH: BigDecimal!
-  # total volume all time in derived USD
-  totalVolumeUSD: BigDecimal!
+  # all fund's ETH value of the token held by the contract
+  totalCurrentETH: BigDecimal!
+  # all fund's USD value of the token held by the contract
+  totalCurrentUSD: BigDecimal!
 }
 
 # daily stats tracker for fund
@@ -438,20 +437,22 @@ type FundSnapshot @entity {
   manager: Bytes!
   # investorCount
   investorCount: BigInt!
-  # volumeETH
-  volumeETH: BigDecimal!
-  # volume in USD
-  volumeUSD: BigDecimal!
-  # fund tokens address
-  tokens: [Bytes!]!
-  # fund tokens symbol
-  symbols: [String!]!
-  # tokens decimals
-  decimals: [BigInt!]!
-  # fund tokens volumeETH
-  tokensVolumeETH: [BigDecimal!]!
-  # fund tokens volumeUSD
-  tokensVolumeUSD: [BigDecimal!]!
+  # ETH value of the token held by the contract
+  currentETH: BigDecimal!
+  # USD value of the token held by the contract
+  currentUSD: BigDecimal!
+  # address of tokens held by the contract
+  currentTokens: [Bytes!]!
+  # symbol of tokens held by the contract
+  currentTokensSymbols: [String!]!
+  # decimals of tokens held by the contract
+  currentTokensDecimals: [BigInt!]!
+  # amount of tokens held by the contract
+  currentTokensAmount: [BigDecimal!]!
+  # ETH amount of tokens held by the contract
+  currentTokensAmountETH: [BigDecimal!]!
+  # USD amount of tokens held by the contract
+  currentTokensAmountUSD: [BigDecimal!]!
 }
 
 # daily stats tracker for investor
@@ -466,24 +467,28 @@ type InvestorSnapshot @entity {
   manager: Bytes!
   # pointer to investor
   investor: Bytes!
-  # principal ETH
-  principalETH: BigDecimal!
-  # principal USD
-  principalUSD: BigDecimal!
-  # volumeETH
-  volumeETH: BigDecimal!
-  # volume in USD
-  volumeUSD: BigDecimal!
-  # liquidity VolumeETH
-  liquidityVolumeETH: BigDecimal!
-  # liquidity VolumeUSD
-  liquidityVolumeUSD: BigDecimal!
-  # investor tokens address
-  tokens: [Bytes!]!
-  # investor tokens symbol
-  symbols: [String!]!
-  # investor tokens volumeETH
-  tokensVolumeETH: [BigDecimal!]!
-  # investor tokens volumeUSD
-  tokensVolumeUSD: [BigDecimal!]!
+  # ETH value of investment
+  investAmountETH: BigDecimal!
+  # USD value of investment
+  investAmountUSD: BigDecimal!
+  # ETH value of the token held by the contract
+  currentETH: BigDecimal!
+  # USD value of the token held by the contract
+  currentUSD: BigDecimal!
+  # address of tokens held by the contract
+  currentTokens: [Bytes!]!
+  # symbol of tokens held by the contract
+  currentTokensSymbols: [String!]!
+  # decimals of tokens held by the contract
+  currentTokensDecimals: [BigInt!]!
+  # amount of tokens held by the contract
+  currentTokensAmount: [BigDecimal!]!
+  # ETH amount of tokens held by the contract
+  currentTokensAmountETH: [BigDecimal!]!
+  # USD amount of tokens held by the contract
+  currentTokensAmountUSD: [BigDecimal!]!
+  # ETH value of the token held by the pool
+  poolETH: BigDecimal!
+  # USD value of the token held by the pool
+  poolUSD: BigDecimal!
 }
