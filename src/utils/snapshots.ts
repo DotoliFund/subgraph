@@ -12,7 +12,8 @@ import { getInvestorID } from './investor'
 import { DOTOLI_FACTORY_ADDRESS, LIQUIDITY_ORACLE_ADDRESS } from './constants'
 import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
 import { LiquidityOracle  } from '../types/templates/DotoliFund/LiquidityOracle'
-
+import { ERC20 } from '../types/templates/DotoliFund/ERC20'
+import { getPriceETH } from './pricing'
 
 export function factorySnapshot(event: ethereum.Event): void {
   let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
@@ -61,6 +62,7 @@ export function investorSnapshot(
   fundAddress: Bytes, 
   managerAddress: Bytes, 
   investorAddress: Bytes,
+  ethPriceInUSD: BigDecimal,
   event: ethereum.Event
 ): void {
   let investor = Investor.load(getInvestorID(
@@ -108,31 +110,45 @@ export function investorSnapshot(
     const token0 = positionTokens.getToken0()
     const amount0 = positionTokens.getAmount0()
     const decimal0 = ERC20.bind(token0).decimals()
-    const deAmount0 = amount0.divDecimal(BigDecimal.fromString(f64(10 ** decimal0).toString()))
-    const token0Index = poolTokens.indexOf(token0)
-
-
-
-
-
-
-
-    let added = false
-    for (let j=0; j<tokens.length; j++) {
-      if (poolTokens[i].equals(tokens[j])) {
-        tokensAmountETH[j] = tokensAmountETH[j].plus(investor.poolTokensAmountETH[i])
-        tokensAmountUSD[j] = tokensAmountUSD[j].plus(investor.poolTokensAmountUSD[i])
-        added = true 
-        break  
+    const amount0ETH = getPriceETH(token0, amount0)
+    const amount0USD = amount0ETH.times(ethPriceInUSD)
+    const token0Index = tokens.indexOf(token0)
+    if (token0Index >= 0) {
+      tokensAmountETH[token0Index] = tokensAmountETH[token0Index].plus(amount0ETH)
+      tokensAmountUSD[token0Index] = tokensAmountUSD[token0Index].plus(amount0USD)
+    } else {
+      tokens.push(token0)
+      const symbol = ERC20.bind(token0).try_symbol()
+      if (symbol.reverted) {
+        tokensSymbols.push(token0.toHexString())
+      } else {
+        tokensSymbols.push(symbol.value)
       }
+      tokensDecimals.push(BigInt.fromString(decimal0.toString()))
+      tokensAmountETH.push(amount0ETH)
+      tokensAmountUSD.push(amount0USD)
     }
 
-    if (!added) {
-      tokens.push(poolTokens[i])
-      tokensSymbols.push(investor.poolTokensSymbols[i])
-      tokensDecimals.push(investor.poolTokensDecimals[i])
-      tokensAmountETH.push(investor.poolTokensAmountETH[i])
-      tokensAmountUSD.push(investor.poolTokensAmountUSD[i])  
+    const token1 = positionTokens.getToken1()
+    const amount1 = positionTokens.getAmount1()
+    const decimal1 = ERC20.bind(token1).decimals()
+    const amount1ETH = getPriceETH(token1, amount1)
+    const amount1USD = amount1ETH.times(ethPriceInUSD)
+    const token1Index = tokens.indexOf(token1)
+    if (token1Index >= 0) {
+      tokensAmountETH[token1Index] = tokensAmountETH[token1Index].plus(amount1ETH)
+      tokensAmountUSD[token1Index] = tokensAmountUSD[token1Index].plus(amount1USD)
+    } else {
+      tokens.push(token1)
+      const symbol = ERC20.bind(token1).try_symbol()
+      if (symbol.reverted) {
+        tokensSymbols.push(token1.toHexString())
+      } else {
+        tokensSymbols.push(symbol.value)
+      }
+      tokensDecimals.push(BigInt.fromString(decimal1.toString()))
+      tokensAmountETH.push(amount1ETH)
+      tokensAmountUSD.push(amount1USD)
     }
   }
 

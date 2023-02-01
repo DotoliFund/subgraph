@@ -26,6 +26,7 @@ import {
   WETH9,
   DTL
 } from './utils/constants'
+import { getEthPriceInUSD } from './utils/pricing'
 import { getInvestorID } from "./utils/investor"
 import { fundSnapshot, investorSnapshot, factorySnapshot } from "./utils/snapshots"
 import { loadTransaction } from "./utils"
@@ -86,17 +87,9 @@ export function handleFundCreated(event: FundCreated): void {
   // create the tracked contract based on the template
   FundTemplate.create(event.params.fund)
 
-  investorSnapshot(
-    event.params.fund,
-    event.params.manager,
-    event.params.manager,
-    event
-  )
-  fundSnapshot(
-    event.params.fund,
-    event.params.manager,
-    event
-  )
+  const ethPriceInUSD = getEthPriceInUSD()
+  investorSnapshot(event.params.fund, event.params.manager, event.params.manager, ethPriceInUSD, event)
+  fundSnapshot(event.params.fund, event.params.manager, event)
   factorySnapshot(event)
 
   // Note: If a handler doesn't require existing field values, it is faster
@@ -184,17 +177,10 @@ export function handleSubscribe(event: SubscribeEvent): void {
     subscribe.save()
     fund.save()
     factory.save()
-    investorSnapshot(
-      event.params.fund,
-      event.params.manager,
-      event.params.investor,
-      event
-    )
-    fundSnapshot(
-      event.params.fund,
-      event.params.manager,
-      event
-    )
+
+    const ethPriceInUSD = getEthPriceInUSD()
+    investorSnapshot( event.params.fund, event.params.manager, event.params.investor, ethPriceInUSD, event)
+    fundSnapshot(event.params.fund, event.params.manager, event)
     factorySnapshot(event)
   }
 }
