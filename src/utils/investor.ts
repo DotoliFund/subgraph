@@ -2,15 +2,15 @@ import { BigDecimal, Address, Bytes, BigInt } from '@graphprotocol/graph-ts'
 import { Investor } from '../types/schema'
 import {
   LIQUIDITY_ORACLE_ADDRESS,
-  ZERO_BD
+  ZERO_BD,
+  ONE_BD,
+  TYPE_DEPOSIT,
 } from './constants'
-import { 
-  getPriceETH,
-} from './pricing'
+import { getPriceETH } from './pricing'
 import { DotoliFund } from '../types/templates/DotoliFund/DotoliFund'
 import { ERC20 } from '../types/templates/DotoliFund/ERC20'
 import { LiquidityOracle  } from '../types/templates/DotoliFund/LiquidityOracle'
-
+import { safeDiv } from '../utils'
 
 export function getInvestorID(fund: Address, investor: Address): string {
   const investorID = fund.toHexString().toUpperCase() + '-' + investor.toHexString().toUpperCase()
@@ -105,22 +105,22 @@ export function updateInvestorTokenIds(
   investor.save()
 }
 
-export function updateInvestorPoolTokens(
+export function updateInvestAmount(
   fundAddress: Address,
   investorAddress: Address,
-): void {
+  ethPriceInUSD: BigDecimal,
+  type: number,
+  _amountETH: BigDecimal,
+  _amountUSD: BigDecimal
+  ): void {
   let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
   if (!investor) return
   
   const dotolifund = DotoliFund.bind(fundAddress)
   const liquidityOracle = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
 
-  let poolTokens: Bytes[] = []
-  let poolTokensSymbols: string[] = []
-  let poolTokensDecimals: BigInt[] = []
-  let poolTokensAmount: BigDecimal[] = []
-  let poolTokensAmountETH: BigDecimal[] = []
-  let poolTokensAmountUSD: BigDecimal[] = []
+  let poolETH: BigDecimal = ZERO_BD
+  let poolUSD: BigDecimal = ZERO_BD
 
   const investorTokenIds = dotolifund.getPositionTokenIds(investorAddress)
   for (let i=0; i<investorTokenIds.length; i++) {
@@ -129,48 +129,34 @@ export function updateInvestorPoolTokens(
   
     const token0 = positionTokens.getToken0()
     const amount0 = positionTokens.getAmount0()
-    const decimal0 = ERC20.bind(token0).decimals()
-    const deAmount0 = amount0.divDecimal(BigDecimal.fromString(f64(10 ** decimal0).toString()))
-    const token0Index = poolTokens.indexOf(token0)
-    if (token0Index >= 0) {
-      poolTokensAmount[token0Index] = poolTokensAmount[token0Index].plus(deAmount0)
-    } else {
-      poolTokens.push(token0)
-      const symbol = ERC20.bind(token0).try_symbol()
-      if (symbol.reverted) {
-        poolTokensSymbols.push(token0.toHexString())
-      } else {
-        poolTokensSymbols.push(symbol.value)
-      }
-      poolTokensDecimals.push(BigInt.fromString(decimal0.toString()))
-      poolTokensAmount.push(deAmount0)
-    }
+    const amount0ETH = getPriceETH(token0, amount0)
+    const amount0USD = amount0ETH.times(ethPriceInUSD)
+    poolETH = poolETH.plus(amount0ETH)
+    poolUSD = poolUSD.plus(amount0USD)
 
     const token1 = positionTokens.getToken1()
     const amount1 = positionTokens.getAmount1()
-    const decimal1 = ERC20.bind(token1).decimals()
-    const deAmount1 = amount1.divDecimal(BigDecimal.fromString(f64(10 ** decimal1).toString()))
-    const token1Index = poolTokens.indexOf(token1)
-    if (token1Index >= 0) {
-      poolTokensAmount[token1Index] = poolTokensAmount[token1Index].plus(deAmount1)
-    } else {
-      poolTokens.push(token1)
-      const symbol = ERC20.bind(token1).try_symbol()
-      if (symbol.reverted) {
-        poolTokensSymbols.push(token1.toHexString())
-      } else {
-        poolTokensSymbols.push(symbol.value)
-      }
-      poolTokensDecimals.push(BigInt.fromString(decimal1.toString()))
-      poolTokensAmount.push(deAmount1)
-    }
+    const amount1ETH = getPriceETH(token1, amount1)
+    const amount1USD = amount1ETH.times(ethPriceInUSD)
+    poolETH = poolETH.plus(amount1ETH)
+    poolUSD = poolUSD.plus(amount1USD)
   }
-  investor.poolTokens = poolTokens
-  investor.poolTokensSymbols = poolTokensSymbols
-  investor.poolTokensDecimals = poolTokensDecimals
-  investor.poolTokensAmount = poolTokensAmount
-  investor.poolTokensAmountETH = poolTokensAmountETH
-  investor.poolTokensAmountUSD = poolTokensAmountUSD
+
+  if (type == TYPE_DEPOSIT) {
+    investor.investAmountETH = investor.investAmountETH.plus(_amountETH)
+    investor.investAmountUSD = investor.investAmountUSD.plus(_amountUSD)
+  } else {
+    // withdraw
+    const prevVolumeETH = investor.currentETH.plus(poolETH).plus(_amountETH)
+    const withdrawRatioETH = safeDiv(_amountETH, prevVolumeETH)
+    const afterWithdrawETH = ONE_BD.minus(withdrawRatioETH)
+    investor.investAmountETH = investor.investAmountETH.times(afterWithdrawETH)
+
+    const prevVolumeUSD = investor.currentUSD.plus(poolUSD).plus(_amountUSD)
+    const withdrawRatioUSD = safeDiv(_amountUSD, prevVolumeUSD)
+    const afterWithdrawUSD= ONE_BD.minus(withdrawRatioUSD)
+    investor.investAmountUSD = investor.investAmountUSD.times(afterWithdrawUSD)
+  }
   investor.save()
 }
 

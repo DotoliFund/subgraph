@@ -70,17 +70,6 @@ export function handleFundCreated(event: FundCreated): void {
     investor.currentTokensAmountETH = []
     investor.currentTokensAmountUSD = []
     investor.tokenIds = []
-    investor.poolETH = ZERO_BD
-    investor.poolUSD = ZERO_BD  
-    investor.poolTokens = []
-    investor.poolTokensSymbols = []
-    investor.poolTokensDecimals = []
-    investor.poolTokensAmount = []
-    investor.poolTokensAmountETH = []
-    investor.poolTokensAmountUSD = []
-    investor.profitETH = ZERO_BD
-    investor.profitUSD = ZERO_BD
-    investor.profitRatio = ZERO_BD
   }
   investor.save()
   fund.save()
@@ -161,17 +150,6 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.currentTokensAmountETH = []
       investor.currentTokensAmountUSD = []
       investor.tokenIds = []
-      investor.poolETH = ZERO_BD
-      investor.poolUSD = ZERO_BD    
-      investor.poolTokens = []
-      investor.poolTokensSymbols = []
-      investor.poolTokensDecimals = []
-      investor.poolTokensAmount = []
-      investor.poolTokensAmountETH = []
-      investor.poolTokensAmountUSD = []
-      investor.profitETH = ZERO_BD
-      investor.profitUSD = ZERO_BD
-      investor.profitRatio = ZERO_BD
     }
     investor.save()
     subscribe.save()

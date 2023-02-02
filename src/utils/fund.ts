@@ -31,7 +31,7 @@ export function updateFundCurrent(
   factory.save()
 }
 
-export function updateFundTokens(fundAddress: Address): void {
+export function updateFundTokensAmount(fundAddress: Address): void {
   let fund = Fund.load(fundAddress)
   if (!fund) return
   
