@@ -1,65 +1,53 @@
 import { BigDecimal, Address, Bytes, log, BigInt } from '@graphprotocol/graph-ts'
 import { Fund, Factory } from '../types/schema'
-import {
-  DOTOLI_FACTORY_ADDRESS,
-  ZERO_BI,
-  ZERO_BD
-} from './constants'
-import { 
-  getEthPriceInUSD,
-  getPriceETH
-} from './pricing'
+import { DOTOLI_FACTORY_ADDRESS, ZERO_BI, ZERO_BD } from './constants'
+import { getPriceETH } from './pricing'
 import { ERC20 } from '../types/templates/DotoliFund/ERC20'
 import { DotoliFund } from '../types/templates/DotoliFund/DotoliFund'
 
-export function updateFundCurrent(
-  fundAddress: Address,
-  ethPriceInUSD: BigDecimal
-): void {
+
+export function updateFundCurrent(fundAddress: Address, ethPriceInUSD: BigDecimal): void {
   let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (!factory) return
 
   let fund = Fund.load(fundAddress)
   if (!fund) return
-
-  factory.totalCurrentETH = factory.totalCurrentETH.minus(fund.currentETH)
-  fund.currentETH = getFundCurrentETH(fundAddress)
-  fund.currentUSD = fund.currentETH.times(ethPriceInUSD)
-  factory.totalCurrentETH = factory.totalCurrentETH.plus(fund.currentETH)
-  factory.totalCurrentUSD = factory.totalCurrentETH.times(ethPriceInUSD)
-  fund.save()
-  factory.save()
-}
-
-export function updateFundTokensAmount(fundAddress: Address): void {
-  let fund = Fund.load(fundAddress)
-  if (!fund) return
   
-  const ethPriceInUSD = getEthPriceInUSD()
   const tokens = fund.currentTokens
   
-  let tokensAmount: BigDecimal[] = []
-  let tokensCurrentETH: BigDecimal[] = []
-  let tokensCurrentUSD: BigDecimal[] = []
+  let currentTokensAmount: BigDecimal[] = []
+  let currentTokensAmountETH: BigDecimal[] = []
+  let currentTokensAmountUSD: BigDecimal[] = []
+  let currentETH: BigDecimal = ZERO_BD
+  let currentUSD: BigDecimal = ZERO_BD
+
+  factory.totalCurrentETH = factory.totalCurrentETH.minus(fund.currentETH)
 
   for (let i=0; i<tokens.length; i++) {
-    const balance = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(fundAddress)
+    const amount = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(fundAddress)
     const decimals = ERC20.bind(Address.fromBytes(tokens[i])).decimals()
-    const tokenAmount = balance.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
-    tokensAmount.push(tokenAmount)
-    
-    const amountETH = getPriceETH(Address.fromBytes(tokens[i]), balance)
-    tokensCurrentETH.push(amountETH)
-
+    const tokenAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
+    const amountETH = getPriceETH(Address.fromBytes(tokens[i]), amount)
     const deAmountETH = amountETH
     const amountUSD = deAmountETH.times(ethPriceInUSD)
-    tokensCurrentUSD.push(amountUSD)
+    currentTokensAmount.push(tokenAmount)
+    currentTokensAmountETH.push(amountETH)
+    currentTokensAmountUSD.push(amountUSD)
+    currentETH.plus(amountETH)
+    currentUSD.plus(amountUSD)
   }
 
-  fund.currentTokensAmount = tokensAmount
-  fund.currentTokensAmountETH = tokensCurrentETH
-  fund.currentTokensAmountUSD = tokensCurrentUSD
+  fund.currentTokensAmount = currentTokensAmount
+  fund.currentTokensAmountETH = currentTokensAmountETH
+  fund.currentTokensAmountUSD = currentTokensAmountUSD
+  fund.currentETH = currentETH
+  fund.currentUSD = currentUSD
+
+  factory.totalCurrentETH = factory.totalCurrentETH.plus(fund.currentETH)
+  factory.totalCurrentUSD = factory.totalCurrentETH.times(ethPriceInUSD)
+
   fund.save()
+  factory.save()
 }
 
 export function isNewFundToken(fundTokens: Bytes[], token: Bytes): bool {
@@ -127,24 +115,7 @@ export function updateNewFundToken(
   }
 }
 
-export function getFundCurrentETH(fundAddress: Address): BigDecimal {
-  let fund = Fund.load(fundAddress)
-  if (!fund) return ZERO_BD
-
-  let fundTvlETH = ZERO_BD
-
-  const fundTokens = fund.currentTokens
-  for (let i=0; i<fundTokens.length; i++) {
-    const tokenAddress = fundTokens[i]
-    const amount = ERC20.bind(Address.fromBytes(tokenAddress)).balanceOf(fundAddress)
-    const amountETH = getPriceETH(Address.fromBytes(tokenAddress), amount)
-    const deAmountETH = amountETH
-    fundTvlETH = fundTvlETH.plus(deAmountETH)
-  }
-  return fundTvlETH
-}
-
-export function updateFeeTokens(fundAddress: Address): void {
+export function updateFundFee(fundAddress: Address): void {
   let fund = Fund.load(fundAddress)
   if (!fund) return
 

@@ -10,7 +10,6 @@ import {
   DecreaseLiquidity as DecreaseLiquidityEvent
 } from './types/templates/DotoliFund/DotoliFund'
 import {
-  Investor,
   ManagerFeeOut,
   Deposit,
   Withdraw,
@@ -29,16 +28,13 @@ import {
 import { loadTransaction } from './utils'
 import {
   updateFundCurrent,
-  updateFundTokensAmount,
   updateEmptyFundToken,
   updateNewFundToken,
-  updateFeeTokens
+  updateFundFee
 } from "./utils/fund"
 import {
-  updateInvestorCurrentTokens,
+  updateInvestor,
   updateInvestAmount,
-  updateInvestorTokenIds,
-  updateInvestorCurrent
 } from "./utils/investor"
 import { 
   getEthPriceInUSD,
@@ -77,9 +73,7 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   managerFeeOut.save()
   
   updateEmptyFundToken(fundAddress, managerFeeOut.token)
-  updateFundTokensAmount(fundAddress)
-  updateFeeTokens(fundAddress)
-
+  updateFundFee(fundAddress)
   // update current must be after update tokens
   updateFundCurrent(fundAddress, ethPriceInUSD)
 
@@ -115,18 +109,14 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.logIndex = event.logIndex
   deposit.save()
 
-  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorTokenIds(fundAddress, event.params.investor)
+  updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateNewFundToken(
     fundAddress,
     deposit.token,
     deposit.tokenSymbol,
     BigInt.fromString(decimals.toString())
   )
-  updateFundTokensAmount(fundAddress)
-
-  // update volume must be after update tokens
-  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  // update fund current must be after update tokens
   updateFundCurrent(fundAddress, ethPriceInUSD)
 
   updateInvestAmount(
@@ -171,14 +161,10 @@ export function handleWithdraw(event: WithdrawEvent): void {
   withdraw.logIndex = event.logIndex
   withdraw.save()
 
-  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorTokenIds(fundAddress, event.params.investor)
-  updateFeeTokens(fundAddress)
+  updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
+  updateFundFee(fundAddress)
   updateEmptyFundToken(fundAddress, withdraw.token)
-  updateFundTokensAmount(fundAddress)
-
   // update volume must be after update tokens
-  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
 
   updateInvestAmount(
@@ -244,8 +230,7 @@ export function handleSwap(event: SwapEvent): void {
   swap.logIndex = event.logIndex
   swap.save()
 
-  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorTokenIds(fundAddress, event.params.investor)
+  updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateEmptyFundToken(fundAddress, event.params.tokenIn)
   updateNewFundToken(
     fundAddress,
@@ -253,10 +238,7 @@ export function handleSwap(event: SwapEvent): void {
     swap.token1Symbol,
     _tokenOutDecimals
   )
-  updateFundTokensAmount(fundAddress)
-
   // update volume must be after update tokens
-  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
   
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
@@ -309,12 +291,7 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   mintNewPosition.logIndex = event.logIndex
   mintNewPosition.save()
 
-  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorTokenIds(fundAddress, event.params.investor)
-  updateFundTokensAmount(fundAddress)
-
-  // update volume must be after update tokens
-  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
   
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
@@ -367,12 +344,7 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   increaseLiquidity.logIndex = event.logIndex
   increaseLiquidity.save()
 
-  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorTokenIds(fundAddress, event.params.investor)
-  updateFundTokensAmount(fundAddress)
-  
-  // update volume must be after update tokens
-  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
   
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
@@ -425,12 +397,7 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   collectPositionFee.logIndex = event.logIndex
   collectPositionFee.save()
 
-  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorTokenIds(fundAddress, event.params.investor)
-  updateFundTokensAmount(fundAddress)
-
-  // update volume must be after update tokens
-  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
   
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
@@ -483,12 +450,7 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   decreaseLiquidity.logIndex = event.logIndex
   decreaseLiquidity.save()
 
-  updateInvestorCurrentTokens(fundAddress, event.params.investor, ethPriceInUSD)
-  updateInvestorTokenIds(fundAddress, event.params.investor)
-  updateFundTokensAmount(fundAddress)
-
-  // update volume must be after update tokens
-  updateInvestorCurrent(fundAddress, event.params.investor, ethPriceInUSD)
+  updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
   
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
