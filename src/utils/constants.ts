@@ -13,8 +13,9 @@ export const DECIMAL_6 = '1000000'
 
 export const UNKNWON_SYMBOL = 'Unknown'
 
-export const TYPE_DEPOSIT = 0
-export const TYPE_WITHDRAW = 1
+export const TYPE_NORMAL = 0
+export const TYPE_DEPOSIT = 1
+export const TYPE_WITHDRAW = 2
 
 export let ZERO_BI = BigInt.fromI32(0)
 export let ONE_BI = BigInt.fromI32(1)

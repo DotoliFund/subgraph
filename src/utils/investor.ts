@@ -5,6 +5,7 @@ import {
   ZERO_BD,
   ONE_BD,
   TYPE_DEPOSIT,
+  TYPE_WITHDRAW,
 } from './constants'
 import { getPriceETH } from './pricing'
 import { DotoliFund } from '../types/templates/DotoliFund/DotoliFund'
@@ -76,7 +77,7 @@ export function updateInvestor(
   investor.save()
 }
 
-export function updateInvestAmount(
+export function updateInvestorProfit(
   fundAddress: Address,
   investorAddress: Address,
   ethPriceInUSD: BigDecimal,
@@ -116,7 +117,7 @@ export function updateInvestAmount(
   if (type == TYPE_DEPOSIT) {
     investor.investAmountETH = investor.investAmountETH.plus(_amountETH)
     investor.investAmountUSD = investor.investAmountUSD.plus(_amountUSD)
-  } else {
+  } else if (type == TYPE_WITHDRAW) {
     // withdraw
     const prevVolumeETH = investor.currentETH.plus(poolETH).plus(_amountETH)
     const withdrawRatioETH = safeDiv(_amountETH, prevVolumeETH)
@@ -127,6 +128,11 @@ export function updateInvestAmount(
     const withdrawRatioUSD = safeDiv(_amountUSD, prevVolumeUSD)
     const afterWithdrawUSD= ONE_BD.minus(withdrawRatioUSD)
     investor.investAmountUSD = investor.investAmountUSD.times(afterWithdrawUSD)
-  }
+  } 
+  
+  investor.profitETH = investor.currentETH.plus(poolETH).minus(investor.investAmountETH)
+  investor.profitUSD = investor.currentUSD.plus(poolUSD).minus(investor.investAmountUSD)
+  investor.profitRatio = safeDiv(investor.profitUSD, investor.investAmountUSD).times(BigDecimal.fromString('100'))
+
   investor.save()
 }

@@ -19,7 +19,7 @@ import {
   CollectPositionFee,
   DecreaseLiquidity
 } from "./types/schema"
-import { TYPE_DEPOSIT } from './utils/constants'
+import { TYPE_DEPOSIT, TYPE_WITHDRAW, TYPE_NORMAL, ZERO_BD } from './utils/constants'
 import { 
   fundSnapshot,
   investorSnapshot,
@@ -34,7 +34,7 @@ import {
 } from "./utils/fund"
 import {
   updateInvestor,
-  updateInvestAmount,
+  updateInvestorProfit,
 } from "./utils/investor"
 import { 
   getEthPriceInUSD,
@@ -118,8 +118,7 @@ export function handleDeposit(event: DepositEvent): void {
   )
   // update fund current must be after update tokens
   updateFundCurrent(fundAddress, ethPriceInUSD)
-
-  updateInvestAmount(
+  updateInvestorProfit(
     fundAddress,
     event.params.investor,
     ethPriceInUSD,
@@ -166,8 +165,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
   updateEmptyFundToken(fundAddress, withdraw.token)
   // update volume must be after update tokens
   updateFundCurrent(fundAddress, ethPriceInUSD)
-
-  updateInvestAmount(
+  updateInvestorProfit(
     fundAddress,
     event.params.investor,
     ethPriceInUSD,
@@ -240,7 +238,8 @@ export function handleSwap(event: SwapEvent): void {
   )
   // update volume must be after update tokens
   updateFundCurrent(fundAddress, ethPriceInUSD)
-  
+  updateInvestorProfit(fundAddress, event.params.investor, ethPriceInUSD, TYPE_NORMAL, ZERO_BD, ZERO_BD)
+
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundAddress, managerAddress, event)
   factorySnapshot(event)
@@ -293,7 +292,8 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
 
   updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
-  
+  updateInvestorProfit(fundAddress, event.params.investor, ethPriceInUSD, TYPE_NORMAL, ZERO_BD, ZERO_BD)
+
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundAddress, managerAddress, event)
   factorySnapshot(event)
@@ -346,7 +346,8 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
 
   updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
-  
+  updateInvestorProfit(fundAddress, event.params.investor, ethPriceInUSD, TYPE_NORMAL, ZERO_BD, ZERO_BD)
+
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundAddress, managerAddress, event)
   factorySnapshot(event)
@@ -399,7 +400,8 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
 
   updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
-  
+  updateInvestorProfit(fundAddress, event.params.investor, ethPriceInUSD, TYPE_NORMAL, ZERO_BD, ZERO_BD)
+
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundAddress, managerAddress, event)
   factorySnapshot(event)
@@ -452,7 +454,8 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
 
   updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
-  
+  updateInvestorProfit(fundAddress, event.params.investor, ethPriceInUSD, TYPE_NORMAL, ZERO_BD, ZERO_BD)
+
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundAddress, managerAddress, event)
   factorySnapshot(event)

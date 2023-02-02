@@ -169,8 +169,8 @@ export function investorSnapshot(
   investorSnapshot.tokenIds = investor.tokenIds
   investorSnapshot.poolETH = poolETH
   investorSnapshot.poolUSD = poolUSD
-  investorSnapshot.profitETH = investorSnapshot.currentETH.plus(investorSnapshot.poolETH).minus(investorSnapshot.investAmountETH)
-  investorSnapshot.profitUSD = investorSnapshot.currentUSD.plus(investorSnapshot.poolUSD).minus(investorSnapshot.investAmountUSD)
-  investorSnapshot.profitRatio = safeDiv(investorSnapshot.profitUSD, investorSnapshot.investAmountUSD).times(BigDecimal.fromString('100'))
+  investorSnapshot.profitETH = investor.profitETH
+  investorSnapshot.profitUSD = investor.profitUSD
+  investorSnapshot.profitRatio = investor.profitRatio
   investorSnapshot.save()
 }

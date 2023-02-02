@@ -70,6 +70,9 @@ export function handleFundCreated(event: FundCreated): void {
     investor.currentTokensAmountETH = []
     investor.currentTokensAmountUSD = []
     investor.tokenIds = []
+    investor.profitETH = ZERO_BD
+    investor.profitUSD = ZERO_BD
+    investor.profitRatio = ZERO_BD
   }
   investor.save()
   fund.save()
@@ -150,6 +153,9 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.currentTokensAmountETH = []
       investor.currentTokensAmountUSD = []
       investor.tokenIds = []
+      investor.profitETH = ZERO_BD
+      investor.profitUSD = ZERO_BD
+      investor.profitRatio = ZERO_BD  
     }
     investor.save()
     subscribe.save()
