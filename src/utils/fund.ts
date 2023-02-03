@@ -15,9 +15,9 @@ export function updateFundCurrent(fundAddress: Address, ethPriceInUSD: BigDecima
   
   const tokens = fund.currentTokens
   
-  let currentTokensAmount: BigDecimal[] = []
-  let currentTokensAmountETH: BigDecimal[] = []
-  let currentTokensAmountUSD: BigDecimal[] = []
+  const currentTokensAmount: BigDecimal[] = []
+  const currentTokensAmountETH: BigDecimal[] = []
+  const currentTokensAmountUSD: BigDecimal[] = []
   let currentETH: BigDecimal = ZERO_BD
   let currentUSD: BigDecimal = ZERO_BD
 
@@ -28,13 +28,12 @@ export function updateFundCurrent(fundAddress: Address, ethPriceInUSD: BigDecima
     const decimals = ERC20.bind(Address.fromBytes(tokens[i])).decimals()
     const tokenAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
     const amountETH = getPriceETH(Address.fromBytes(tokens[i]), amount)
-    const deAmountETH = amountETH
-    const amountUSD = deAmountETH.times(ethPriceInUSD)
+    const amountUSD = amountETH.times(ethPriceInUSD)
     currentTokensAmount.push(tokenAmount)
     currentTokensAmountETH.push(amountETH)
     currentTokensAmountUSD.push(amountUSD)
-    currentETH.plus(amountETH)
-    currentUSD.plus(amountUSD)
+    currentETH = currentETH.plus(amountETH)
+    currentUSD = currentUSD.plus(amountUSD)
   }
 
   fund.currentTokensAmount = currentTokensAmount
@@ -75,9 +74,9 @@ export function updateEmptyFundToken(
 
   // if token amount 0, remove from fund token list
   if (isEmptyFundToken(fundAddress, token)) {
-    let fundTokens: Bytes[] = []
-    let fundSymbols: string[] = []
-    let fundDecimals: BigInt[] = []
+    const fundTokens: Bytes[] = []
+    const fundSymbols: string[] = []
+    const fundDecimals: BigInt[] = []
     for (let i=0; i<fund.currentTokens.length; i++) {
       if(fund.currentTokens[i].equals(token)) continue
       fundTokens.push(fund.currentTokens[i])
@@ -101,9 +100,9 @@ export function updateNewFundToken(
   if (!fund) return
 
   if (isNewFundToken(fund.currentTokens, token)) {
-    let fundTokens: Bytes[] = fund.currentTokens
-    let fundSymbols: string[] = fund.currentTokensSymbols
-    let fundDecimals: BigInt[] = fund.currentTokensDecimals
+    const fundTokens: Bytes[] = fund.currentTokens
+    const fundSymbols: string[] = fund.currentTokensSymbols
+    const fundDecimals: BigInt[] = fund.currentTokensDecimals
 
     fundTokens.push(token)
     fundSymbols.push(tokenSymbol)
@@ -122,9 +121,9 @@ export function updateFundFee(fundAddress: Address): void {
   const dotolifund = DotoliFund.bind(fundAddress)
   const feeTokensInfo = dotolifund.getFeeTokens()
 
-  let feeTokens: Bytes[] = []
-  let feeSymbols: string[] = []
-  let feeTokensAmount: BigDecimal[] = []
+  const feeTokens: Bytes[] = []
+  const feeSymbols: string[] = []
+  const feeTokensAmount: BigDecimal[] = []
 
   for (let i=0; i<feeTokensInfo.length; i++) {
     const tokenAddress = feeTokensInfo[i].tokenAddress
