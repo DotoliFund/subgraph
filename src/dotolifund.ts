@@ -169,7 +169,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
     fundAddress,
     event.params.investor,
     ethPriceInUSD,
-    TYPE_DEPOSIT,
+    TYPE_WITHDRAW,
     withdraw.amountETH,
     withdraw.amountUSD
   )
