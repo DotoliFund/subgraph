@@ -14,7 +14,6 @@ import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
 import { LiquidityOracle  } from '../types/templates/DotoliFund/LiquidityOracle'
 import { ERC20 } from '../types/templates/DotoliFund/ERC20'
 import { getPriceETH } from './pricing'
-import { safeDiv } from '../utils'
 
 export function factorySnapshot(event: ethereum.Event): void {
   let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
@@ -104,8 +103,8 @@ export function investorSnapshot(
 
   const liquidityOracle = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
   const tokenIds = investor.tokenIds
-  const poolETH: BigDecimal = ZERO_BD
-  const poolUSD: BigDecimal = ZERO_BD
+  let poolETH: BigDecimal = ZERO_BD
+  let poolUSD: BigDecimal = ZERO_BD
 
   for (let i=0; i<tokenIds.length; i++) {
     const positionTokens = liquidityOracle.getPositionTokenAmount(tokenIds[i])
@@ -131,8 +130,8 @@ export function investorSnapshot(
       tokensAmountETH.push(amount0ETH)
       tokensAmountUSD.push(amount0USD)
     }
-    poolETH.plus(amount0ETH)
-    poolUSD.plus(amount0USD)
+    poolETH = poolETH.plus(amount0ETH)
+    poolUSD = poolUSD.plus(amount0USD)
 
     const token1 = positionTokens.getToken1()
     const amount1 = positionTokens.getAmount1()
@@ -155,8 +154,8 @@ export function investorSnapshot(
       tokensAmountETH.push(amount1ETH)
       tokensAmountUSD.push(amount1USD)
     }
-    poolETH.plus(amount1ETH)
-    poolUSD.plus(amount1USD)
+    poolETH = poolETH.plus(amount1ETH)
+    poolUSD = poolUSD.plus(amount1USD)
   }
 
   investorSnapshot.tokens = tokens
