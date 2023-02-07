@@ -115,24 +115,24 @@ export function updateInvestorProfit(
   }
 
   if (type == TYPE_DEPOSIT) {
-    investor.investAmountETH = investor.investAmountETH.plus(_amountETH)
-    investor.investAmountUSD = investor.investAmountUSD.plus(_amountUSD)
+    investor.principalETH = investor.principalETH.plus(_amountETH)
+    investor.principalUSD = investor.principalUSD.plus(_amountUSD)
   } else if (type == TYPE_WITHDRAW) {
     // withdraw
     const prevVolumeETH = investor.currentETH.plus(poolETH).plus(_amountETH)
     const withdrawRatioETH = safeDiv(_amountETH, prevVolumeETH)
     const afterWithdrawETH = ONE_BD.minus(withdrawRatioETH)
-    investor.investAmountETH = investor.investAmountETH.times(afterWithdrawETH)
+    investor.principalETH = investor.principalETH.times(afterWithdrawETH)
 
     const prevVolumeUSD = investor.currentUSD.plus(poolUSD).plus(_amountUSD)
     const withdrawRatioUSD = safeDiv(_amountUSD, prevVolumeUSD)
     const afterWithdrawUSD= ONE_BD.minus(withdrawRatioUSD)
-    investor.investAmountUSD = investor.investAmountUSD.times(afterWithdrawUSD)
+    investor.principalUSD = investor.principalUSD.times(afterWithdrawUSD)
   } 
   
-  investor.profitETH = investor.currentETH.plus(poolETH).minus(investor.investAmountETH)
-  investor.profitUSD = investor.currentUSD.plus(poolUSD).minus(investor.investAmountUSD)
-  investor.profitRatio = safeDiv(investor.profitUSD, investor.investAmountUSD).times(BigDecimal.fromString('100'))
+  investor.profitETH = investor.currentETH.plus(poolETH).minus(investor.principalETH)
+  investor.profitUSD = investor.currentUSD.plus(poolUSD).minus(investor.principalUSD)
+  investor.profitRatio = safeDiv(investor.profitUSD, investor.principalUSD).times(BigDecimal.fromString('100'))
 
   investor.save()
 }

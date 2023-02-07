@@ -64,10 +64,10 @@ type Investor @entity {
   manager: Bytes!
   # investor address
   investor: Bytes!
-  # ETH value of investment
-  investAmountETH: BigDecimal!
-  # USD value of investment
-  investAmountUSD: BigDecimal!
+  # ETH value of principal
+  principalETH: BigDecimal!
+  # USD value of principal
+  principalUSD: BigDecimal!
   # ETH value of the token held by the contract
   currentETH: BigDecimal!
   # USD value of the token held by the contract
@@ -457,10 +457,10 @@ type InvestorSnapshot @entity {
   manager: Bytes!
   # pointer to investor
   investor: Bytes!
-  # ETH value of investment
-  investAmountETH: BigDecimal!
-  # USD value of investment
-  investAmountUSD: BigDecimal!
+  # ETH value of principal
+  principalETH: BigDecimal!
+  # USD value of principal
+  principalUSD: BigDecimal!
   # address of tokens held by the contract + pool
   tokens: [Bytes!]!
   # symbol of tokens held by the contract + pool

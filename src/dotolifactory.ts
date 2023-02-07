@@ -59,8 +59,8 @@ export function handleFundCreated(event: FundCreated): void {
     investor.fund = event.params.fund
     investor.manager = event.params.manager
     investor.investor = event.params.manager
-    investor.investAmountETH = ZERO_BD
-    investor.investAmountUSD = ZERO_BD
+    investor.principalETH = ZERO_BD
+    investor.principalUSD = ZERO_BD
     investor.currentETH = ZERO_BD
     investor.currentUSD = ZERO_BD
     investor.currentTokens = []
@@ -142,8 +142,8 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.fund = event.params.fund
       investor.manager = event.params.manager
       investor.investor = event.params.investor
-      investor.investAmountETH = ZERO_BD
-      investor.investAmountUSD = ZERO_BD
+      investor.principalETH = ZERO_BD
+      investor.principalUSD = ZERO_BD
       investor.currentETH = ZERO_BD
       investor.currentUSD = ZERO_BD
       investor.currentTokens = []

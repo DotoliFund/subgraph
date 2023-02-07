@@ -80,9 +80,8 @@ export function investorSnapshot(
   investorSnapshot.fund = fundAddress
   investorSnapshot.manager = managerAddress
   investorSnapshot.investor = investorAddress
-  investorSnapshot.investAmountETH = investor.investAmountETH
-  investorSnapshot.investAmountUSD = investor.investAmountUSD
-  investorSnapshot.investAmountUSD = investor.investAmountUSD
+  investorSnapshot.principalETH = investor.principalETH
+  investorSnapshot.principalUSD = investor.principalUSD
   investorSnapshot.tokenIds = investor.tokenIds
 
   //sum current, pool token's amountETH, amountUSD

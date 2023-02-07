@@ -2,9 +2,7 @@
 import { BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 import { DotoliFactory as FactoryContract } from '../types/DotoliFactory/DotoliFactory'
 
-//owner is timelock contract
-export const DOTOLI_FACTORY_OWNER = '0x0203A2F161909893d06C0e3cCb386D7E0919E887'
-export const DOTOLI_FACTORY_ADDRESS = '0x44152A09350f61167403b34AC88523d24a74DFA2'
+export const DOTOLI_FACTORY_ADDRESS = '0xD17d0A17BAe5941b81aEE173f2575e5D69450fe0'
 export const UNISWAP_V3_FACTORY = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
 export const LIQUIDITY_ORACLE_ADDRESS = '0xCBF81C94BD8B73e93f0eB6fB60af0A1fA227e289'
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
