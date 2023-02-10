@@ -37,7 +37,7 @@ export function getEthPriceInUSD(): BigDecimal {
   const usdcAddress = Address.fromString(USDC)
   const fees = [500, 3000, 10000]
 
-  let ethPrice = ZERO_BD
+  let ethPriceInUSD = ZERO_BD
   let largestLiquidity = ZERO_BI
 
   for (let i=0; i<fees.length; i++) {
@@ -56,14 +56,18 @@ export function getEthPriceInUSD(): BigDecimal {
       const slot0 = UniswapV3Pool.bind(poolAddress.value).slot0()
       const sqrtPriceX96 = slot0.getSqrtPriceX96()
       if (token0.equals(Address.fromHexString(WETH9))) {
-        ethPrice = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[1]
+        ethPriceInUSD = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[1]
+        log.info('test111 getEthPriceInUSD() token0 = WETH9: {}, {}, {}', [token0.toHexString(), token1.toHexString(), ethPriceInUSD.toString()])
       } else {
-        ethPrice = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[0]
+        ethPriceInUSD = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[0]
+        log.info('test111: getEthPriceInUSD() token0 != WETH9: {}, {}, {}', [token0.toHexString(), token1.toHexString(), ethPriceInUSD.toString()])
       }
       largestLiquidity = liquidity.value
     }
   }
-  return ethPrice
+  log.info('test111: getEthPriceInUSD() return ethPriceInUSD: {}, {}, {}', [wethAddress.toHexString(), usdcAddress.toHexString(), ethPriceInUSD.toString()])
+
+  return ethPriceInUSD
 }
 
 export function getPriceETH(token: Address, amountIn: BigInt): BigDecimal {
@@ -71,7 +75,7 @@ export function getPriceETH(token: Address, amountIn: BigInt): BigDecimal {
   const wethAddress = Address.fromString(WETH9)
   const fees = [500, 3000, 10000]
 
-  let price = ZERO_BD
+  let ethPrice = ZERO_BD
   let largestLiquidity = ZERO_BI
 
   if (token.equals(Address.fromString(WETH9))) {
@@ -92,13 +96,17 @@ export function getPriceETH(token: Address, amountIn: BigInt): BigDecimal {
       const token0 = UniswapV3Pool.bind(poolAddress.value).token0()
       const token1 = UniswapV3Pool.bind(poolAddress.value).token1()
       const sqrtPriceX96 = UniswapV3Pool.bind(poolAddress.value).slot0().getSqrtPriceX96()
-      if (token0.equals(Address.fromHexString(WETH9))) {
-        price = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[1]
+      if (token0.equals(tokenAddress)) {
+        ethPrice = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[1]
+        log.info('test111 getPriceETH() token0 = tokenAddress: {}, {}, {}', [token0.toHexString(), token1.toHexString(), ethPrice.toString()])
       } else {
-        price = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[0]
+        ethPrice = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[0]
+        log.info('test111 getPriceETH() token0 = tokenAddress: {}, {}, {}', [token0.toHexString(), token1.toHexString(), ethPrice.toString()])
       }
       largestLiquidity = liquidity.value
     }
   }
-  return price.times(amountIn.toBigDecimal().div(WETH_DECIMAL))
+  log.info('test111 getPriceETH() return ethPrice: {}, {}, {}', [tokenAddress.toHexString(), wethAddress.toHexString(), ethPrice.toString()])
+
+  return ethPrice
 }
