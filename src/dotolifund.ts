@@ -38,7 +38,7 @@ import {
 } from "./utils/investor"
 import { 
   getEthPriceInUSD,
-  getPriceETH,
+  getTokenPriceETH,
 } from './utils/pricing'
 import { ERC20 } from './types/templates/DotoliFund/ERC20'
 import { DotoliFund } from './types/templates/DotoliFund/DotoliFund'
@@ -64,9 +64,9 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   }
   const decimals = ERC20.bind(event.params.token).decimals()
   const tokenDecimal = BigDecimal.fromString(Math.pow(10,decimals).toString())
+  const tokenPriceETH = getTokenPriceETH(event.params.token)
   managerFeeOut.amount = event.params.amount.divDecimal(tokenDecimal)
-  const feeOutAmountETH = getPriceETH(event.params.token, event.params.amount)
-  managerFeeOut.amountETH = feeOutAmountETH
+  managerFeeOut.amountETH = managerFeeOut.amount.times(tokenPriceETH)
   managerFeeOut.amountUSD = managerFeeOut.amountETH.times(ethPriceInUSD)
   managerFeeOut.origin = event.transaction.from
   managerFeeOut.logIndex = event.logIndex
@@ -101,10 +101,10 @@ export function handleDeposit(event: DepositEvent): void {
   }
   const decimals = ERC20.bind(event.params.token).decimals()
   const tokenDecimal = BigDecimal.fromString(Math.pow(10,decimals).toString())
+  const tokenPriceETH = getTokenPriceETH(event.params.token)
   deposit.amount = event.params.amount.divDecimal(tokenDecimal)
-  const depositAmountETH = getPriceETH(event.params.token, event.params.amount)
-  deposit.amountETH = depositAmountETH
-  deposit.amountUSD = depositAmountETH.times(ethPriceInUSD)
+  deposit.amountETH = deposit.amount.times(tokenPriceETH)
+  deposit.amountUSD =  deposit.amountETH.times(ethPriceInUSD)
   deposit.origin = event.transaction.from
   deposit.logIndex = event.logIndex
   deposit.save()
@@ -152,10 +152,10 @@ export function handleWithdraw(event: WithdrawEvent): void {
   }
   const decimals = ERC20.bind(event.params.token).decimals()
   const tokenDecimal = BigDecimal.fromString(Math.pow(10,decimals).toString())
+  const tokenPriceETH = getTokenPriceETH(event.params.token)
   withdraw.amount = event.params.amount.divDecimal(tokenDecimal)
-  const withdrawAmountETH = getPriceETH(event.params.token, event.params.amount)
-  withdraw.amountETH = withdrawAmountETH
-  withdraw.amountUSD = withdrawAmountETH.times(ethPriceInUSD)
+  withdraw.amountETH = withdraw.amount.times(tokenPriceETH)
+  withdraw.amountUSD = withdraw.amountETH.times(ethPriceInUSD)
   withdraw.origin = event.transaction.from
   withdraw.logIndex = event.logIndex
   withdraw.save()
@@ -221,9 +221,9 @@ export function handleSwap(event: SwapEvent): void {
   }
   swap.amount0 = amountIn
   swap.amount1 = amountOut
-  const swapAmountETH = getPriceETH(event.params.tokenOut, event.params.amountOut)
-  swap.amountETH = swapAmountETH
-  swap.amountUSD = swapAmountETH.times(ethPriceInUSD)
+  const tokenOutPriceETH = getTokenPriceETH(event.params.tokenOut)
+  swap.amountETH = amountOut.times(tokenOutPriceETH)
+  swap.amountUSD = swap.amountETH.times(ethPriceInUSD)
   swap.origin = event.transaction.from
   swap.logIndex = event.logIndex
   swap.save()
@@ -282,8 +282,10 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   }
   mintNewPosition.amount0 = amount0
   mintNewPosition.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0)
-  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1)
+  const token0PriceETH = getTokenPriceETH(event.params.token0)
+  const token1PriceETH = getTokenPriceETH(event.params.token1)
+  const token0AmountETH = amount0.times(token0PriceETH)
+  const token1AmountETH = amount1.times(token1PriceETH)
   mintNewPosition.amountETH = token0AmountETH.plus(token1AmountETH)
   mintNewPosition.amountUSD = mintNewPosition.amountETH.times(ethPriceInUSD)
   mintNewPosition.origin = event.transaction.from
@@ -336,8 +338,10 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   }
   increaseLiquidity.amount0 = amount0
   increaseLiquidity.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0)
-  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1)
+  const token0PriceETH = getTokenPriceETH(event.params.token0)
+  const token1PriceETH = getTokenPriceETH(event.params.token1)
+  const token0AmountETH = amount0.times(token0PriceETH)
+  const token1AmountETH = amount1.times(token1PriceETH)
   increaseLiquidity.amountETH = token0AmountETH.plus(token1AmountETH)
   increaseLiquidity.amountUSD = increaseLiquidity.amountETH.times(ethPriceInUSD)
   increaseLiquidity.origin = event.transaction.from
@@ -390,8 +394,10 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   }
   collectPositionFee.amount0 = amount0
   collectPositionFee.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0)
-  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1)
+  const token0PriceETH = getTokenPriceETH(event.params.token0)
+  const token1PriceETH = getTokenPriceETH(event.params.token1)
+  const token0AmountETH = amount0.times(token0PriceETH)
+  const token1AmountETH = amount1.times(token1PriceETH)
   collectPositionFee.amountETH = token0AmountETH.plus(token1AmountETH)
   collectPositionFee.amountUSD = collectPositionFee.amountETH.times(ethPriceInUSD)
   collectPositionFee.origin = event.transaction.from
@@ -444,8 +450,10 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   }
   decreaseLiquidity.amount0 = amount0
   decreaseLiquidity.amount1 = amount1
-  const token0AmountETH = getPriceETH(event.params.token0, event.params.amount0)
-  const token1AmountETH = getPriceETH(event.params.token1, event.params.amount1)
+  const token0PriceETH = getTokenPriceETH(event.params.token0)
+  const token1PriceETH = getTokenPriceETH(event.params.token1)
+  const token0AmountETH = amount0.times(token0PriceETH)
+  const token1AmountETH = amount1.times(token1PriceETH)
   decreaseLiquidity.amountETH = token0AmountETH.plus(token1AmountETH)
   decreaseLiquidity.amountUSD = decreaseLiquidity.amountETH.times(ethPriceInUSD)
   decreaseLiquidity.origin = event.transaction.from

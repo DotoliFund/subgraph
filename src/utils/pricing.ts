@@ -2,11 +2,11 @@
 import { BigInt, BigDecimal, Address, log } from '@graphprotocol/graph-ts'
 import {
     WETH9,
-    WETH_DECIMAL,
     ZERO_BD,
     USDC,
     UNISWAP_V3_FACTORY,
     ZERO_BI,
+    ONE_BD,
 } from './constants'
 import { safeDiv } from '../utils'
 import { ERC20 } from '../types/templates/DotoliFund/ERC20'
@@ -57,29 +57,26 @@ export function getEthPriceInUSD(): BigDecimal {
       const sqrtPriceX96 = slot0.getSqrtPriceX96()
       if (token0.equals(Address.fromHexString(WETH9))) {
         ethPriceInUSD = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[1]
-        log.info('test111 getEthPriceInUSD() token0 = WETH9: {}, {}, {}', [token0.toHexString(), token1.toHexString(), ethPriceInUSD.toString()])
       } else {
         ethPriceInUSD = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[0]
-        log.info('test111: getEthPriceInUSD() token0 != WETH9: {}, {}, {}', [token0.toHexString(), token1.toHexString(), ethPriceInUSD.toString()])
       }
       largestLiquidity = liquidity.value
     }
   }
-  log.info('test111: getEthPriceInUSD() return ethPriceInUSD: {}, {}, {}', [wethAddress.toHexString(), usdcAddress.toHexString(), ethPriceInUSD.toString()])
 
   return ethPriceInUSD
 }
 
-export function getPriceETH(token: Address, amountIn: BigInt): BigDecimal {
+export function getTokenPriceETH(token: Address): BigDecimal {
   const tokenAddress = token
   const wethAddress = Address.fromString(WETH9)
   const fees = [500, 3000, 10000]
 
-  let ethPrice = ZERO_BD
+  let tokenPriceETH = ZERO_BD
   let largestLiquidity = ZERO_BI
 
   if (token.equals(Address.fromString(WETH9))) {
-    return amountIn.toBigDecimal().div(WETH_DECIMAL)
+    return ONE_BD
   }
 
   for (let i=0; i<fees.length; i++) {
@@ -97,16 +94,16 @@ export function getPriceETH(token: Address, amountIn: BigInt): BigDecimal {
       const token1 = UniswapV3Pool.bind(poolAddress.value).token1()
       const sqrtPriceX96 = UniswapV3Pool.bind(poolAddress.value).slot0().getSqrtPriceX96()
       if (token0.equals(tokenAddress)) {
-        ethPrice = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[1]
-        log.info('test111 getPriceETH() token0 = tokenAddress: {}, {}, {}', [token0.toHexString(), token1.toHexString(), ethPrice.toString()])
+        tokenPriceETH = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[1]
+        log.info('test111 getPriceETH() token0 = tokenAddress: {}, {}, {}', [token0.toHexString(), token1.toHexString(), tokenPriceETH.toString()])
       } else {
-        ethPrice = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[0]
-        log.info('test111 getPriceETH() token0 = tokenAddress: {}, {}, {}', [token0.toHexString(), token1.toHexString(), ethPrice.toString()])
+        tokenPriceETH = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[0]
+        log.info('test111 getPriceETH() token0 = tokenAddress: {}, {}, {}', [token0.toHexString(), token1.toHexString(), tokenPriceETH.toString()])
       }
       largestLiquidity = liquidity.value
     }
   }
-  log.info('test111 getPriceETH() return ethPrice: {}, {}, {}', [tokenAddress.toHexString(), wethAddress.toHexString(), ethPrice.toString()])
+  log.info('test111 getPriceETH() return tokenPriceETH: {}, {}, {}', [tokenAddress.toHexString(), wethAddress.toHexString(), tokenPriceETH.toString()])
 
-  return ethPrice
+  return tokenPriceETH
 }

@@ -13,7 +13,7 @@ import { DOTOLI_FACTORY_ADDRESS, LIQUIDITY_ORACLE_ADDRESS, ZERO_BD } from './con
 import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
 import { LiquidityOracle  } from '../types/templates/DotoliFund/LiquidityOracle'
 import { ERC20 } from '../types/templates/DotoliFund/ERC20'
-import { getPriceETH } from './pricing'
+import { getTokenPriceETH } from './pricing'
 
 export function factorySnapshot(event: ethereum.Event): void {
   let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
@@ -111,7 +111,9 @@ export function investorSnapshot(
     const token0 = positionTokens.getToken0()
     const amount0 = positionTokens.getAmount0()
     const decimal0 = ERC20.bind(token0).decimals()
-    const amount0ETH = getPriceETH(token0, amount0)
+    const deAmount0 = amount0.divDecimal(BigDecimal.fromString(f64(10 ** decimal0).toString()))
+    const token0PriceETH = getTokenPriceETH(token0)
+    const amount0ETH = deAmount0.times(token0PriceETH)
     const amount0USD = amount0ETH.times(ethPriceInUSD)
     const token0Index = tokens.indexOf(token0)
     if (token0Index >= 0) {
@@ -135,7 +137,9 @@ export function investorSnapshot(
     const token1 = positionTokens.getToken1()
     const amount1 = positionTokens.getAmount1()
     const decimal1 = ERC20.bind(token1).decimals()
-    const amount1ETH = getPriceETH(token1, amount1)
+    const deAmount1 = amount1.divDecimal(BigDecimal.fromString(f64(10 ** decimal1).toString()))
+    const token1PriceETH = getTokenPriceETH(token1)
+    const amount1ETH = deAmount1.times(token1PriceETH)
     const amount1USD = amount1ETH.times(ethPriceInUSD)
     const token1Index = tokens.indexOf(token1)
     if (token1Index >= 0) {

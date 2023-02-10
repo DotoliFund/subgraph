@@ -7,7 +7,7 @@ import {
   TYPE_DEPOSIT,
   TYPE_WITHDRAW,
 } from './constants'
-import { getPriceETH } from './pricing'
+import { getTokenPriceETH } from './pricing'
 import { DotoliFund } from '../types/templates/DotoliFund/DotoliFund'
 import { ERC20 } from '../types/templates/DotoliFund/ERC20'
 import { LiquidityOracle  } from '../types/templates/DotoliFund/LiquidityOracle'
@@ -50,7 +50,8 @@ export function updateInvestor(
     currentTokensDecimals.push(BigInt.fromString(decimals.toString()))
     const deAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
     currentTokensAmount.push(deAmount)
-    const amountETH = getPriceETH(tokenAddress, amount)
+    const tokenPriceETH = getTokenPriceETH(tokenAddress)
+    const amountETH = deAmount.times(tokenPriceETH)
     const amountUSD = amountETH.times(ethPriceInUSD)
     currentTokensAmountETH.push(amountETH)
     currentTokensAmountUSD.push(amountUSD)
@@ -101,14 +102,20 @@ export function updateInvestorProfit(
   
     const token0 = positionTokens.getToken0()
     const amount0 = positionTokens.getAmount0()
-    const amount0ETH = getPriceETH(token0, amount0)
+    const decimal0 = ERC20.bind(token0).decimals()
+    const deAmount0 = amount0.divDecimal(BigDecimal.fromString(f64(10 ** decimal0).toString()))
+    const token0PriceETH = getTokenPriceETH(token0)
+    const amount0ETH = deAmount0.times(token0PriceETH)
     const amount0USD = amount0ETH.times(ethPriceInUSD)
     poolETH = poolETH.plus(amount0ETH)
     poolUSD = poolUSD.plus(amount0USD)
 
     const token1 = positionTokens.getToken1()
     const amount1 = positionTokens.getAmount1()
-    const amount1ETH = getPriceETH(token1, amount1)
+    const decimal1 = ERC20.bind(token1).decimals()
+    const deAmount1 = amount1.divDecimal(BigDecimal.fromString(f64(10 ** decimal1).toString()))
+    const token1PriceETH = getTokenPriceETH(token1)
+    const amount1ETH = deAmount1.times(token1PriceETH)
     const amount1USD = amount1ETH.times(ethPriceInUSD)
     poolETH = poolETH.plus(amount1ETH)
     poolUSD = poolUSD.plus(amount1USD)
