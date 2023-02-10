@@ -60,10 +60,10 @@ type Investor @entity {
   createdAtTimestamp: BigInt!
   # fund address
   fund: Bytes!
-  # manager address
-  manager: Bytes!
   # investor address
   investor: Bytes!
+  # investor is manager
+  isManager: Boolean!
   # ETH value of principal
   principalETH: BigDecimal!
   # USD value of principal
@@ -403,8 +403,8 @@ type DecreaseLiquidity @entity {
 type FactorySnapshot @entity {
   # txn hash
   id: ID!
-  # timestamp
-  timestamp: BigInt!
+  # date
+  date: Int!
   # amount of funds created
   fundCount: BigInt!
   # amount of investor

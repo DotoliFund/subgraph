@@ -19,9 +19,15 @@ export function factorySnapshot(event: ethereum.Event): void {
   let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (!factory) return 
 
-  let factorySnapshot = FactorySnapshot.load(event.block.timestamp.toString())
-  factorySnapshot = new FactorySnapshot(event.block.timestamp.toString())
-  factorySnapshot.timestamp = event.block.timestamp
+  let timestamp = event.block.timestamp.toI32()
+  let dayID = timestamp / 86400 // rounded
+  let dayStartTimestamp = dayID * 86400
+  
+  let factorySnapshot = FactorySnapshot.load(dayID.toString())
+  if (factorySnapshot === null) {
+    factorySnapshot = new FactorySnapshot(dayID.toString())
+  }
+  factorySnapshot.date = dayStartTimestamp
   factorySnapshot.fundCount = factory.fundCount
   factorySnapshot.investorCount = factory.investorCount
   factorySnapshot.totalCurrentETH = factory.totalCurrentETH
