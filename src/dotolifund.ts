@@ -10,6 +10,7 @@ import {
   DecreaseLiquidity as DecreaseLiquidityEvent
 } from './types/templates/DotoliFund/DotoliFund'
 import {
+  Fund,
   ManagerFeeOut,
   Deposit,
   Withdraw,
@@ -20,12 +21,12 @@ import {
   DecreaseLiquidity
 } from "./types/schema"
 import { TYPE_DEPOSIT, TYPE_WITHDRAW, TYPE_NORMAL, ZERO_BD } from './utils/constants'
+import { updateUpdatedAtTime } from "./utils"
 import { 
   fundSnapshot,
   investorSnapshot,
   factorySnapshot
 } from './utils/snapshots'
-import { loadTransaction } from './utils'
 import {
   updateFundCurrent,
   updateEmptyFundToken,
@@ -34,7 +35,7 @@ import {
 } from "./utils/fund"
 import {
   updateInvestor,
-  updateInvestorProfit,
+  updateInvestorProfit
 } from "./utils/investor"
 import { 
   getEthPriceInUSD,
@@ -49,10 +50,8 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   const managerAddress = DotoliFund.bind(fundAddress).manager()
   const ethPriceInUSD = getEthPriceInUSD()
 
-  let transaction = loadTransaction(event)
   let managerFeeOut = new ManagerFeeOut(event.transaction.hash.toHexString())
-  managerFeeOut.transaction = transaction.id
-  managerFeeOut.timestamp = transaction.timestamp
+  managerFeeOut.timestamp = event.block.timestamp
   managerFeeOut.fund = fundAddress
   managerFeeOut.manager = managerAddress
   managerFeeOut.token = event.params.token
@@ -68,8 +67,6 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   managerFeeOut.amount = event.params.amount.divDecimal(tokenDecimal)
   managerFeeOut.amountETH = managerFeeOut.amount.times(tokenPriceETH)
   managerFeeOut.amountUSD = managerFeeOut.amountETH.times(ethPriceInUSD)
-  managerFeeOut.origin = event.transaction.from
-  managerFeeOut.logIndex = event.logIndex
   managerFeeOut.save()
   
   updateEmptyFundToken(fundAddress, managerFeeOut.token)
@@ -77,7 +74,12 @@ export function handleManagerFeeOut(event: ManagerFeeOutEvent): void {
   // update current must be after update tokens
   updateFundCurrent(fundAddress, ethPriceInUSD)
 
-  fundSnapshot(fundAddress, managerAddress, event)
+  let fund = Fund.load(fundAddress)
+  if (!fund) return
+  fund.updatedAtTimestamp = event.block.timestamp
+  fund.save()
+
+  fundSnapshot(fundAddress, managerAddress, event, ethPriceInUSD)
   factorySnapshot(event)
 }
 
@@ -86,10 +88,8 @@ export function handleDeposit(event: DepositEvent): void {
   const managerAddress = DotoliFund.bind(fundAddress).manager()
   const ethPriceInUSD = getEthPriceInUSD()
 
-  let transaction = loadTransaction(event)
   let deposit = new Deposit(event.transaction.hash.toHexString())
-  deposit.transaction = transaction.id
-  deposit.timestamp = transaction.timestamp
+  deposit.timestamp = event.block.timestamp
   deposit.fund = fundAddress
   deposit.investor = event.params.investor
   deposit.token = event.params.token
@@ -105,8 +105,6 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.amount = event.params.amount.divDecimal(tokenDecimal)
   deposit.amountETH = deposit.amount.times(tokenPriceETH)
   deposit.amountUSD =  deposit.amountETH.times(ethPriceInUSD)
-  deposit.origin = event.transaction.from
-  deposit.logIndex = event.logIndex
   deposit.save()
 
   updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
@@ -126,9 +124,10 @@ export function handleDeposit(event: DepositEvent): void {
     deposit.amountETH,
     deposit.amountUSD
   )
+  updateUpdatedAtTime(fundAddress, event.params.investor, event.block.timestamp)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
-  fundSnapshot(fundAddress, managerAddress, event)
+  fundSnapshot(fundAddress, managerAddress, event, ethPriceInUSD)
   factorySnapshot(event)
 }
 
@@ -137,10 +136,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
   const managerAddress = DotoliFund.bind(fundAddress).manager()
   const ethPriceInUSD = getEthPriceInUSD()
 
-  let transaction = loadTransaction(event)
   let withdraw = new Withdraw(event.transaction.hash.toHexString())
-  withdraw.transaction = transaction.id
-  withdraw.timestamp = transaction.timestamp
+  withdraw.timestamp = event.block.timestamp
   withdraw.fund = fundAddress
   withdraw.investor = event.params.investor
   withdraw.token = event.params.token
@@ -156,8 +153,6 @@ export function handleWithdraw(event: WithdrawEvent): void {
   withdraw.amount = event.params.amount.divDecimal(tokenDecimal)
   withdraw.amountETH = withdraw.amount.times(tokenPriceETH)
   withdraw.amountUSD = withdraw.amountETH.times(ethPriceInUSD)
-  withdraw.origin = event.transaction.from
-  withdraw.logIndex = event.logIndex
   withdraw.save()
 
   updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
@@ -173,9 +168,10 @@ export function handleWithdraw(event: WithdrawEvent): void {
     withdraw.amountETH,
     withdraw.amountUSD
   )
+  updateUpdatedAtTime(fundAddress, event.params.investor, event.block.timestamp)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
-  fundSnapshot(fundAddress, managerAddress, event)
+  fundSnapshot(fundAddress, managerAddress, event, ethPriceInUSD)
   factorySnapshot(event)
 }
 
@@ -193,10 +189,8 @@ export function handleSwap(event: SwapEvent): void {
   const amountIn = event.params.amountIn.divDecimal(tokenInDecimal)
   const amountOut = event.params.amountOut.divDecimal(tokenOutDecimal)
 
-  let transaction = loadTransaction(event)
   let swap = new Swap(event.transaction.hash.toHexString())
-  swap.transaction = transaction.id
-  swap.timestamp = transaction.timestamp
+  swap.timestamp = event.block.timestamp
   swap.fund = fundAddress
   swap.manager = managerAddress
   swap.investor = event.params.investor
@@ -224,8 +218,6 @@ export function handleSwap(event: SwapEvent): void {
   const tokenOutPriceETH = getTokenPriceETH(event.params.tokenOut)
   swap.amountETH = amountOut.times(tokenOutPriceETH)
   swap.amountUSD = swap.amountETH.times(ethPriceInUSD)
-  swap.origin = event.transaction.from
-  swap.logIndex = event.logIndex
   swap.save()
 
   updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
@@ -239,9 +231,10 @@ export function handleSwap(event: SwapEvent): void {
   // update volume must be after update tokens
   updateFundCurrent(fundAddress, ethPriceInUSD)
   updateInvestorProfit(fundAddress, event.params.investor, ethPriceInUSD, TYPE_NORMAL, ZERO_BD, ZERO_BD)
+  updateUpdatedAtTime(fundAddress, event.params.investor, event.block.timestamp)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
-  fundSnapshot(fundAddress, managerAddress, event)
+  fundSnapshot(fundAddress, managerAddress, event, ethPriceInUSD)
   factorySnapshot(event)
 }
 
@@ -259,10 +252,8 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   const amount0 = event.params.amount0.divDecimal(token0Decimal)
   const amount1 = event.params.amount1.divDecimal(token1Decimal)
 
-  let transaction = loadTransaction(event)
   let mintNewPosition = new MintNewPosition(event.transaction.hash.toHexString())
-  mintNewPosition.transaction = transaction.id
-  mintNewPosition.timestamp = transaction.timestamp
+  mintNewPosition.timestamp = event.block.timestamp
   mintNewPosition.fund = fundAddress
   mintNewPosition.manager = managerAddress
   mintNewPosition.investor = event.params.investor
@@ -288,16 +279,15 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   const token1AmountETH = amount1.times(token1PriceETH)
   mintNewPosition.amountETH = token0AmountETH.plus(token1AmountETH)
   mintNewPosition.amountUSD = mintNewPosition.amountETH.times(ethPriceInUSD)
-  mintNewPosition.origin = event.transaction.from
-  mintNewPosition.logIndex = event.logIndex
   mintNewPosition.save()
 
   updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
   updateInvestorProfit(fundAddress, event.params.investor, ethPriceInUSD, TYPE_NORMAL, ZERO_BD, ZERO_BD)
+  updateUpdatedAtTime(fundAddress, event.params.investor, event.block.timestamp)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
-  fundSnapshot(fundAddress, managerAddress, event)
+  fundSnapshot(fundAddress, managerAddress, event, ethPriceInUSD)
   factorySnapshot(event)
 }
 
@@ -315,10 +305,8 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   const amount0 = event.params.amount0.divDecimal(token0Decimal)
   const amount1 = event.params.amount1.divDecimal(token1Decimal)
 
-  let transaction = loadTransaction(event)
   let increaseLiquidity = new IncreaseLiquidity(event.transaction.hash.toHexString())
-  increaseLiquidity.transaction = transaction.id
-  increaseLiquidity.timestamp = transaction.timestamp
+  increaseLiquidity.timestamp = event.block.timestamp
   increaseLiquidity.fund = fundAddress
   increaseLiquidity.manager = managerAddress
   increaseLiquidity.investor = event.params.investor
@@ -344,16 +332,15 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   const token1AmountETH = amount1.times(token1PriceETH)
   increaseLiquidity.amountETH = token0AmountETH.plus(token1AmountETH)
   increaseLiquidity.amountUSD = increaseLiquidity.amountETH.times(ethPriceInUSD)
-  increaseLiquidity.origin = event.transaction.from
-  increaseLiquidity.logIndex = event.logIndex
   increaseLiquidity.save()
 
   updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
   updateInvestorProfit(fundAddress, event.params.investor, ethPriceInUSD, TYPE_NORMAL, ZERO_BD, ZERO_BD)
+  updateUpdatedAtTime(fundAddress, event.params.investor, event.block.timestamp)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
-  fundSnapshot(fundAddress, managerAddress, event)
+  fundSnapshot(fundAddress, managerAddress, event, ethPriceInUSD)
   factorySnapshot(event)
 }
 
@@ -371,10 +358,8 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   const amount0 = event.params.amount0.divDecimal(token0Decimal)
   const amount1 = event.params.amount1.divDecimal(token1Decimal)
 
-  let transaction = loadTransaction(event)
   let collectPositionFee = new CollectPositionFee(event.transaction.hash.toHexString())
-  collectPositionFee.transaction = transaction.id
-  collectPositionFee.timestamp = transaction.timestamp
+  collectPositionFee.timestamp = event.block.timestamp
   collectPositionFee.fund = fundAddress
   collectPositionFee.manager = managerAddress
   collectPositionFee.investor = event.params.investor
@@ -400,16 +385,16 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   const token1AmountETH = amount1.times(token1PriceETH)
   collectPositionFee.amountETH = token0AmountETH.plus(token1AmountETH)
   collectPositionFee.amountUSD = collectPositionFee.amountETH.times(ethPriceInUSD)
-  collectPositionFee.origin = event.transaction.from
-  collectPositionFee.logIndex = event.logIndex
   collectPositionFee.save()
 
   updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
   updateInvestorProfit(fundAddress, event.params.investor, ethPriceInUSD, TYPE_NORMAL, ZERO_BD, ZERO_BD)
+  updateUpdatedAtTime(fundAddress, event.params.investor, event.block.timestamp)
+
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
-  fundSnapshot(fundAddress, managerAddress, event)
+  fundSnapshot(fundAddress, managerAddress, event, ethPriceInUSD)
   factorySnapshot(event)
 }
 
@@ -427,10 +412,8 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   const amount0 = event.params.amount0.divDecimal(token0Decimal)
   const amount1 = event.params.amount1.divDecimal(token1Decimal)
 
-  let transaction = loadTransaction(event)
   let decreaseLiquidity = new DecreaseLiquidity(event.transaction.hash.toHexString())
-  decreaseLiquidity.transaction = transaction.id
-  decreaseLiquidity.timestamp = transaction.timestamp
+  decreaseLiquidity.timestamp = event.block.timestamp
   decreaseLiquidity.fund = fundAddress
   decreaseLiquidity.manager = managerAddress
   decreaseLiquidity.investor = event.params.investor
@@ -456,15 +439,14 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   const token1AmountETH = amount1.times(token1PriceETH)
   decreaseLiquidity.amountETH = token0AmountETH.plus(token1AmountETH)
   decreaseLiquidity.amountUSD = decreaseLiquidity.amountETH.times(ethPriceInUSD)
-  decreaseLiquidity.origin = event.transaction.from
-  decreaseLiquidity.logIndex = event.logIndex
   decreaseLiquidity.save()
 
   updateInvestor(fundAddress, event.params.investor, ethPriceInUSD)
   updateFundCurrent(fundAddress, ethPriceInUSD)
   updateInvestorProfit(fundAddress, event.params.investor, ethPriceInUSD, TYPE_NORMAL, ZERO_BD, ZERO_BD)
+  updateUpdatedAtTime(fundAddress, event.params.investor, event.block.timestamp)
 
   investorSnapshot(fundAddress, managerAddress, event.params.investor, ethPriceInUSD, event)
-  fundSnapshot(fundAddress, managerAddress, event)
+  fundSnapshot(fundAddress, managerAddress, event, ethPriceInUSD)
   factorySnapshot(event)
 }

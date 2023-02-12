@@ -1,18 +1,8 @@
 /* eslint-disable prefer-const */
-import { BigDecimal, ethereum } from '@graphprotocol/graph-ts'
-import { Transaction } from '../types/schema'
+import { BigDecimal, BigInt, Address } from '@graphprotocol/graph-ts'
 import { ZERO_BD } from './constants'
-
-export function loadTransaction(event: ethereum.Event): Transaction {
-  let transaction = Transaction.load(event.transaction.hash.toHexString())
-  if (transaction === null) {
-    transaction = new Transaction(event.transaction.hash.toHexString())
-  }
-  transaction.blockNumber = event.block.number
-  transaction.timestamp = event.block.timestamp
-  transaction.save()
-  return transaction as Transaction
-}
+import { Fund, Investor } from '../types/schema'
+import { getInvestorID } from './investor'
 
 // return 0 if denominator is 0 in division
 export function safeDiv(amount0: BigDecimal, amount1: BigDecimal): BigDecimal {
@@ -21,4 +11,16 @@ export function safeDiv(amount0: BigDecimal, amount1: BigDecimal): BigDecimal {
   } else {
     return amount0.div(amount1)
   }
+}
+
+export function updateUpdatedAtTime(fundAddress: Address, investorAddress: Address, timestamp: BigInt): void {
+  let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
+  if (!investor) return
+  investor.updatedAtTimestamp = timestamp
+  investor.save()
+
+  let fund = Fund.load(fundAddress)
+  if (!fund) return
+  fund.updatedAtTimestamp = timestamp
+  fund.save()
 }

@@ -11,9 +11,11 @@ import {
 import { getInvestorID } from './investor'
 import { DOTOLI_FACTORY_ADDRESS, LIQUIDITY_ORACLE_ADDRESS, ZERO_BD } from './constants'
 import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
+import { DotoliFund } from '../types/templates/DotoliFund/DotoliFund'
 import { LiquidityOracle  } from '../types/templates/DotoliFund/LiquidityOracle'
 import { ERC20 } from '../types/templates/DotoliFund/ERC20'
 import { getTokenPriceETH } from './pricing'
+
 
 export function factorySnapshot(event: ethereum.Event): void {
   let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
@@ -38,11 +40,32 @@ export function factorySnapshot(event: ethereum.Event): void {
 export function fundSnapshot(
   fundAddress: Bytes,
   managerAddress: Bytes,
-  event: ethereum.Event
+  event: ethereum.Event,
+  ethPriceInUSD: BigDecimal
 ): void {
   let fund = Fund.load(fundAddress)
   if (!fund) return 
+  
+  const currentTokens = fund.currentTokens
 
+  let currentETH: BigDecimal = ZERO_BD
+  let currentUSD: BigDecimal = ZERO_BD
+  const currentTokensAmountETH: BigDecimal[] = []
+  const currentTokensAmountUSD: BigDecimal[] = []
+
+  for (let i=0; i<currentTokens.length; i++) {
+    const amount = ERC20.bind(Address.fromBytes(currentTokens[i])).balanceOf(Address.fromBytes(fundAddress))
+    const decimals = ERC20.bind(Address.fromBytes(currentTokens[i])).decimals()
+    const tokenAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
+    const tokenPriceETH = getTokenPriceETH(Address.fromBytes(currentTokens[i]))
+    const amountETH = tokenAmount.times(tokenPriceETH)
+    const amountUSD = amountETH.times(ethPriceInUSD)
+    currentETH = currentETH.plus(amountETH)
+    currentUSD = currentUSD.plus(amountUSD)
+    currentTokensAmountETH.push(amountETH)
+    currentTokensAmountUSD.push(amountUSD)
+  }
+  
   let timestamp = event.block.timestamp
   let fundTimeID = fundAddress.toHexString()
     .concat('-').concat(timestamp.toString())
@@ -53,17 +76,23 @@ export function fundSnapshot(
   fundSnapshot.fund = fundAddress
   fundSnapshot.manager = managerAddress
   fundSnapshot.investorCount = fund.investorCount
-  fundSnapshot.currentETH = fund.currentETH
-  fundSnapshot.currentUSD = fund.currentUSD
+  fundSnapshot.currentETH = currentETH
+  fundSnapshot.currentUSD = currentUSD
   fundSnapshot.currentTokens = fund.currentTokens
   fundSnapshot.currentTokensSymbols = fund.currentTokensSymbols
   fundSnapshot.currentTokensDecimals = fund.currentTokensDecimals
   fundSnapshot.currentTokensAmount = fund.currentTokensAmount
-  fundSnapshot.currentTokensAmountETH = fund.currentTokensAmountETH
-  fundSnapshot.currentTokensAmountUSD = fund.currentTokensAmountUSD
+  fundSnapshot.currentTokensAmountETH = currentTokensAmountETH
+  fundSnapshot.currentTokensAmountUSD = currentTokensAmountUSD
   fundSnapshot.save()
 }
 
+// 1, get current token USD
+// 2. add current token USD -> tokenAmountXXX (save)
+// 3. get pool token USD
+// 4. add pool token USD -> tokenAmountXXX (save)
+// 5. tokenAmountXXX = current token USD + pool token USD
+// 6. tokenAmountXXX -> investorSnapshot (save)
 export function investorSnapshot(
   fundAddress: Bytes, 
   managerAddress: Bytes, 
@@ -88,34 +117,61 @@ export function investorSnapshot(
   investorSnapshot.investor = investorAddress
   investorSnapshot.principalETH = investor.principalETH
   investorSnapshot.principalUSD = investor.principalUSD
-  investorSnapshot.tokenIds = investor.tokenIds
 
-  //sum current, pool token's amountETH, amountUSD
+  // 1, get current token USD
+  const currentTokens = investor.currentTokens
+
+  let currentETH: BigDecimal = ZERO_BD
+  let currentUSD: BigDecimal = ZERO_BD
+  const currentTokensAmountETH: BigDecimal[] = []
+  const currentTokensAmountUSD: BigDecimal[] = []
+  for (let i=0; i<currentTokens.length; i++) {
+    const amount = ERC20.bind(Address.fromBytes(currentTokens[i])).balanceOf(Address.fromBytes(fundAddress))
+    const decimals = ERC20.bind(Address.fromBytes(currentTokens[i])).decimals()
+    const tokenAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
+    const tokenPriceETH = getTokenPriceETH(Address.fromBytes(currentTokens[i]))
+    const amountETH = tokenAmount.times(tokenPriceETH)
+    const amountUSD = amountETH.times(ethPriceInUSD)
+    currentETH = currentETH.plus(amountETH)
+    currentUSD = currentUSD.plus(amountUSD)
+    currentTokensAmountETH.push(amountETH)
+    currentTokensAmountUSD.push(amountUSD)
+  }
+  investorSnapshot.currentETH = currentETH
+  investorSnapshot.currentUSD = currentUSD
+
+  // 2. add current token USD -> tokenAmountXXX (save)
   const tokens: Bytes[] = []
   const tokensSymbols: string[] = []
   const tokensDecimals: BigInt[] = []
   const tokensAmountETH: BigDecimal[] = []
   const tokensAmountUSD: BigDecimal[] = []
-
-  const currentTokens = investor.currentTokens
   for (let i=0; i<currentTokens.length; i++) {
     tokens.push(currentTokens[i])
     tokensSymbols.push(investor.currentTokensSymbols[i])
     tokensDecimals.push(investor.currentTokensDecimals[i])
-    tokensAmountETH.push(investor.currentTokensAmountETH[i])
-    tokensAmountUSD.push(investor.currentTokensAmountUSD[i])
+    tokensAmountETH.push(currentTokensAmountETH[i])
+    tokensAmountUSD.push(currentTokensAmountUSD[i])
   }
 
-  const liquidityOracle = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
-  const tokenIds = investor.tokenIds
+  // 3. get pool token USD
+  let tokenIds: BigInt[] = []
+  const dotolifund = DotoliFund.bind(Address.fromBytes(fundAddress))
+  const investorTokenIds = dotolifund.getPositionTokenIds(Address.fromBytes(investorAddress))
+  for (let i=0; i<investorTokenIds.length; i++) {
+    const tokenId = investorTokenIds[i]
+    tokenIds.push(tokenId)    
+  }
+  
   let poolETH: BigDecimal = ZERO_BD
   let poolUSD: BigDecimal = ZERO_BD
-
+  const liquidityOracle = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
   for (let i=0; i<tokenIds.length; i++) {
-    const positionTokens = liquidityOracle.getPositionTokenAmount(tokenIds[i])
-  
-    const token0 = positionTokens.getToken0()
-    const amount0 = positionTokens.getAmount0()
+    const poolTokens = liquidityOracle.getPositionTokenAmount(tokenIds[i])
+    
+    // 4-1. add pool token0 USD -> tokenAmountXXX (save)
+    const token0 = poolTokens.getToken0()
+    const amount0 = poolTokens.getAmount0()
     const decimal0 = ERC20.bind(token0).decimals()
     const deAmount0 = amount0.divDecimal(BigDecimal.fromString(f64(10 ** decimal0).toString()))
     const token0PriceETH = getTokenPriceETH(token0)
@@ -140,8 +196,9 @@ export function investorSnapshot(
     poolETH = poolETH.plus(amount0ETH)
     poolUSD = poolUSD.plus(amount0USD)
 
-    const token1 = positionTokens.getToken1()
-    const amount1 = positionTokens.getAmount1()
+    // 4-2. add pool token1 USD -> tokenAmountXXX (save)
+    const token1 = poolTokens.getToken1()
+    const amount1 = poolTokens.getAmount1()
     const decimal1 = ERC20.bind(token1).decimals()
     const deAmount1 = amount1.divDecimal(BigDecimal.fromString(f64(10 ** decimal1).toString()))
     const token1PriceETH = getTokenPriceETH(token1)
@@ -166,19 +223,15 @@ export function investorSnapshot(
     poolETH = poolETH.plus(amount1ETH)
     poolUSD = poolUSD.plus(amount1USD)
   }
+  // 5. tokenAmountXXX = current token USD + pool token USD
 
+  // 6. tokenAmountXXX -> investorSnapshot (save)
   investorSnapshot.tokens = tokens
   investorSnapshot.tokensSymbols = tokensSymbols
   investorSnapshot.tokensDecimals = tokensDecimals
   investorSnapshot.tokensAmountETH = tokensAmountETH
   investorSnapshot.tokensAmountUSD = tokensAmountUSD
-  investorSnapshot.currentETH = investor.currentETH // current price is updated at updateInvestorCurrent()
-  investorSnapshot.currentUSD = investor.currentUSD // current price is updated at updateInvestorCurrent()
-  investorSnapshot.tokenIds = investor.tokenIds
   investorSnapshot.poolETH = poolETH
   investorSnapshot.poolUSD = poolUSD
-  investorSnapshot.profitETH = investor.profitETH
-  investorSnapshot.profitUSD = investor.profitUSD
-  investorSnapshot.profitRatio = investor.profitRatio
   investorSnapshot.save()
 }

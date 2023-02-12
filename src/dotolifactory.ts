@@ -29,7 +29,6 @@ import {
 import { getEthPriceInUSD } from './utils/pricing'
 import { getInvestorID } from "./utils/investor"
 import { fundSnapshot, investorSnapshot, factorySnapshot } from "./utils/snapshots"
-import { loadTransaction } from "./utils"
 import { DotoliFund as FundTemplate } from './types/templates'
 import { ERC20 } from './types/templates/DotoliFund/ERC20'
 
@@ -37,6 +36,7 @@ export function handleFundCreated(event: FundCreated): void {
   let fund = new Fund(event.params.fund)
   fund.address = event.params.fund
   fund.createdAtTimestamp = event.block.timestamp
+  fund.updatedAtTimestamp = event.block.timestamp
   fund.manager = event.params.manager
   fund.investorCount = ONE_BI
   fund.currentETH = ZERO_BD
@@ -48,14 +48,13 @@ export function handleFundCreated(event: FundCreated): void {
   fund.currentTokensSymbols = []
   fund.currentTokensDecimals = []
   fund.currentTokensAmount = []
-  fund.currentTokensAmountETH = []
-  fund.currentTokensAmountUSD = []
 
   const investorID = getInvestorID(event.params.fund, event.params.manager)
   let investor = Investor.load(investorID)
   if (investor === null) {
     investor = new Investor(investorID)
     investor.createdAtTimestamp = event.block.timestamp
+    investor.updatedAtTimestamp = event.block.timestamp
     investor.fund = event.params.fund
     investor.investor = event.params.manager
     investor.isManager = true
@@ -67,13 +66,13 @@ export function handleFundCreated(event: FundCreated): void {
     investor.currentTokensSymbols = []
     investor.currentTokensDecimals = []
     investor.currentTokensAmount = []
-    investor.currentTokensAmountETH = []
-    investor.currentTokensAmountUSD = []
-    investor.tokenIds = []
     investor.profitETH = ZERO_BD
     investor.profitUSD = ZERO_BD
     investor.profitRatio = ZERO_BD
   }
+
+  fund.updatedAtTimestamp = event.block.timestamp
+  investor.updatedAtTimestamp = event.block.timestamp
   investor.save()
   fund.save()
   // create the tracked contract based on the template
@@ -81,7 +80,7 @@ export function handleFundCreated(event: FundCreated): void {
 
   const ethPriceInUSD = getEthPriceInUSD()
   investorSnapshot(event.params.fund, event.params.manager, event.params.manager, ethPriceInUSD, event)
-  fundSnapshot(event.params.fund, event.params.manager, event)
+  fundSnapshot(event.params.fund, event.params.manager, event, ethPriceInUSD)
   factorySnapshot(event)
 
   // Note: If a handler doesn't require existing field values, it is faster
@@ -125,20 +124,18 @@ export function handleSubscribe(event: SubscribeEvent): void {
       + '-'
       + event.params.investor.toHexString().toUpperCase()
     let subscribe = new Subscribe(subscribeID)
-
-    let transaction = loadTransaction(event)
-    subscribe.transaction = transaction.id
-    subscribe.timestamp = transaction.timestamp
+    subscribe.timestamp = event.block.timestamp
+    subscribe.hash = event.transaction.hash
     subscribe.fund = event.params.fund
     subscribe.investor = event.params.investor
-    subscribe.origin = event.transaction.from
-    subscribe.logIndex = event.logIndex
+    subscribe.save()
 
     const investorID = getInvestorID(event.params.fund, event.params.investor)
     let investor = Investor.load(investorID)
     if (investor === null) {
       investor = new Investor(investorID)
       investor.createdAtTimestamp = event.block.timestamp
+      investor.updatedAtTimestamp = event.block.timestamp
       investor.fund = event.params.fund
       investor.investor = event.params.investor
       investor.isManager = false
@@ -150,21 +147,20 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.currentTokensSymbols = []
       investor.currentTokensDecimals = []
       investor.currentTokensAmount = []
-      investor.currentTokensAmountETH = []
-      investor.currentTokensAmountUSD = []
-      investor.tokenIds = []
       investor.profitETH = ZERO_BD
       investor.profitUSD = ZERO_BD
       investor.profitRatio = ZERO_BD  
     }
+
+    fund.updatedAtTimestamp = event.block.timestamp
+    investor.updatedAtTimestamp = event.block.timestamp
     investor.save()
-    subscribe.save()
     fund.save()
     factory.save()
 
     const ethPriceInUSD = getEthPriceInUSD()
-    investorSnapshot( event.params.fund, event.params.manager, event.params.investor, ethPriceInUSD, event)
-    fundSnapshot(event.params.fund, event.params.manager, event)
+    investorSnapshot(event.params.fund, event.params.manager, event.params.investor, ethPriceInUSD, event)
+    fundSnapshot(event.params.fund, event.params.manager, event, ethPriceInUSD)
     factorySnapshot(event)
   }
 }

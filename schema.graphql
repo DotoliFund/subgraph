@@ -25,6 +25,8 @@ type Fund @entity {
   address: Bytes!
   # creation
   createdAtTimestamp: BigInt!
+  # update
+  updatedAtTimestamp: BigInt!
   # manager address
   manager: Bytes!
   # investorCount
@@ -41,10 +43,6 @@ type Fund @entity {
   currentTokensDecimals: [BigInt!]!
   # amount of tokens held by the contract
   currentTokensAmount: [BigDecimal!]!
-  # ETH amount of tokens held by the contract
-  currentTokensAmountETH: [BigDecimal!]!
-  # USD amount of tokens held by the contract
-  currentTokensAmountUSD: [BigDecimal!]!
   # fee tokens address
   feeTokens: [Bytes!]!
   # fee tokens symbol
@@ -58,6 +56,8 @@ type Investor @entity {
   id: ID!
   # creation
   createdAtTimestamp: BigInt!
+  # update
+  updatedAtTimestamp: BigInt!
   # fund address
   fund: Bytes!
   # investor address
@@ -80,12 +80,6 @@ type Investor @entity {
   currentTokensDecimals: [BigInt!]!
   # amount of tokens held by the contract
   currentTokensAmount: [BigDecimal!]!
-  # ETH amount of tokens held by the contract
-  currentTokensAmountETH: [BigDecimal!]!
-  # USD amount of tokens held by the contract
-  currentTokensAmountUSD: [BigDecimal!]!
-  # investor's liquidity pool position's tokenIds
-  tokenIds: [BigInt!]!
   # profit ETH
   profitETH: BigDecimal!
   # profit USD
@@ -107,47 +101,22 @@ type Token @entity {
   active: Boolean!
 }
 
-type Transaction @entity {
-  # txn hash
-  id: ID!
-  # block txn was included in
-  blockNumber: BigInt!
-  # timestamp txn was confirmed
-  timestamp: BigInt!
-  # derived values
-  subscribes: [Subscribe!]! @derivedFrom(field: "transaction")
-  managerFeeOuts: [ManagerFeeOut!]! @derivedFrom(field: "transaction")
-  deposits: [Deposit!]! @derivedFrom(field: "transaction")
-  withdraws: [Withdraw!]! @derivedFrom(field: "transaction")
-  swaps: [Swap!]! @derivedFrom(field: "transaction")
-  mintNewPositions: [MintNewPosition!]! @derivedFrom(field: "transaction")
-  increaseLiquidities: [IncreaseLiquidity!]! @derivedFrom(field: "transaction")
-  collectPositionFees: [CollectPositionFee!]! @derivedFrom(field: "transaction")
-  decreaseLiquidities: [DecreaseLiquidity!]! @derivedFrom(field: "transaction")
-}
-
 type Subscribe @entity {
   # <fund address>-<investor address>
   id: ID!
-  # which txn the mint was included in
-  transaction: Transaction!
+  # hash
+  hash: Bytes!
   # time of txn
   timestamp: BigInt!
   # pointer to Fund 
   fund: Bytes!
   # investor address
   investor: Bytes!
-  # txn origin
-  origin: Bytes! # the EOA that initiated the txn
-  # order within the txn
-  logIndex: BigInt
 }
 
 type ManagerFeeOut @entity {
   # transaction hash
   id: ID!
-  # which txn was included in
-  transaction: Transaction!
   # time of txn
   timestamp: BigInt!
   # pointer to Fund 
@@ -164,17 +133,11 @@ type ManagerFeeOut @entity {
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal!
-  # txn origin
-  origin: Bytes! # the EOA that initiated the txn
-  # order within the txn
-  logIndex: BigInt
 }
 
 type Deposit @entity {
   # transaction hash
   id: ID!
-  # which txn was included in
-  transaction: Transaction!
   # time of txn
   timestamp: BigInt!
   # pointer to Fund 
@@ -191,17 +154,11 @@ type Deposit @entity {
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal!
-  # txn origin
-  origin: Bytes! # the EOA that initiated the txn
-  # order within the txn
-  logIndex: BigInt
 }
 
 type Withdraw @entity {
   # transaction hash
   id: ID!
-  # which txn was included in
-  transaction: Transaction!
   # time of txn
   timestamp: BigInt!
   # pointer to fund 
@@ -218,18 +175,12 @@ type Withdraw @entity {
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal!
-  # txn origin
-  origin: Bytes! # the EOA that initiated the txn
-  # order within the txn
-  logIndex: BigInt
 }
 
 type Swap @entity {
   # transaction hash
   id: ID!
-  # which txn was included in
-  transaction: Transaction!
-  # timestamp of transaction
+  # timestamp of txn
   timestamp: BigInt!
   # fund swap occured within
   fund: Bytes!
@@ -253,18 +204,12 @@ type Swap @entity {
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal!
-  # txn origin
-  origin: Bytes! # the EOA that initiated the txn
-  # order within the txn
-  logIndex: BigInt
 }
 
 type MintNewPosition @entity {
   # transaction hash
   id: ID!
-  # which txn was included in
-  transaction: Transaction!
-  # timestamp of transaction
+  # timestamp of txn
   timestamp: BigInt!
   # fund swap occured within
   fund: Bytes!
@@ -288,18 +233,12 @@ type MintNewPosition @entity {
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal!
-  # txn origin
-  origin: Bytes! # the EOA that initiated the txn
-  # order within the txn
-  logIndex: BigInt
 }
 
 type IncreaseLiquidity @entity {
   # transaction hash
   id: ID!
-  # which txn was included in
-  transaction: Transaction!
-  # timestamp of transaction
+  # timestamp of txn
   timestamp: BigInt!
   # fund swap occured within
   fund: Bytes!
@@ -323,18 +262,12 @@ type IncreaseLiquidity @entity {
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal!
-  # txn origin
-  origin: Bytes! # the EOA that initiated the txn
-  # order within the txn
-  logIndex: BigInt
 }
 
 type CollectPositionFee @entity {
   # transaction hash
   id: ID!
-  # which txn was included in
-  transaction: Transaction!
-  # timestamp of transaction
+  # timestamp of txn
   timestamp: BigInt!
   # fund swap occured within
   fund: Bytes!
@@ -358,18 +291,12 @@ type CollectPositionFee @entity {
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal!
-  # txn origin
-  origin: Bytes! # the EOA that initiated the txn
-  # order within the txn
-  logIndex: BigInt
 }
 
 type DecreaseLiquidity @entity {
   # transaction hash
   id: ID!
-  # which txn was included in
-  transaction: Transaction!
-  # timestamp of transaction
+  # timestamp of txn
   timestamp: BigInt!
   # fund swap occured within
   fund: Bytes!
@@ -393,10 +320,6 @@ type DecreaseLiquidity @entity {
   amountETH: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal!
-  # txn origin
-  origin: Bytes! # the EOA that initiated the txn
-  # order within the txn
-  logIndex: BigInt
 }
 
 # daily stats tracker for DotoliFund Factory
@@ -475,16 +398,8 @@ type InvestorSnapshot @entity {
   currentETH: BigDecimal!
   # USD value of the token held by the contract
   currentUSD: BigDecimal!
-  # investor's liquidity pool position's tokenIds
-  tokenIds: [BigInt!]!
   # ETH value of the token held by the pool
   poolETH: BigDecimal!
   # USD value of the token held by the pool
   poolUSD: BigDecimal!
-  # profit ETH
-  profitETH: BigDecimal!
-  # profit USD
-  profitUSD: BigDecimal!
-  # profit ratio
-  profitRatio: BigDecimal!
 }

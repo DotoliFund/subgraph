@@ -31,8 +31,6 @@ export function updateInvestor(
   const currentTokensSymbols: string[] = []
   const currentTokensDecimals: BigInt[] = []
   const currentTokensAmount: BigDecimal[] = []
-  const currentTokensAmountETH: BigDecimal[] = []
-  const currentTokensAmountUSD: BigDecimal[] = []
   let currentETH: BigDecimal = ZERO_BD
   let currentUSD: BigDecimal = ZERO_BD
   const tokensInfo = dotolifund.getInvestorTokens(investorAddress)
@@ -53,8 +51,6 @@ export function updateInvestor(
     const tokenPriceETH = getTokenPriceETH(tokenAddress)
     const amountETH = deAmount.times(tokenPriceETH)
     const amountUSD = amountETH.times(ethPriceInUSD)
-    currentTokensAmountETH.push(amountETH)
-    currentTokensAmountUSD.push(amountUSD)
     currentETH = currentETH.plus(amountETH)
     currentUSD = currentUSD.plus(amountUSD)
   }
@@ -62,19 +58,8 @@ export function updateInvestor(
   investor.currentTokensSymbols = currentTokensSymbols
   investor.currentTokensDecimals = currentTokensDecimals
   investor.currentTokensAmount = currentTokensAmount
-  investor.currentTokensAmountETH = currentTokensAmountETH
-  investor.currentTokensAmountUSD = currentTokensAmountUSD
   investor.currentETH = currentETH
   investor.currentUSD = currentUSD
-
-  let tokenIds: BigInt[] = []
-  const investorTokenIds = dotolifund.getPositionTokenIds(investorAddress)
-  for (let i=0; i<investorTokenIds.length; i++) {
-    const tokenId = investorTokenIds[i]
-    tokenIds.push(tokenId)    
-  }
-  investor.tokenIds = tokenIds
-
   investor.save()
 }
 

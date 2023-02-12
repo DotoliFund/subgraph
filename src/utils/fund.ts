@@ -15,11 +15,9 @@ export function updateFundCurrent(fundAddress: Address, ethPriceInUSD: BigDecima
   
   const tokens = fund.currentTokens
   
-  const currentTokensAmount: BigDecimal[] = []
-  const currentTokensAmountETH: BigDecimal[] = []
-  const currentTokensAmountUSD: BigDecimal[] = []
   let currentETH: BigDecimal = ZERO_BD
   let currentUSD: BigDecimal = ZERO_BD
+  const currentTokensAmount: BigDecimal[] = []
 
   factory.totalCurrentETH = factory.totalCurrentETH.minus(fund.currentETH)
 
@@ -30,18 +28,14 @@ export function updateFundCurrent(fundAddress: Address, ethPriceInUSD: BigDecima
     const tokenPriceETH = getTokenPriceETH(Address.fromBytes(tokens[i]))
     const amountETH = tokenAmount.times(tokenPriceETH)
     const amountUSD = amountETH.times(ethPriceInUSD)
-    currentTokensAmount.push(tokenAmount)
-    currentTokensAmountETH.push(amountETH)
-    currentTokensAmountUSD.push(amountUSD)
     currentETH = currentETH.plus(amountETH)
     currentUSD = currentUSD.plus(amountUSD)
+    currentTokensAmount.push(tokenAmount)
   }
 
-  fund.currentTokensAmount = currentTokensAmount
-  fund.currentTokensAmountETH = currentTokensAmountETH
-  fund.currentTokensAmountUSD = currentTokensAmountUSD
   fund.currentETH = currentETH
   fund.currentUSD = currentUSD
+  fund.currentTokensAmount = currentTokensAmount
 
   factory.totalCurrentETH = factory.totalCurrentETH.plus(fund.currentETH)
   factory.totalCurrentUSD = factory.totalCurrentETH.times(ethPriceInUSD)
