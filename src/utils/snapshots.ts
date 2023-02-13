@@ -126,9 +126,7 @@ export function investorSnapshot(
   const currentTokensAmountETH: BigDecimal[] = []
   const currentTokensAmountUSD: BigDecimal[] = []
   for (let i=0; i<currentTokens.length; i++) {
-    const amount = ERC20.bind(Address.fromBytes(currentTokens[i])).balanceOf(Address.fromBytes(fundAddress))
-    const decimals = ERC20.bind(Address.fromBytes(currentTokens[i])).decimals()
-    const tokenAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
+    const tokenAmount = investor.currentTokensAmount[i]
     const tokenPriceETH = getTokenPriceETH(Address.fromBytes(currentTokens[i]))
     const amountETH = tokenAmount.times(tokenPriceETH)
     const amountUSD = amountETH.times(ethPriceInUSD)
