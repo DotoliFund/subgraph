@@ -93,6 +93,8 @@ type Token @entity {
   id: Bytes!
   # fund address
   address: Bytes!
+  # token decimals
+  decimals: BigInt!
   # token symbol
   symbol: String!
   # creation

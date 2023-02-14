@@ -6,7 +6,7 @@ dataSources:
     name: DotoliFactory
     network: goerli
     source:
-      address: "0xf5EFc5E43C3b215B4bEC5A62B3930921dAf54fCb"
+      address: "0xeD3193b249C93E4B6627D7C42Bce6764Fb70a166"
       abi: DotoliFactory
     mapping:
       kind: ethereum/events

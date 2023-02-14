@@ -21,7 +21,7 @@ import {
   ZERO_BD,
   ONE_BI,
   ADDRESS_ZERO,
-  UNKNWON_SYMBOL,
+  UNKNWON,
   DECIMAL_18,
   WETH9,
   DTL
@@ -30,7 +30,7 @@ import { getEthPriceInUSD } from './utils/pricing'
 import { getInvestorID } from "./utils/investor"
 import { fundSnapshot, investorSnapshot, factorySnapshot } from "./utils/snapshots"
 import { DotoliFund as FundTemplate } from './types/templates'
-import { ERC20 } from './types/templates/DotoliFund/ERC20'
+import { fetchTokenSymbol, fetchTokenDecimals } from './utils/token'
 
 export function handleFundCreated(event: FundCreated): void {
   let fund = new Fund(event.params.fund)
@@ -179,29 +179,32 @@ export function handleFactoryCreated(event: FactoryCreated): void {
     factory.owner = Address.fromString(ADDRESS_ZERO)
     factory.save()
   }
-  const test = 'test'
-
+  
   const weth9 = new Token(Address.fromHexString(WETH9))
   weth9.id = Bytes.fromHexString(WETH9)
   weth9.address = Bytes.fromHexString(WETH9)
-  const weth9Symbol = ERC20.bind(Address.fromString(WETH9)).try_symbol()
-  if (!weth9Symbol.reverted) {
-    weth9.symbol = weth9Symbol.value
-    weth9.updatedTimestamp = event.block.timestamp
-    weth9.active = true
-    weth9.save()
+  weth9.decimals = fetchTokenDecimals(Address.fromString(WETH9))
+  if (weth9.decimals === null) {
+    log.debug('the decimals on weth9 token was null', [])
+    return
   }
+  weth9.symbol = fetchTokenSymbol(Address.fromString(WETH9))
+  weth9.updatedTimestamp = event.block.timestamp
+  weth9.active = true
+  weth9.save()
 
   const dtl = new Token(Address.fromHexString(DTL))
   dtl.id = Bytes.fromHexString(DTL)
   dtl.address = Bytes.fromHexString(DTL)
-  const dtlSymbol = ERC20.bind(Address.fromString(DTL)).try_symbol()
-  if (!dtlSymbol.reverted) {
-    dtl.symbol = dtlSymbol.value
-    dtl.updatedTimestamp = event.block.timestamp
-    dtl.active = true
-    dtl.save()
+  dtl.decimals = fetchTokenDecimals(Address.fromString(DTL))
+  if (dtl.decimals === null) {
+    log.debug('the decimals on dtl token was null', [])
+    return
   }
+  dtl.symbol = fetchTokenSymbol(Address.fromString(DTL))
+  dtl.updatedTimestamp = event.block.timestamp
+  dtl.active = true
+  dtl.save()
 }
 
 export function handleOwnerChanged(event: OwnerChanged): void {
@@ -233,12 +236,12 @@ export function handleWhiteListTokenAdded(event: WhiteListTokenAdded): void {
     token = new Token(event.params.token)
     token.id = event.params.token
     token.address = event.params.token
-    const symbol = ERC20.bind(Address.fromBytes(event.params.token)).try_symbol()
-    if (symbol.reverted) {
-      token.symbol = UNKNWON_SYMBOL
-    } else {
-      token.symbol = symbol.value
+    token.decimals = fetchTokenDecimals(event.params.token)
+    if (token.decimals === null) {
+      log.debug('the decimals on {} token was null', [event.params.token.toHexString()])
+      return
     }
+    token.symbol = fetchTokenSymbol(event.params.token)
     token.updatedTimestamp = event.block.timestamp
     token.active = true
     token.save()

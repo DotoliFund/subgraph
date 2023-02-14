@@ -12,6 +12,7 @@ import { safeDiv } from '../utils'
 import { ERC20 } from '../types/templates/DotoliFund/ERC20'
 import { UniswapV3Factory } from '../types/templates/DotoliFund/UniswapV3Factory'
 import { UniswapV3Pool } from '../types/templates/DotoliFund/UniswapV3Pool'
+import { fetchTokenDecimals } from '../utils/token'
 
 const Q192 = f64(2 ** 192)
 
@@ -67,13 +68,19 @@ export function getEthPriceInUSD(): BigDecimal {
   return ethPriceInUSD
 }
 
-export function getTokenPriceETH(token: Address): BigDecimal {
+export function getTokenPriceETH(token: Address): BigDecimal | null {
   const tokenAddress = token
   const wethAddress = Address.fromString(WETH9)
   const fees = [500, 3000, 10000]
 
   let tokenPriceETH = ZERO_BD
   let largestLiquidity = ZERO_BI
+
+  const decimals = fetchTokenDecimals(token)
+  if (decimals === null) {
+    log.debug('the decimals on {} token was null', [token.toHexString()])
+    return null
+  }
 
   if (token.equals(Address.fromString(WETH9))) {
     return ONE_BD

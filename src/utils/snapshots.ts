@@ -15,6 +15,8 @@ import { DotoliFund } from '../types/templates/DotoliFund/DotoliFund'
 import { LiquidityOracle  } from '../types/templates/DotoliFund/LiquidityOracle'
 import { ERC20 } from '../types/templates/DotoliFund/ERC20'
 import { getTokenPriceETH } from './pricing'
+import { fetchTokenSymbol, fetchTokenDecimals } from '../utils/token'
+import { exponentToBigDecimal } from "../utils"
 
 
 export function factorySnapshot(event: ethereum.Event): void {
@@ -55,9 +57,15 @@ export function fundSnapshot(
 
   for (let i=0; i<currentTokens.length; i++) {
     const amount = ERC20.bind(Address.fromBytes(currentTokens[i])).balanceOf(Address.fromBytes(fundAddress))
-    const decimals = ERC20.bind(Address.fromBytes(currentTokens[i])).decimals()
-    const tokenAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
+    const decimals = fetchTokenDecimals(Address.fromBytes(currentTokens[i]))
+    if (decimals === null) {
+      log.debug('the decimals on {} token was null', [currentTokens[i].toHexString()])
+      return
+    }
+    const tokenDecimal = exponentToBigDecimal(decimals)
+    const tokenAmount = amount.divDecimal(tokenDecimal)
     const tokenPriceETH = getTokenPriceETH(Address.fromBytes(currentTokens[i]))
+    if (tokenPriceETH === null) return
     const amountETH = tokenAmount.times(tokenPriceETH)
     const amountUSD = amountETH.times(ethPriceInUSD)
     currentETH = currentETH.plus(amountETH)
@@ -128,6 +136,7 @@ export function investorSnapshot(
   for (let i=0; i<currentTokens.length; i++) {
     const tokenAmount = investor.currentTokensAmount[i]
     const tokenPriceETH = getTokenPriceETH(Address.fromBytes(currentTokens[i]))
+    if (tokenPriceETH === null) return
     const amountETH = tokenAmount.times(tokenPriceETH)
     const amountUSD = amountETH.times(ethPriceInUSD)
     currentETH = currentETH.plus(amountETH)
@@ -170,9 +179,15 @@ export function investorSnapshot(
     // 4-1. add pool token0 USD -> tokenAmountXXX (save)
     const token0 = poolTokens.getToken0()
     const amount0 = poolTokens.getAmount0()
-    const decimal0 = ERC20.bind(token0).decimals()
-    const deAmount0 = amount0.divDecimal(BigDecimal.fromString(f64(10 ** decimal0).toString()))
+    const decimal0 = fetchTokenDecimals(token0)
+    if (decimal0 === null) {
+      log.debug('the decimals on {} token was null', [token0.toHexString()])
+      return
+    }
+    const token0Decimal = exponentToBigDecimal(decimal0)
+    const deAmount0 = amount0.divDecimal(token0Decimal)
     const token0PriceETH = getTokenPriceETH(token0)
+    if (token0PriceETH === null) return
     const amount0ETH = deAmount0.times(token0PriceETH)
     const amount0USD = amount0ETH.times(ethPriceInUSD)
     const token0Index = tokens.indexOf(token0)
@@ -181,12 +196,7 @@ export function investorSnapshot(
       tokensAmountUSD[token0Index] = tokensAmountUSD[token0Index].plus(amount0USD)
     } else {
       tokens.push(token0)
-      const symbol = ERC20.bind(token0).try_symbol()
-      if (symbol.reverted) {
-        tokensSymbols.push(token0.toHexString())
-      } else {
-        tokensSymbols.push(symbol.value)
-      }
+      tokensSymbols.push(fetchTokenSymbol(token0))
       tokensDecimals.push(BigInt.fromString(decimal0.toString()))
       tokensAmountETH.push(amount0ETH)
       tokensAmountUSD.push(amount0USD)
@@ -197,9 +207,15 @@ export function investorSnapshot(
     // 4-2. add pool token1 USD -> tokenAmountXXX (save)
     const token1 = poolTokens.getToken1()
     const amount1 = poolTokens.getAmount1()
-    const decimal1 = ERC20.bind(token1).decimals()
-    const deAmount1 = amount1.divDecimal(BigDecimal.fromString(f64(10 ** decimal1).toString()))
+    const decimal1 = fetchTokenDecimals(token1)
+    if (decimal1 === null) {
+      log.debug('the decimals on {} token was null', [token1.toHexString()])
+      return
+    }
+    const token1Decimal = exponentToBigDecimal(decimal1)
+    const deAmount1 = amount1.divDecimal(token1Decimal)
     const token1PriceETH = getTokenPriceETH(token1)
+    if (token1PriceETH === null) return
     const amount1ETH = deAmount1.times(token1PriceETH)
     const amount1USD = amount1ETH.times(ethPriceInUSD)
     const token1Index = tokens.indexOf(token1)
@@ -208,12 +224,7 @@ export function investorSnapshot(
       tokensAmountUSD[token1Index] = tokensAmountUSD[token1Index].plus(amount1USD)
     } else {
       tokens.push(token1)
-      const symbol = ERC20.bind(token1).try_symbol()
-      if (symbol.reverted) {
-        tokensSymbols.push(token1.toHexString())
-      } else {
-        tokensSymbols.push(symbol.value)
-      }
+      tokensSymbols.push(fetchTokenSymbol(token1))
       tokensDecimals.push(BigInt.fromString(decimal1.toString()))
       tokensAmountETH.push(amount1ETH)
       tokensAmountUSD.push(amount1USD)

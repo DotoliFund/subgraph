@@ -4,6 +4,8 @@ import { DOTOLI_FACTORY_ADDRESS, ZERO_BI, ZERO_BD } from './constants'
 import { getTokenPriceETH } from './pricing'
 import { ERC20 } from '../types/templates/DotoliFund/ERC20'
 import { DotoliFund } from '../types/templates/DotoliFund/DotoliFund'
+import { fetchTokenSymbol, fetchTokenDecimals } from '../utils/token'
+import { exponentToBigDecimal } from "../utils"
 
 
 export function updateFundCurrent(fundAddress: Address, ethPriceInUSD: BigDecimal): void {
@@ -23,9 +25,15 @@ export function updateFundCurrent(fundAddress: Address, ethPriceInUSD: BigDecima
 
   for (let i=0; i<tokens.length; i++) {
     const amount = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(fundAddress)
-    const decimals = ERC20.bind(Address.fromBytes(tokens[i])).decimals()
-    const tokenAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimals).toString()))
+    const decimals = fetchTokenDecimals(Address.fromBytes(tokens[i]))
+    if (decimals === null) {
+      log.debug('the decimals on {} token was null', [tokens[i].toHexString()])
+      return
+    }
+    const tokenDecimal = exponentToBigDecimal(decimals)
+    const tokenAmount = amount.divDecimal(tokenDecimal)
     const tokenPriceETH = getTokenPriceETH(Address.fromBytes(tokens[i]))
+    if (tokenPriceETH === null) return
     const amountETH = tokenAmount.times(tokenPriceETH)
     const amountUSD = amountETH.times(ethPriceInUSD)
     currentETH = currentETH.plus(amountETH)
@@ -123,15 +131,16 @@ export function updateFundFee(fundAddress: Address): void {
   for (let i=0; i<feeTokensInfo.length; i++) {
     const tokenAddress = feeTokensInfo[i].tokenAddress
     feeTokens.push(tokenAddress)
-    const symbol = ERC20.bind(tokenAddress).try_symbol()
-    if (symbol.reverted) {
-      feeSymbols.push(tokenAddress.toHexString())
-    } else {
-      feeSymbols.push(symbol.value)
-    }
+    feeSymbols.push(fetchTokenSymbol(tokenAddress))
     const amount = feeTokensInfo[i].amount
-    const decimal = ERC20.bind(tokenAddress).decimals()
-    const deAmount = amount.divDecimal(BigDecimal.fromString(f64(10 ** decimal).toString()))
+
+    const decimals = fetchTokenDecimals(tokenAddress)
+    if (decimals === null) {
+      log.debug('the decimals on {} token was null', [tokenAddress.toHexString()])
+      return
+    }
+    const tokenDecimal = exponentToBigDecimal(decimals)
+    const deAmount = amount.divDecimal(tokenDecimal)
     feeTokensAmount.push(deAmount)
   }
 
