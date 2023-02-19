@@ -1,5 +1,5 @@
 import { BigInt, Address } from '@graphprotocol/graph-ts'
-import { ERC20 } from '../types/templates/DotoliFund/ERC20'
+import { ERC20 } from '../types/DotoliFund/ERC20'
 import { UNKNWON } from './constants'
 
 export function fetchTokenSymbol(tokenAddress: Address): string {

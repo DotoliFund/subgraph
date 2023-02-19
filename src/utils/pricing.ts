@@ -9,9 +9,9 @@ import {
     ONE_BD,
 } from './constants'
 import { safeDiv } from '../utils'
-import { ERC20 } from '../types/templates/DotoliFund/ERC20'
-import { UniswapV3Factory } from '../types/templates/DotoliFund/UniswapV3Factory'
-import { UniswapV3Pool } from '../types/templates/DotoliFund/UniswapV3Pool'
+import { ERC20 } from '../types/DotoliFund/ERC20'
+import { UniswapV3Factory } from '../types/DotoliFund/UniswapV3Factory'
+import { UniswapV3Pool } from '../types/DotoliFund/UniswapV3Pool'
 import { fetchTokenDecimals } from '../utils/token'
 
 const Q192 = f64(2 ** 192)

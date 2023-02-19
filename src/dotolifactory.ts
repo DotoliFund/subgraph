@@ -1,19 +1,14 @@
 import { Address, Bytes, BigInt, log } from "@graphprotocol/graph-ts"
 import {
   FactoryCreated,
-  FundCreated,
   OwnerChanged,
   MinPoolAmountChanged,
   ManagerFeeChanged,
-  Subscribe as SubscribeEvent,
   WhiteListTokenAdded,
   WhiteListTokenRemoved
 } from './types/DotoliFactory/DotoliFactory'
 import { 
   Factory,
-  Fund,
-  Investor,
-  Subscribe,
   Token
 } from "./types/schema"
 import { 
@@ -21,149 +16,13 @@ import {
   ZERO_BD,
   ONE_BI,
   ADDRESS_ZERO,
-  UNKNWON,
   DECIMAL_18,
   WETH9,
   DTL
 } from './utils/constants'
-import { getEthPriceInUSD } from './utils/pricing'
-import { getInvestorID } from "./utils/investor"
-import { fundSnapshot, investorSnapshot, factorySnapshot } from "./utils/snapshots"
-import { DotoliFund as FundTemplate } from './types/templates'
+import { factorySnapshot } from "./utils/snapshots"
 import { fetchTokenSymbol, fetchTokenDecimals } from './utils/token'
 
-export function handleFundCreated(event: FundCreated): void {
-  let fund = new Fund(event.params.fund)
-  fund.address = event.params.fund
-  fund.createdAtTimestamp = event.block.timestamp
-  fund.updatedAtTimestamp = event.block.timestamp
-  fund.manager = event.params.manager
-  fund.investorCount = ONE_BI
-  fund.currentETH = ZERO_BD
-  fund.currentUSD = ZERO_BD
-  fund.feeTokens = []
-  fund.feeSymbols = []
-  fund.feeTokensAmount = []
-  fund.currentTokens = []
-  fund.currentTokensSymbols = []
-  fund.currentTokensDecimals = []
-  fund.currentTokensAmount = []
-
-  const investorID = getInvestorID(event.params.fund, event.params.manager)
-  let investor = Investor.load(investorID)
-  if (investor === null) {
-    investor = new Investor(investorID)
-    investor.createdAtTimestamp = event.block.timestamp
-    investor.updatedAtTimestamp = event.block.timestamp
-    investor.fund = event.params.fund
-    investor.investor = event.params.manager
-    investor.isManager = true
-    investor.principalETH = ZERO_BD
-    investor.principalUSD = ZERO_BD
-    investor.currentETH = ZERO_BD
-    investor.currentUSD = ZERO_BD
-    investor.currentTokens = []
-    investor.currentTokensSymbols = []
-    investor.currentTokensDecimals = []
-    investor.currentTokensAmount = []
-    investor.profitETH = ZERO_BD
-    investor.profitUSD = ZERO_BD
-    investor.profitRatio = ZERO_BD
-  }
-
-  fund.updatedAtTimestamp = event.block.timestamp
-  investor.updatedAtTimestamp = event.block.timestamp
-  investor.save()
-  fund.save()
-  // create the tracked contract based on the template
-  FundTemplate.create(event.params.fund)
-
-  const ethPriceInUSD = getEthPriceInUSD()
-  investorSnapshot(event.params.fund, event.params.manager, event.params.manager, ethPriceInUSD, event)
-  fundSnapshot(event.params.fund, event.params.manager, event, ethPriceInUSD)
-  factorySnapshot(event)
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.createFund(...)
-  // - contract.getFundByManager(...)
-  // - contract.getManagerFee(...)
-  // - contract.getSwapRouterAddress(...)
-  // - contract.getWhiteListTokens(...)
-  // - contract.isSubscribed(...)
-  // - contract.isWhiteListToken(...)
-  // - contract.owner(...)
-  // - contract.subscribedFunds(...)
-}
-
-export function handleSubscribe(event: SubscribeEvent): void {
-  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
-  if (!factory) return
-
-  factory.investorCount = factory.investorCount.plus(ONE_BI)
-
-  let fund = Fund.load(event.params.fund)
-  if (fund !== null) {
-    fund.investorCount = fund.investorCount.plus(ONE_BI)
-
-    const subscribeID = 
-      event.params.fund.toHexString().toUpperCase() 
-      + '-'
-      + event.params.investor.toHexString().toUpperCase()
-    let subscribe = new Subscribe(subscribeID)
-    subscribe.timestamp = event.block.timestamp
-    subscribe.hash = event.transaction.hash
-    subscribe.fund = event.params.fund
-    subscribe.investor = event.params.investor
-    subscribe.save()
-
-    const investorID = getInvestorID(event.params.fund, event.params.investor)
-    let investor = Investor.load(investorID)
-    if (investor === null) {
-      investor = new Investor(investorID)
-      investor.createdAtTimestamp = event.block.timestamp
-      investor.updatedAtTimestamp = event.block.timestamp
-      investor.fund = event.params.fund
-      investor.investor = event.params.investor
-      investor.isManager = false
-      investor.principalETH = ZERO_BD
-      investor.principalUSD = ZERO_BD
-      investor.currentETH = ZERO_BD
-      investor.currentUSD = ZERO_BD
-      investor.currentTokens = []
-      investor.currentTokensSymbols = []
-      investor.currentTokensDecimals = []
-      investor.currentTokensAmount = []
-      investor.profitETH = ZERO_BD
-      investor.profitUSD = ZERO_BD
-      investor.profitRatio = ZERO_BD  
-    }
-
-    fund.updatedAtTimestamp = event.block.timestamp
-    investor.updatedAtTimestamp = event.block.timestamp
-    investor.save()
-    fund.save()
-    factory.save()
-
-    const ethPriceInUSD = getEthPriceInUSD()
-    investorSnapshot(event.params.fund, event.params.manager, event.params.investor, ethPriceInUSD, event)
-    fundSnapshot(event.params.fund, event.params.manager, event, ethPriceInUSD)
-    factorySnapshot(event)
-  }
-}
 
 export function handleFactoryCreated(event: FactoryCreated): void {
   // load factory

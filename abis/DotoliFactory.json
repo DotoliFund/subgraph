@@ -3,12 +3,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "weth9",
+        "name": "_dotoli",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "dotoli",
+        "name": "_weth9",
         "type": "address"
       }
     ],
@@ -19,25 +19,6 @@
     "anonymous": false,
     "inputs": [],
     "name": "FactoryCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "FundCreated",
     "type": "event"
   },
   {
@@ -91,31 +72,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "investor",
-        "type": "address"
-      }
-    ],
-    "name": "Subscribe",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "token",
         "type": "address"
       }
@@ -138,81 +94,12 @@
   },
   {
     "inputs": [],
-    "name": "DOTOLI",
+    "name": "dotoli",
     "outputs": [
       {
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "WETH9",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "createFund",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "getFundByManager",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "investor",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "fund",
-        "type": "address"
-      }
-    ],
-    "name": "isSubscribed",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -323,32 +210,26 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "uniswapV3Factory",
+    "outputs": [
       {
         "internalType": "address",
-        "name": "fund",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "subscribe",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "investor",
-        "type": "address"
-      }
-    ],
-    "name": "subscribedFunds",
+    "inputs": [],
+    "name": "weth9",
     "outputs": [
       {
-        "internalType": "address[]",
+        "internalType": "address",
         "name": "",
-        "type": "address[]"
+        "type": "address"
       }
     ],
     "stateMutability": "view",

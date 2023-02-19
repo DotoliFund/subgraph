@@ -1,18 +1,17 @@
 import { BigDecimal, Address, Bytes, log, BigInt } from '@graphprotocol/graph-ts'
 import { Fund, Factory } from '../types/schema'
-import { DOTOLI_FACTORY_ADDRESS, ZERO_BI, ZERO_BD } from './constants'
+import { DOTOLI_FACTORY_ADDRESS, ZERO_BI, ZERO_BD, DOTOLI_FUND_ADDRESS } from './constants'
 import { getTokenPriceETH } from './pricing'
-import { ERC20 } from '../types/templates/DotoliFund/ERC20'
-import { DotoliFund } from '../types/templates/DotoliFund/DotoliFund'
+import { DotoliFund } from '../types/DotoliFund/DotoliFund'
 import { fetchTokenSymbol, fetchTokenDecimals } from '../utils/token'
 import { exponentToBigDecimal } from "../utils"
 
 
-export function updateFundCurrent(fundAddress: Address, ethPriceInUSD: BigDecimal): void {
+export function updateFundCurrent(fundId: BigInt, ethPriceInUSD: BigDecimal): void {
   let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
   if (!factory) return
 
-  let fund = Fund.load(fundAddress)
+  let fund = Fund.load(fundId.toString())
   if (!fund) return
   
   const tokens = fund.currentTokens
@@ -24,7 +23,7 @@ export function updateFundCurrent(fundAddress: Address, ethPriceInUSD: BigDecima
   factory.totalCurrentETH = factory.totalCurrentETH.minus(fund.currentETH)
 
   for (let i=0; i<tokens.length; i++) {
-    const amount = ERC20.bind(Address.fromBytes(tokens[i])).balanceOf(fundAddress)
+    const amount = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS)).getFundTokenAmount(fundId, Address.fromBytes(tokens[i]))
     const decimals = fetchTokenDecimals(Address.fromBytes(tokens[i]))
     if (decimals === null) {
       log.debug('the decimals on {} token was null', [tokens[i].toHexString()])
@@ -59,9 +58,9 @@ export function isNewFundToken(fundTokens: Bytes[], token: Bytes): bool {
   return true
 }
 
-export function isEmptyFundToken(fund: Address, token: Bytes): bool {
-  const balance = ERC20.bind(Address.fromBytes(token)).balanceOf(fund)
-  if (balance.equals(ZERO_BI)) {
+export function isEmptyFundToken(fundId: BigInt, token: Bytes): bool {
+  const tokenAmount = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS)).getFundTokenAmount(fundId, Address.fromBytes(token))
+  if (tokenAmount.equals(ZERO_BI)) {
     return true
   } else {
     return false
@@ -69,14 +68,14 @@ export function isEmptyFundToken(fund: Address, token: Bytes): bool {
 }
 
 export function updateEmptyFundToken(
-  fundAddress: Address,
+  fundId: BigInt,
   token: Bytes
 ): void {
-  let fund = Fund.load(fundAddress)
+  let fund = Fund.load(fundId.toString())
   if (!fund) return
 
   // if token amount 0, remove from fund token list
-  if (isEmptyFundToken(fundAddress, token)) {
+  if (isEmptyFundToken(fundId, token)) {
     const fundTokens: Bytes[] = []
     const fundSymbols: string[] = []
     const fundDecimals: BigInt[] = []
@@ -94,12 +93,12 @@ export function updateEmptyFundToken(
 }
 
 export function updateNewFundToken(
-  fundAddress: Address,
+  fundId: BigInt,
   token: Bytes,
   tokenSymbol: string,
   tokenDecimal: BigInt
 ): void {
-  let fund = Fund.load(fundAddress)
+  let fund = Fund.load(fundId.toString())
   if (!fund) return
 
   if (isNewFundToken(fund.currentTokens, token)) {
@@ -117,12 +116,12 @@ export function updateNewFundToken(
   }
 }
 
-export function updateFundFee(fundAddress: Address): void {
-  let fund = Fund.load(fundAddress)
+export function updateFundFee(fundId: BigInt): void {
+  let fund = Fund.load(fundId.toString())
   if (!fund) return
 
-  const dotolifund = DotoliFund.bind(fundAddress)
-  const feeTokensInfo = dotolifund.getFeeTokens()
+  const dotolifund = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
+  const feeTokensInfo = dotolifund.getFeeTokens(fundId)
 
   const feeTokens: Bytes[] = []
   const feeSymbols: string[] = []

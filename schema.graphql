@@ -19,10 +19,10 @@ type Factory @entity {
 }
 
 type Fund @entity {
-  # fund address
-  id: Bytes!
-  # fund address
-  address: Bytes!
+  # fund id
+  id: ID!
+  # fund id
+  fundId: BigInt!
   # creation
   createdAtTimestamp: BigInt!
   # update
@@ -52,14 +52,14 @@ type Fund @entity {
 }
 
 type Investor @entity {
-  # format: <fund address>-<investor address>
+  # format: <fund id>-<investor address>
   id: ID!
   # creation
   createdAtTimestamp: BigInt!
   # update
   updatedAtTimestamp: BigInt!
-  # fund address
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
   # investor address
   investor: Bytes!
   # investor is manager
@@ -89,9 +89,9 @@ type Investor @entity {
 }
 
 type Token @entity {
-  # fund address
+  # token address
   id: Bytes!
-  # fund address
+  # token address
   address: Bytes!
   # token decimals
   decimals: BigInt!
@@ -104,25 +104,25 @@ type Token @entity {
 }
 
 type Subscribe @entity {
-  # <fund address>-<investor address>
+  # <fund id>-<investor address>
   id: ID!
   # hash
   hash: Bytes!
   # time of txn
   timestamp: BigInt!
-  # pointer to Fund 
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
   # investor address
   investor: Bytes!
 }
 
-type ManagerFeeOut @entity {
+type WithdrawFee @entity {
   # transaction hash
   id: ID!
   # time of txn
   timestamp: BigInt!
-  # pointer to Fund 
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
   # pointer to Manager 
   manager: Bytes!
   # withdraw token address
@@ -142,8 +142,10 @@ type Deposit @entity {
   id: ID!
   # time of txn
   timestamp: BigInt!
-  # pointer to Fund 
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
+  # pointer to Manager 
+  manager: Bytes!
   # pointer to investor
   investor: Bytes!
   # withdraw token address
@@ -163,8 +165,10 @@ type Withdraw @entity {
   id: ID!
   # time of txn
   timestamp: BigInt!
-  # pointer to fund 
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
+  # pointer to Manager 
+  manager: Bytes!
   # pointer to investor
   investor: Bytes!
   # withdraw token address
@@ -184,8 +188,8 @@ type Swap @entity {
   id: ID!
   # timestamp of txn
   timestamp: BigInt!
-  # fund swap occured within
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -213,8 +217,8 @@ type MintNewPosition @entity {
   id: ID!
   # timestamp of txn
   timestamp: BigInt!
-  # fund swap occured within
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -242,8 +246,8 @@ type IncreaseLiquidity @entity {
   id: ID!
   # timestamp of txn
   timestamp: BigInt!
-  # fund swap occured within
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -271,8 +275,8 @@ type CollectPositionFee @entity {
   id: ID!
   # timestamp of txn
   timestamp: BigInt!
-  # fund swap occured within
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -300,8 +304,8 @@ type DecreaseLiquidity @entity {
   id: ID!
   # timestamp of txn
   timestamp: BigInt!
-  # fund swap occured within
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -342,12 +346,12 @@ type FactorySnapshot @entity {
 
 # daily stats tracker for fund
 type FundSnapshot @entity {
-  # format: <fund address>-<timestamp>
+  # format: <fund id>-<timestamp>
   id: ID!
   # timestamp
   timestamp: BigInt!
-  # pointer to fund
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
   # pointer to Manager 
   manager: Bytes!
   # investorCount
@@ -372,16 +376,18 @@ type FundSnapshot @entity {
 
 # daily stats tracker for investor
 type InvestorSnapshot @entity {
-  # format: <investor address>-<timestamp>
+  # format: <fund id>-<investor address>-<snapshot count>
   id: ID!
   # timestamp
   timestamp: BigInt!
-  # pointer to fund
-  fund: Bytes!
+  # fund id
+  fundId: BigInt!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
   investor: Bytes!
+  # snapshot count
+  count: BigInt!
   # ETH value of principal
   principalETH: BigDecimal!
   # USD value of principal

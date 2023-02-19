@@ -1,41 +1,42 @@
 import { BigDecimal, Address, Bytes, BigInt, log } from '@graphprotocol/graph-ts'
 import { Investor } from '../types/schema'
 import {
-  LIQUIDITY_ORACLE_ADDRESS,
+  LIQUIDITY_ROUTER_ADDRESS,
   ZERO_BD,
   ONE_BD,
   TYPE_DEPOSIT,
   TYPE_WITHDRAW,
+  DOTOLI_FUND_ADDRESS,
 } from './constants'
 import { getTokenPriceETH } from './pricing'
-import { DotoliFund } from '../types/templates/DotoliFund/DotoliFund'
-import { LiquidityOracle  } from '../types/templates/DotoliFund/LiquidityOracle'
+import { DotoliFund } from '../types/DotoliFund/DotoliFund'
+import { LiquidityRouter } from '../types/DotoliFund/LiquidityRouter'
 import { safeDiv } from '../utils'
 import { fetchTokenSymbol, fetchTokenDecimals } from '../utils/token'
 import { exponentToBigDecimal } from "../utils"
 
 
-export function getInvestorID(fund: Address, investor: Address): string {
-  const investorID = fund.toHexString().toUpperCase() + '-' + investor.toHexString().toUpperCase()
+export function getInvestorID(fundId: BigInt, investor: Address): string {
+  const investorID = fundId.toString() + '-' + investor.toHexString().toUpperCase()
   return investorID
 }
 
 export function updateInvestor(
-  fundAddress: Address,
+  fundId: BigInt,
   investorAddress: Address,
   ethPriceInUSD: BigDecimal
 ): void {
-  let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
+  let investor = Investor.load(getInvestorID(fundId, investorAddress))
   if (!investor) return
   
-  const dotolifund = DotoliFund.bind(fundAddress)
+  const dotolifund = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
   const currentTokens: Bytes[] = []
   const currentTokensSymbols: string[] = []
   const currentTokensDecimals: BigInt[] = []
   const currentTokensAmount: BigDecimal[] = []
   let currentETH: BigDecimal = ZERO_BD
   let currentUSD: BigDecimal = ZERO_BD
-  const tokensInfo = dotolifund.getInvestorTokens(investorAddress)
+  const tokensInfo = dotolifund.getInvestorTokens(fundId, investorAddress)
   for (let i=0; i<tokensInfo.length; i++) {
     const tokenAddress = tokensInfo[i].tokenAddress
     currentTokens.push(tokenAddress)
@@ -67,26 +68,26 @@ export function updateInvestor(
 }
 
 export function updateInvestorProfit(
-  fundAddress: Address,
+  fundId: BigInt,
   investorAddress: Address,
   ethPriceInUSD: BigDecimal,
   type: number,
   _amountETH: BigDecimal,
   _amountUSD: BigDecimal
   ): void {
-  let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
+  let investor = Investor.load(getInvestorID(fundId, investorAddress))
   if (!investor) return
   
-  const dotolifund = DotoliFund.bind(fundAddress)
-  const liquidityOracle = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
+  const dotolifund = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
+  const liquidityRouter = LiquidityRouter.bind(Address.fromString(LIQUIDITY_ROUTER_ADDRESS))
 
   let poolETH: BigDecimal = ZERO_BD
   let poolUSD: BigDecimal = ZERO_BD
 
-  const investorTokenIds = dotolifund.getPositionTokenIds(investorAddress)
+  const investorTokenIds = dotolifund.getTokenIds(fundId, investorAddress)
   for (let i=0; i<investorTokenIds.length; i++) {
     const tokenId = investorTokenIds[i]
-    const positionTokens = liquidityOracle.getPositionTokenAmount(tokenId)
+    const positionTokens = liquidityRouter.getPositionTokenAmount(tokenId)
   
     const token0 = positionTokens.getToken0()
     const amount0 = positionTokens.getAmount0()

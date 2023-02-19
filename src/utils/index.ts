@@ -13,13 +13,13 @@ export function safeDiv(amount0: BigDecimal, amount1: BigDecimal): BigDecimal {
   }
 }
 
-export function updateUpdatedAtTime(fundAddress: Address, investorAddress: Address, timestamp: BigInt): void {
-  let investor = Investor.load(getInvestorID(fundAddress, investorAddress))
+export function updateUpdatedAtTime(fundId: BigInt, investorAddress: Address, timestamp: BigInt): void {
+  let investor = Investor.load(getInvestorID(fundId, investorAddress))
   if (!investor) return
   investor.updatedAtTimestamp = timestamp
   investor.save()
 
-  let fund = Fund.load(fundAddress)
+  let fund = Fund.load(fundId.toString())
   if (!fund) return
   fund.updatedAtTimestamp = timestamp
   fund.save()
