@@ -61,7 +61,7 @@ import { DotoliFund } from "./types/DotoliFund/DotoliFund"
 
 export function handleFundCreated(event: FundCreatedEvent): void {
   let fund = new Fund(event.params.fundId.toString())
-  fund.fundId = event.params.fundId
+  fund.fundId = event.params.fundId.toString()
   fund.createdAtTimestamp = event.block.timestamp
   fund.updatedAtTimestamp = event.block.timestamp
   fund.manager = event.params.manager
@@ -82,7 +82,7 @@ export function handleFundCreated(event: FundCreatedEvent): void {
     investor = new Investor(investorID)
     investor.createdAtTimestamp = event.block.timestamp
     investor.updatedAtTimestamp = event.block.timestamp
-    investor.fundId = event.params.fundId
+    investor.fundId = event.params.fundId.toString()
     investor.investor = event.params.manager
     investor.isManager = true
     investor.principalETH = ZERO_BD
@@ -127,7 +127,7 @@ export function handleSubscribe(event: SubscribeEvent): void {
     let subscribe = new Subscribe(subscribeID)
     subscribe.timestamp = event.block.timestamp
     subscribe.hash = event.transaction.hash
-    subscribe.fundId = fundId
+    subscribe.fundId = fundId.toString()
     subscribe.investor = event.params.investor
     subscribe.save()
 
@@ -137,7 +137,7 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor = new Investor(investorID)
       investor.createdAtTimestamp = event.block.timestamp
       investor.updatedAtTimestamp = event.block.timestamp
-      investor.fundId = fundId
+      investor.fundId = fundId.toString()
       investor.investor = event.params.investor
       investor.isManager = false
       investor.principalETH = ZERO_BD
@@ -176,7 +176,7 @@ export function handleWithdrawFee(event: WithdrawFeeEvent): void {
 
   let withdrawFee = new WithdrawFee(event.transaction.hash.toHexString())
   withdrawFee.timestamp = event.block.timestamp
-  withdrawFee.fundId = fundId
+  withdrawFee.fundId = fundId.toString()
   withdrawFee.manager = managerAddress
   withdrawFee.token = event.params.token
   withdrawFee.tokenSymbol = fetchTokenSymbol(event.params.token)
@@ -215,7 +215,7 @@ export function handleDeposit(event: DepositEvent): void {
 
   let deposit = new Deposit(event.transaction.hash.toHexString())
   deposit.timestamp = event.block.timestamp
-  deposit.fundId = fundId
+  deposit.fundId = fundId.toString()
   deposit.manager = managerAddress
   deposit.investor = event.params.investor
   deposit.token = event.params.token
@@ -265,7 +265,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   let withdraw = new Withdraw(event.transaction.hash.toHexString())
   withdraw.timestamp = event.block.timestamp
-  withdraw.fundId = fundId
+  withdraw.fundId = fundId.toString()
   withdraw.manager = managerAddress
   withdraw.investor = event.params.investor
   withdraw.token = event.params.token
@@ -314,7 +314,7 @@ export function handleSwap(event: SwapEvent): void {
 
   let swap = new Swap(event.transaction.hash.toHexString())
   swap.timestamp = event.block.timestamp
-  swap.fundId = fundId
+  swap.fundId = fundId.toString()
   swap.manager = managerAddress
   swap.investor = event.params.investor
   swap.token0 = tokenIn
@@ -387,7 +387,7 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
 
   let mintNewPosition = new MintNewPosition(event.transaction.hash.toHexString())
   mintNewPosition.timestamp = event.block.timestamp
-  mintNewPosition.fundId = fundId
+  mintNewPosition.fundId = fundId.toString()
   mintNewPosition.manager = managerAddress
   mintNewPosition.investor = event.params.investor
   mintNewPosition.token0 = token0
@@ -441,7 +441,7 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
 
   let increaseLiquidity = new IncreaseLiquidity(event.transaction.hash.toHexString())
   increaseLiquidity.timestamp = event.block.timestamp
-  increaseLiquidity.fundId = fundId
+  increaseLiquidity.fundId = fundId.toString()
   increaseLiquidity.manager = managerAddress
   increaseLiquidity.investor = event.params.investor
   increaseLiquidity.token0 = token0
@@ -495,7 +495,7 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
 
   let collectPositionFee = new CollectPositionFee(event.transaction.hash.toHexString())
   collectPositionFee.timestamp = event.block.timestamp
-  collectPositionFee.fundId = fundId
+  collectPositionFee.fundId = fundId.toString()
   collectPositionFee.manager = managerAddress
   collectPositionFee.investor = event.params.investor
   collectPositionFee.token0 = token0
@@ -549,7 +549,7 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
 
   let decreaseLiquidity = new DecreaseLiquidity(event.transaction.hash.toHexString())
   decreaseLiquidity.timestamp = event.block.timestamp
-  decreaseLiquidity.fundId = fundId
+  decreaseLiquidity.fundId = fundId.toString()
   decreaseLiquidity.manager = managerAddress
   decreaseLiquidity.investor = event.params.investor
   decreaseLiquidity.token0 = token0

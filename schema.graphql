@@ -22,7 +22,7 @@ type Fund @entity {
   # fund id
   id: ID!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # creation
   createdAtTimestamp: BigInt!
   # update
@@ -59,7 +59,7 @@ type Investor @entity {
   # update
   updatedAtTimestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # investor address
   investor: Bytes!
   # investor is manager
@@ -111,7 +111,7 @@ type Subscribe @entity {
   # time of txn
   timestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # investor address
   investor: Bytes!
 }
@@ -122,7 +122,7 @@ type WithdrawFee @entity {
   # time of txn
   timestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # withdraw token address
@@ -143,7 +143,7 @@ type Deposit @entity {
   # time of txn
   timestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -166,7 +166,7 @@ type Withdraw @entity {
   # time of txn
   timestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -189,7 +189,7 @@ type Swap @entity {
   # timestamp of txn
   timestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -218,7 +218,7 @@ type MintNewPosition @entity {
   # timestamp of txn
   timestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -247,7 +247,7 @@ type IncreaseLiquidity @entity {
   # timestamp of txn
   timestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -276,7 +276,7 @@ type CollectPositionFee @entity {
   # timestamp of txn
   timestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -305,7 +305,7 @@ type DecreaseLiquidity @entity {
   # timestamp of txn
   timestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -351,7 +351,7 @@ type FundSnapshot @entity {
   # timestamp
   timestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # investorCount
@@ -381,7 +381,7 @@ type InvestorSnapshot @entity {
   # timestamp
   timestamp: BigInt!
   # fund id
-  fundId: BigInt!
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor

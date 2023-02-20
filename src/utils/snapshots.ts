@@ -81,7 +81,7 @@ export function fundSnapshot(
   let fundSnapshot = FundSnapshot.load(fundTimeID)
   fundSnapshot = new FundSnapshot(fundTimeID)
   fundSnapshot.timestamp = timestamp
-  fundSnapshot.fundId = fundId
+  fundSnapshot.fundId = fundId.toString()
   fundSnapshot.manager = managerAddress
   fundSnapshot.investorCount = fund.investorCount
   fundSnapshot.currentETH = currentETH
@@ -120,7 +120,7 @@ export function investorSnapshot(
   let investorSnapshot = InvestorSnapshot.load(investorSnapshotID)
   investorSnapshot = new InvestorSnapshot(investorSnapshotID)
   investorSnapshot.timestamp = timestamp
-  investorSnapshot.fundId = fundId
+  investorSnapshot.fundId = fundId.toString()
   investorSnapshot.manager = managerAddress
   investorSnapshot.investor = investorAddress
   investorSnapshot.principalETH = investor.principalETH

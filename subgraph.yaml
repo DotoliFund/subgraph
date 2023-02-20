@@ -2,11 +2,11 @@ specVersion: 0.0.4
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum
+  - kind: ethereum/contract
     name: DotoliFactory
     network: goerli
     source:
-      address: "0xeD3193b249C93E4B6627D7C42Bce6764Fb70a166"
+      address: "0x5F9f8177932673e8e8544a97d1c4D75A87660924"
       abi: DotoliFactory
     mapping:
       kind: ethereum/events
@@ -37,10 +37,11 @@ dataSources:
           handler: handleWhiteListTokenRemoved
       file: ./src/dotolifactory.ts
 
-  - kind: ethereum
+  - kind: ethereum/contract
     name: DotoliFund
     network: goerli
     source:
+      address: "0xB46bC4f4B43eA7043f1c6897aD1C77cB07Ef0dBF"
       abi: DotoliFund
     mapping:
       kind: ethereum/events
