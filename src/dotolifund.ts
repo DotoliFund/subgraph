@@ -33,6 +33,7 @@ import {
   ONE_BI,
   DOTOLI_FACTORY_ADDRESS,
   DOTOLI_FUND_ADDRESS,
+  ZERO_BI,
 } from './utils/constants'
 import { updateUpdatedAtTime, exponentToBigDecimal } from "./utils"
 import { 
@@ -85,6 +86,7 @@ export function handleFundCreated(event: FundCreatedEvent): void {
     investor.fundId = event.params.fundId.toString()
     investor.investor = event.params.manager
     investor.isManager = true
+    investor.snapshotCount = ZERO_BI
     investor.principalETH = ZERO_BD
     investor.principalUSD = ZERO_BD
     investor.currentETH = ZERO_BD
@@ -168,51 +170,11 @@ export function handleSubscribe(event: SubscribeEvent): void {
   }
 }
 
-
-export function handleWithdrawFee(event: WithdrawFeeEvent): void {
-  const fundId = event.params.fundId
-  const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
-    .manager(fundId)
-
-  let withdrawFee = new WithdrawFee(event.transaction.hash.toHexString())
-  withdrawFee.timestamp = event.block.timestamp
-  withdrawFee.fundId = fundId.toString()
-  withdrawFee.manager = managerAddress
-  withdrawFee.token = event.params.token
-  withdrawFee.tokenSymbol = fetchTokenSymbol(event.params.token)
-  const decimals = fetchTokenDecimals(event.params.token)
-  if (decimals === null) {
-    log.debug('the decimals on {} token was null', [event.params.token.toHexString()])
-    return
-  }
-  const tokenDecimal = exponentToBigDecimal(decimals)
-  const tokenPriceETH = getTokenPriceETH(event.params.token)
-  if (tokenPriceETH === null) return
-  const ethPriceInUSD = getEthPriceInUSD()
-  withdrawFee.amount = event.params.amount.divDecimal(tokenDecimal)
-  withdrawFee.amountETH = withdrawFee.amount.times(tokenPriceETH)
-  withdrawFee.amountUSD = withdrawFee.amountETH.times(ethPriceInUSD)
-  withdrawFee.save()
-  
-  updateEmptyFundToken(fundId, withdrawFee.token)
-  updateFundFee(fundId)
-  // update current must be after update tokens
-  updateFundCurrent(fundId, ethPriceInUSD)
-
-  let fund = Fund.load(fundId.toString())
-  if (!fund) return
-  fund.updatedAtTimestamp = event.block.timestamp
-  fund.save()
-
-  fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
-  factorySnapshot(event)
-}
-
 export function handleDeposit(event: DepositEvent): void {
   const fundId = event.params.fundId
   const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
     .manager(fundId)
-
+  
   let deposit = new Deposit(event.transaction.hash.toHexString())
   deposit.timestamp = event.block.timestamp
   deposit.fundId = fundId.toString()
@@ -225,10 +187,12 @@ export function handleDeposit(event: DepositEvent): void {
     log.debug('the decimals on {} token was null', [event.params.token.toHexString()])
     return
   }
+
   const tokenDecimal = exponentToBigDecimal(decimals)
   const tokenPriceETH = getTokenPriceETH(event.params.token)
   if (tokenPriceETH === null) return
   const ethPriceInUSD = getEthPriceInUSD()
+
   deposit.amount = event.params.amount.divDecimal(tokenDecimal)
   deposit.amountETH = deposit.amount.times(tokenPriceETH)
   deposit.amountUSD =  deposit.amountETH.times(ethPriceInUSD)
@@ -359,6 +323,45 @@ export function handleSwap(event: SwapEvent): void {
   updateUpdatedAtTime(fundId, event.params.investor, event.block.timestamp)
 
   investorSnapshot(fundId, managerAddress, event.params.investor, ethPriceInUSD, event)
+  fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
+  factorySnapshot(event)
+}
+
+export function handleWithdrawFee(event: WithdrawFeeEvent): void {
+  const fundId = event.params.fundId
+  const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
+    .manager(fundId)
+
+  let withdrawFee = new WithdrawFee(event.transaction.hash.toHexString())
+  withdrawFee.timestamp = event.block.timestamp
+  withdrawFee.fundId = fundId.toString()
+  withdrawFee.manager = managerAddress
+  withdrawFee.token = event.params.token
+  withdrawFee.tokenSymbol = fetchTokenSymbol(event.params.token)
+  const decimals = fetchTokenDecimals(event.params.token)
+  if (decimals === null) {
+    log.debug('the decimals on {} token was null', [event.params.token.toHexString()])
+    return
+  }
+  const tokenDecimal = exponentToBigDecimal(decimals)
+  const tokenPriceETH = getTokenPriceETH(event.params.token)
+  if (tokenPriceETH === null) return
+  const ethPriceInUSD = getEthPriceInUSD()
+  withdrawFee.amount = event.params.amount.divDecimal(tokenDecimal)
+  withdrawFee.amountETH = withdrawFee.amount.times(tokenPriceETH)
+  withdrawFee.amountUSD = withdrawFee.amountETH.times(ethPriceInUSD)
+  withdrawFee.save()
+  
+  updateEmptyFundToken(fundId, withdrawFee.token)
+  updateFundFee(fundId)
+  // update current must be after update tokens
+  updateFundCurrent(fundId, ethPriceInUSD)
+
+  let fund = Fund.load(fundId.toString())
+  if (!fund) return
+  fund.updatedAtTimestamp = event.block.timestamp
+  fund.save()
+
   fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
   factorySnapshot(event)
 }

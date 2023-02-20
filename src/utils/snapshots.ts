@@ -9,7 +9,7 @@ import {
   InvestorSnapshot,
 } from '../types/schema'
 import { getInvestorID } from './investor'
-import { DOTOLI_FACTORY_ADDRESS, DOTOLI_FUND_ADDRESS, LIQUIDITY_ROUTER_ADDRESS, ZERO_BD } from './constants'
+import { DOTOLI_FACTORY_ADDRESS, DOTOLI_FUND_ADDRESS, LIQUIDITY_ROUTER_ADDRESS, ONE_BD, ONE_BI, ZERO_BD } from './constants'
 import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
 import { DotoliFund } from '../types/DotoliFund/DotoliFund'
 import { LiquidityRouter } from '../types/DotoliFund/LiquidityRouter'
@@ -112,10 +112,13 @@ export function investorSnapshot(
     fundId, 
     Address.fromString(investorAddress.toHexString())))
   if (!investor) return 
+  const snapshotCount = investor.snapshotCount.plus(ONE_BI)
+  investor.snapshotCount = snapshotCount
+  investor.save()
 
   let timestamp = event.block.timestamp
   let investorSnapshotID = investorAddress.toHexString()
-    .concat('-').concat(timestamp.toString())
+    .concat('-').concat(snapshotCount.toString())
 
   let investorSnapshot = InvestorSnapshot.load(investorSnapshotID)
   investorSnapshot = new InvestorSnapshot(investorSnapshotID)

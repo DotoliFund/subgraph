@@ -102,15 +102,12 @@ export function getTokenPriceETH(token: Address): BigDecimal | null {
       const sqrtPriceX96 = UniswapV3Pool.bind(poolAddress.value).slot0().getSqrtPriceX96()
       if (token0.equals(tokenAddress)) {
         tokenPriceETH = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[1]
-        log.info('test111 getPriceETH() token0 = tokenAddress: {}, {}, {}', [token0.toHexString(), token1.toHexString(), tokenPriceETH.toString()])
       } else {
         tokenPriceETH = sqrtPriceX96ToTokenPrices(sqrtPriceX96, token0, token1)[0]
-        log.info('test111 getPriceETH() token0 = tokenAddress: {}, {}, {}', [token0.toHexString(), token1.toHexString(), tokenPriceETH.toString()])
       }
       largestLiquidity = liquidity.value
     }
   }
-  log.info('test111 getPriceETH() return tokenPriceETH: {}, {}, {}', [tokenAddress.toHexString(), wethAddress.toHexString(), tokenPriceETH.toString()])
 
   return tokenPriceETH
 }
