@@ -1,21 +1,44 @@
-# DotoliFund Factory
-type Factory @entity {
-  # factory address
+# DotoliSetting
+type Setting @entity {
+  # DotoliSetting address
+  id: Bytes!
+  # manager fee ratio
+  managerFee: BigInt!
+  # minimum ETH value of token + ETH pool to be whitelist token
+  minPoolAmount: BigInt!
+  # owner of the DotoliSetting contract
+  owner: Bytes!
+}
+
+# DotoliInfo
+type Info @entity {
+  # DotoliInfo address
   id: Bytes!
   # amount of funds created
   fundCount: BigInt!
   # amount of investor
   investorCount: BigInt!
-  # manager fee ratio
-  managerFee: BigInt!
-  # minimum ETH value of token + ETH pool to be whitelist token
-  minPoolAmount: BigInt!
   # all fund's ETH value of the token held by the contract
   totalCurrentETH: BigDecimal!
   # all fund's USD value of the token held by the contract
   totalCurrentUSD: BigDecimal!
-  # owner of the factory
+  # owner of the DotoliInfo contract
   owner: Bytes!
+}
+
+type WhiteListToken @entity {
+  # token address
+  id: Bytes!
+  # token address
+  address: Bytes!
+  # token decimals
+  decimals: BigInt!
+  # token symbol
+  symbol: String!
+  # creation
+  updatedTimestamp: BigInt!
+  # true : added, false : removed
+  isWhiteListToken: Boolean!
 }
 
 type Fund @entity {
@@ -88,21 +111,6 @@ type Investor @entity {
   profitUSD: BigDecimal!
   # profit ratio
   profitRatio: BigDecimal!
-}
-
-type Token @entity {
-  # token address
-  id: Bytes!
-  # token address
-  address: Bytes!
-  # token decimals
-  decimals: BigInt!
-  # token symbol
-  symbol: String!
-  # creation
-  updatedTimestamp: BigInt!
-  # true : added, false : removed
-  active: Boolean!
 }
 
 type Subscribe @entity {
@@ -330,8 +338,8 @@ type DecreaseLiquidity @entity {
   amountUSD: BigDecimal!
 }
 
-# daily stats tracker for DotoliFund Factory
-type FactorySnapshot @entity {
+# daily stats tracker for DotoliInfo
+type InfoSnapshot @entity {
   # txn hash
   id: ID!
   # date

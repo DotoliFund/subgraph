@@ -1,42 +1,41 @@
 /* eslint-disable prefer-const */
 import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
 import {
-  Factory,
-  FactorySnapshot,
+  Info,
+  InfoSnapshot,
   Fund,
   FundSnapshot,
   Investor,
   InvestorSnapshot,
 } from '../types/schema'
 import { getInvestorID } from './investor'
-import { DOTOLI_FACTORY_ADDRESS, DOTOLI_FUND_ADDRESS, LIQUIDITY_ROUTER_ADDRESS, ONE_BD, ONE_BI, ZERO_BD } from './constants'
+import { DOTOLI_INFO_ADDRESS, LIQUIDITY_ORACLE_ADDRESS, ONE_BI, ZERO_BD } from './constants'
 import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
-import { DotoliFund } from '../types/DotoliFund/DotoliFund'
-import { LiquidityRouter } from '../types/DotoliFund/LiquidityRouter'
-import { ERC20 } from '../types/DotoliFund/ERC20'
+import { LiquidityOracle } from '../types/DotoliFund/LiquidityOracle'
 import { getTokenPriceETH } from './pricing'
 import { fetchTokenSymbol, fetchTokenDecimals } from '../utils/token'
 import { exponentToBigDecimal } from "../utils"
+import { DotoliInfo } from "../types/DotoliInfo/DotoliInfo"
 
 
-export function factorySnapshot(event: ethereum.Event): void {
-  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
-  if (!factory) return 
+export function infoSnapshot(event: ethereum.Event): void {
+  let info = Info.load(Bytes.fromHexString(DOTOLI_INFO_ADDRESS))
+  if (!info) return 
 
   let timestamp = event.block.timestamp.toI32()
   let dayID = timestamp / 86400 // rounded
   let dayStartTimestamp = dayID * 86400
   
-  let factorySnapshot = FactorySnapshot.load(dayID.toString())
-  if (factorySnapshot === null) {
-    factorySnapshot = new FactorySnapshot(dayID.toString())
+  let infoSnapshot = InfoSnapshot.load(dayID.toString())
+  if (infoSnapshot === null) {
+    infoSnapshot = new InfoSnapshot(dayID.toString())
   }
-  factorySnapshot.date = dayStartTimestamp
-  factorySnapshot.fundCount = factory.fundCount
-  factorySnapshot.investorCount = factory.investorCount
-  factorySnapshot.totalCurrentETH = factory.totalCurrentETH
-  factorySnapshot.totalCurrentUSD = factory.totalCurrentUSD
-  factorySnapshot.save()
+  infoSnapshot.date = dayStartTimestamp
+  infoSnapshot.fundCount = info.fundCount
+  infoSnapshot.investorCount = info.investorCount
+  infoSnapshot.totalCurrentETH = info.totalCurrentETH
+  infoSnapshot.totalCurrentUSD = info.totalCurrentUSD
+  infoSnapshot.save()
 }
 
 export function fundSnapshot(
@@ -56,7 +55,7 @@ export function fundSnapshot(
   const currentTokensAmountUSD: BigDecimal[] = []
 
   for (let i=0; i<currentTokens.length; i++) {
-    const amount = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS)).getFundTokenAmount(fundId, Address.fromBytes(currentTokens[i]))
+    const amount = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS)).getFundTokenAmount(fundId, Address.fromBytes(currentTokens[i]))
     const decimals = fetchTokenDecimals(Address.fromBytes(currentTokens[i]))
     if (decimals === null) {
       log.debug('the decimals on {} token was null', [currentTokens[i].toHexString()])
@@ -166,8 +165,8 @@ export function investorSnapshot(
 
   // 3. get pool token USD
   let tokenIds: BigInt[] = []
-  const dotolifund = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
-  const investorTokenIds = dotolifund.getTokenIds(fundId, Address.fromBytes(investorAddress))
+  const dotoliInfo = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS))
+  const investorTokenIds = dotoliInfo.getTokenIds(fundId, Address.fromBytes(investorAddress))
   for (let i=0; i<investorTokenIds.length; i++) {
     const tokenId = investorTokenIds[i]
     tokenIds.push(tokenId)    
@@ -175,7 +174,7 @@ export function investorSnapshot(
   
   let poolETH: BigDecimal = ZERO_BD
   let poolUSD: BigDecimal = ZERO_BD
-  const liquidityRouter = LiquidityRouter.bind(Address.fromString(LIQUIDITY_ROUTER_ADDRESS))
+  const liquidityRouter = LiquidityOracle.bind(Address.fromString(LIQUIDITY_ORACLE_ADDRESS))
   for (let i=0; i<tokenIds.length; i++) {
     const poolTokens = liquidityRouter.getPositionTokenAmount(tokenIds[i])
     

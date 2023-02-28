@@ -3,22 +3,17 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_factory",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_weth9",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_swapRouter",
+        "name": "_setting",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_liquidityRouter",
+        "name": "_info",
         "type": "address"
       }
     ],
@@ -185,25 +180,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "FundCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "fundId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "investor",
         "type": "address"
       },
@@ -276,25 +252,6 @@
       }
     ],
     "name": "MintNewPosition",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "fundId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "investor",
-        "type": "address"
-      }
-    ],
-    "name": "Subscribe",
     "type": "event"
   },
   {
@@ -415,17 +372,12 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "fundId",
+        "type": "uint256"
+      },
+      {
         "components": [
-          {
-            "internalType": "uint256",
-            "name": "fundId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "investor",
-            "type": "address"
-          },
           {
             "internalType": "uint256",
             "name": "tokenId",
@@ -442,7 +394,7 @@
             "type": "uint128"
           }
         ],
-        "internalType": "struct ILiquidityRouter.CollectParams",
+        "internalType": "struct IDotoliFund.CollectParams",
         "name": "_params",
         "type": "tuple"
       }
@@ -464,32 +416,14 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "createFund",
-    "outputs": [
+    "inputs": [
       {
         "internalType": "uint256",
         "name": "fundId",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "components": [
-          {
-            "internalType": "uint256",
-            "name": "fundId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "investor",
-            "type": "address"
-          },
           {
             "internalType": "uint256",
             "name": "tokenId",
@@ -516,7 +450,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ILiquidityRouter.DecreaseParams",
+        "internalType": "struct IDotoliFund.DecreaseLiquidityParams",
         "name": "_params",
         "type": "tuple"
       }
@@ -561,278 +495,14 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "factory",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "feeTokens",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "tokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "fundIdCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "fundTokens",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "tokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
         "name": "fundId",
         "type": "uint256"
-      }
-    ],
-    "name": "getFeeTokens",
-    "outputs": [
+      },
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "tokenAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IToken.Token[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "fundId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "getFundTokenAmount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "fundId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getFundTokens",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "tokenAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IToken.Token[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "fundId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "investor",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "getInvestorTokenAmount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "fundId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "investor",
-        "type": "address"
-      }
-    ],
-    "name": "getInvestorTokens",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "tokenAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IToken.Token[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "fundId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "investor",
-        "type": "address"
-      }
-    ],
-    "name": "getTokenIds",
-    "outputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "_tokenIds",
-        "type": "uint256[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "fundId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "investor",
-            "type": "address"
-          },
           {
             "internalType": "uint256",
             "name": "tokenId",
@@ -864,7 +534,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ILiquidityRouter.IncreaseParams",
+        "internalType": "struct IDotoliFund.IncreaseLiquidityParams",
         "name": "_params",
         "type": "tuple"
       }
@@ -891,43 +561,13 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "info",
+    "outputs": [
       {
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "name": "investingFundCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "investingFunds",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -937,144 +577,16 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "investorCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
+        "name": "fundId",
         "type": "uint256"
       },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "investorTokens",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "tokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
       {
         "internalType": "address",
         "name": "investor",
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "fundId",
-        "type": "uint256"
-      }
-    ],
-    "name": "isSubscribed",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "liquidityRouter",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "manager",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "managingFund",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "components": [
-          {
-            "internalType": "uint256",
-            "name": "fundId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "investor",
-            "type": "address"
-          },
           {
             "internalType": "address",
             "name": "token0",
@@ -1126,7 +638,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ILiquidityRouter.MintParams",
+        "internalType": "struct IDotoliFund.MintParams",
         "name": "_params",
         "type": "tuple"
       }
@@ -1158,32 +670,26 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "fundId",
-        "type": "uint256"
-      }
-    ],
-    "name": "subscribe",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+    "inputs": [],
+    "name": "nonfungiblePositionManager",
+    "outputs": [
       {
         "internalType": "address",
-        "name": "investor",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "subscribedFunds",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "setting",
     "outputs": [
       {
-        "internalType": "uint256[]",
+        "internalType": "address",
         "name": "",
-        "type": "uint256[]"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -1204,7 +710,7 @@
       {
         "components": [
           {
-            "internalType": "enum ISwapRouter.SwapType",
+            "internalType": "enum IDotoliFund.SwapType",
             "name": "swapType",
             "type": "uint8"
           },
@@ -1254,7 +760,7 @@
             "type": "bytes"
           }
         ],
-        "internalType": "struct ISwapRouter.SwapParams[]",
+        "internalType": "struct IDotoliFund.SwapParams[]",
         "name": "trades",
         "type": "tuple[]"
       }
@@ -1272,54 +778,6 @@
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "tokenIdOwner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "tokenIds",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",

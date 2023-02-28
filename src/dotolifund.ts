@@ -1,7 +1,5 @@
-import { BigDecimal, Address, Bytes, BigInt, log } from "@graphprotocol/graph-ts"
+import { Address, BigInt, log } from "@graphprotocol/graph-ts"
 import {
-  FundCreated as FundCreatedEvent,
-  Subscribe as SubscribeEvent,
   Deposit as DepositEvent,
   Withdraw as WithdrawEvent,
   Swap as SwapEvent,
@@ -12,10 +10,7 @@ import {
   DecreaseLiquidity as DecreaseLiquidityEvent
 } from './types/DotoliFund/DotoliFund'
 import {
-  Factory,
   Fund,
-  Investor,
-  Subscribe,
   Deposit,
   Withdraw,
   Swap,
@@ -30,16 +25,13 @@ import {
   TYPE_WITHDRAW, 
   TYPE_NORMAL, 
   ZERO_BD,
-  ONE_BI,
-  DOTOLI_FACTORY_ADDRESS,
-  DOTOLI_FUND_ADDRESS,
-  ZERO_BI,
+  DOTOLI_INFO_ADDRESS,
 } from './utils/constants'
 import { updateUpdatedAtTime, exponentToBigDecimal } from "./utils"
 import { 
   fundSnapshot,
   investorSnapshot,
-  factorySnapshot
+  infoSnapshot
 } from './utils/snapshots'
 import {
   updateFundCurrent,
@@ -50,129 +42,18 @@ import {
 import {
   updateInvestor,
   updateInvestorProfit,
-  getInvestorID
 } from "./utils/investor"
 import { 
   getEthPriceInUSD,
   getTokenPriceETH,
 } from './utils/pricing'
 import { fetchTokenSymbol, fetchTokenDecimals } from './utils/token'
-import { DotoliFund } from "./types/DotoliFund/DotoliFund"
+import { DotoliInfo } from "./types/DotoliInfo/DotoliInfo"
 
-
-export function handleFundCreated(event: FundCreatedEvent): void {
-  let fund = new Fund(event.params.fundId.toString())
-  fund.fundId = event.params.fundId.toString()
-  fund.createdAtTimestamp = event.block.timestamp
-  fund.updatedAtTimestamp = event.block.timestamp
-  fund.manager = event.params.manager
-  fund.investorCount = ONE_BI
-  fund.currentETH = ZERO_BD
-  fund.currentUSD = ZERO_BD
-  fund.feeTokens = []
-  fund.feeSymbols = []
-  fund.feeTokensAmount = []
-  fund.currentTokens = []
-  fund.currentTokensSymbols = []
-  fund.currentTokensDecimals = []
-  fund.currentTokensAmount = []
-
-  const investorID = getInvestorID(event.params.fundId, event.params.manager)
-  let investor = Investor.load(investorID)
-  if (investor === null) {
-    investor = new Investor(investorID)
-    investor.createdAtTimestamp = event.block.timestamp
-    investor.updatedAtTimestamp = event.block.timestamp
-    investor.fundId = event.params.fundId.toString()
-    investor.investor = event.params.manager
-    investor.isManager = true
-    investor.snapshotCount = ZERO_BI
-    investor.principalETH = ZERO_BD
-    investor.principalUSD = ZERO_BD
-    investor.currentETH = ZERO_BD
-    investor.currentUSD = ZERO_BD
-    investor.currentTokens = []
-    investor.currentTokensSymbols = []
-    investor.currentTokensDecimals = []
-    investor.currentTokensAmount = []
-    investor.profitETH = ZERO_BD
-    investor.profitUSD = ZERO_BD
-    investor.profitRatio = ZERO_BD
-  }
-
-  fund.updatedAtTimestamp = event.block.timestamp
-  investor.updatedAtTimestamp = event.block.timestamp
-  investor.save()
-  fund.save()
-
-  const ethPriceInUSD = getEthPriceInUSD()
-  investorSnapshot(event.params.fundId, event.params.manager, event.params.manager, ethPriceInUSD, event)
-  fundSnapshot(event.params.fundId, event.params.manager, event, ethPriceInUSD)
-  factorySnapshot(event)
-}
-
-export function handleSubscribe(event: SubscribeEvent): void {
-  let factory = Factory.load(Bytes.fromHexString(DOTOLI_FACTORY_ADDRESS))
-  if (!factory) return
-
-  factory.investorCount = factory.investorCount.plus(ONE_BI)
-
-  const fundId = event.params.fundId
-  let fund = Fund.load(fundId.toString())
-  if (fund !== null) {
-    fund.investorCount = fund.investorCount.plus(ONE_BI)
-
-    const subscribeID = 
-    fundId.toString()
-      + '-'
-      + event.params.investor.toHexString().toUpperCase()
-    let subscribe = new Subscribe(subscribeID)
-    subscribe.timestamp = event.block.timestamp
-    subscribe.hash = event.transaction.hash
-    subscribe.fundId = fundId.toString()
-    subscribe.investor = event.params.investor
-    subscribe.save()
-
-    const investorID = getInvestorID(fundId, event.params.investor)
-    let investor = Investor.load(investorID)
-    if (investor === null) {
-      investor = new Investor(investorID)
-      investor.createdAtTimestamp = event.block.timestamp
-      investor.updatedAtTimestamp = event.block.timestamp
-      investor.fundId = fundId.toString()
-      investor.investor = event.params.investor
-      investor.isManager = false
-      investor.principalETH = ZERO_BD
-      investor.principalUSD = ZERO_BD
-      investor.currentETH = ZERO_BD
-      investor.currentUSD = ZERO_BD
-      investor.currentTokens = []
-      investor.currentTokensSymbols = []
-      investor.currentTokensDecimals = []
-      investor.currentTokensAmount = []
-      investor.profitETH = ZERO_BD
-      investor.profitUSD = ZERO_BD
-      investor.profitRatio = ZERO_BD  
-    }
-
-    fund.updatedAtTimestamp = event.block.timestamp
-    investor.updatedAtTimestamp = event.block.timestamp
-    investor.save()
-    fund.save()
-    factory.save()
-
-    const ethPriceInUSD = getEthPriceInUSD()
-    const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
-      .manager(fundId)
-    investorSnapshot(fundId, managerAddress, event.params.investor, ethPriceInUSD, event)
-    fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
-    factorySnapshot(event)
-  }
-}
 
 export function handleDeposit(event: DepositEvent): void {
   const fundId = event.params.fundId
-  const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
+  const managerAddress = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS))
     .manager(fundId)
   
   let deposit = new Deposit(event.transaction.hash.toHexString())
@@ -219,12 +100,12 @@ export function handleDeposit(event: DepositEvent): void {
 
   investorSnapshot(fundId, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
-  factorySnapshot(event)
+  infoSnapshot(event)
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
   const fundId = event.params.fundId
-  const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
+  const managerAddress = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS))
     .manager(fundId)
 
   let withdraw = new Withdraw(event.transaction.hash.toHexString())
@@ -265,12 +146,12 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   investorSnapshot(fundId, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
-  factorySnapshot(event)
+  infoSnapshot(event)
 }
 
 export function handleSwap(event: SwapEvent): void {
   const fundId = event.params.fundId
-  const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
+  const managerAddress = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS))
     .manager(fundId)
 
   const tokenIn = event.params.tokenIn.toHexString()
@@ -324,12 +205,12 @@ export function handleSwap(event: SwapEvent): void {
 
   investorSnapshot(fundId, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
-  factorySnapshot(event)
+  infoSnapshot(event)
 }
 
 export function handleWithdrawFee(event: WithdrawFeeEvent): void {
   const fundId = event.params.fundId
-  const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
+  const managerAddress = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS))
     .manager(fundId)
 
   let withdrawFee = new WithdrawFee(event.transaction.hash.toHexString())
@@ -363,12 +244,12 @@ export function handleWithdrawFee(event: WithdrawFeeEvent): void {
   fund.save()
 
   fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
-  factorySnapshot(event)
+  infoSnapshot(event)
 }
 
 export function handleMintNewPosition(event: MintNewPositionEvent): void {
   const fundId = event.params.fundId
-  const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
+  const managerAddress = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS))
     .manager(fundId)
 
   const token0 = event.params.token0.toHexString()
@@ -417,12 +298,12 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
 
   investorSnapshot(fundId, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
-  factorySnapshot(event)
+  infoSnapshot(event)
 }
 
 export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   const fundId = event.params.fundId
-  const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
+  const managerAddress = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS))
     .manager(fundId)
 
   const token0 = event.params.token0.toHexString()
@@ -471,12 +352,12 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
 
   investorSnapshot(fundId, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
-  factorySnapshot(event)
+  infoSnapshot(event)
 }
 
 export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   const fundId = event.params.fundId
-  const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
+  const managerAddress = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS))
     .manager(fundId)
 
   const token0 = event.params.token0.toHexString()
@@ -525,12 +406,12 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
 
   investorSnapshot(fundId, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
-  factorySnapshot(event)
+  infoSnapshot(event)
 }
 
 export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   const fundId = event.params.fundId
-  const managerAddress = DotoliFund.bind(Address.fromString(DOTOLI_FUND_ADDRESS))
+  const managerAddress = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS))
     .manager(fundId)
 
   const token0 = event.params.token0.toHexString()
@@ -579,5 +460,5 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
 
   investorSnapshot(fundId, managerAddress, event.params.investor, ethPriceInUSD, event)
   fundSnapshot(fundId, managerAddress, event, ethPriceInUSD)
-  factorySnapshot(event)
+  infoSnapshot(event)
 }

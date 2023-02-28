@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import { BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
-import { DotoliFactory as FactoryContract } from '../types/DotoliFactory/DotoliFactory'
+import { DotoliSetting as SettingContract } from '../types/DotoliSetting/DotoliSetting'
 
 // //mainnet
 // export const WETH9 = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
@@ -18,9 +18,10 @@ export const USDC = '0x07865c6E87B9F70255377e024ace6630C1Eaa37F'
 // export const UNI = '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984'
 export const DTL = '0x7ef721d1B2D9c46A271d6796CdADE5beE2ed6978'
 
-export const DOTOLI_FACTORY_ADDRESS = '0x5F9f8177932673e8e8544a97d1c4D75A87660924'
+export const DOTOLI_SETTING_ADDRESS = '0x5F9f8177932673e8e8544a97d1c4D75A87660924'
+export const DOTOLI_INFO_ADDRESS = '0x5F9f8177932673e8e8544a97d1c4D75A87660924'
 export const DOTOLI_FUND_ADDRESS = '0xB46bC4f4B43eA7043f1c6897aD1C77cB07Ef0dBF'
-export const LIQUIDITY_ROUTER_ADDRESS = '0x2a0aEfAFbc005bb64Bf4f9Ffae0B9D976C3D057A'
+export const LIQUIDITY_ORACLE_ADDRESS = '0x2a0aEfAFbc005bb64Bf4f9Ffae0B9D976C3D057A'
 export const UNISWAP_V3_FACTORY = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export const DECIMAL_18 = '1000000000000000000'
@@ -41,4 +42,4 @@ export let BI_18 = BigInt.fromI32(18)
 export const WETH_DECIMAL = BigDecimal.fromString(DECIMAL_18)
 export const USDC_DECIMAL = BigDecimal.fromString(DECIMAL_6)
 
-export let factoryContract = FactoryContract.bind(Address.fromString(DOTOLI_FACTORY_ADDRESS))
+export let settingContract = SettingContract.bind(Address.fromString(DOTOLI_SETTING_ADDRESS))
