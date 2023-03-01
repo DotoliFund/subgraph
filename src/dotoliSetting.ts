@@ -67,17 +67,17 @@ export function handleOwnerChanged(event: OwnerChanged): void {
 }
 
 export function handleMinPoolAmountChanged(event: MinPoolAmountChanged): void {
-  let factory = Setting.load(Bytes.fromHexString(DOTOLI_SETTING_ADDRESS))
-  if (!factory) return
-  factory.minPoolAmount = event.params.amount
-  factory.save()
+  let setting = Setting.load(Bytes.fromHexString(DOTOLI_SETTING_ADDRESS))
+  if (!setting) return
+  setting.minPoolAmount = event.params.amount
+  setting.save()
 }
 
 export function handleManagerFeeChanged(event: ManagerFeeChanged): void {
-  let factory = Setting.load(Bytes.fromHexString(DOTOLI_SETTING_ADDRESS))
-  if (!factory) return
-  factory.managerFee = event.params.managerFee
-  factory.save()
+  let setting = Setting.load(Bytes.fromHexString(DOTOLI_SETTING_ADDRESS))
+  if (!setting) return
+  setting.managerFee = event.params.managerFee
+  setting.save()
 }
 
 export function handleWhiteListTokenAdded(event: WhiteListTokenAdded): void {

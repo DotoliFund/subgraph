@@ -15,6 +15,7 @@ import {
 import {
   DOTOLI_INFO_ADDRESS,
   ZERO_BD,
+  ZERO_BI,
   ONE_BI,
   ADDRESS_ZERO,
 } from './utils/constants'
@@ -44,19 +45,6 @@ export function handleInfoCreated(event: InfoCreated): void {
   }
 }
 
-export function handleFundCreated(event: FundCreated): void {
-  let info = Info.load(Bytes.fromHexString(DOTOLI_INFO_ADDRESS))
-  if (info === null) {
-    info = new Info(Bytes.fromHexString(DOTOLI_INFO_ADDRESS))
-    info.fundCount = ONE_BI
-    info.investorCount = ONE_BI
-    info.totalCurrentETH = ZERO_BD
-    info.totalCurrentUSD = ZERO_BD
-    info.owner = Address.fromString(ADDRESS_ZERO)
-    info.save()
-  }
-}
-
 export function handleOwnerChanged(event: OwnerChanged): void {
   let info = Info.load(Bytes.fromHexString(DOTOLI_INFO_ADDRESS))
   if (!info) return
@@ -65,6 +53,56 @@ export function handleOwnerChanged(event: OwnerChanged): void {
   infoSnapshot(event)
 }
 
+export function handleFundCreated(event: FundCreated): void {
+  let fund = new Fund(event.params.fundId.toString())
+  fund.fundId = event.params.fundId.toString()
+  fund.createdAtTimestamp = event.block.timestamp
+  fund.updatedAtTimestamp = event.block.timestamp
+  fund.manager = event.params.manager
+  fund.investorCount = ONE_BI
+  fund.currentETH = ZERO_BD
+  fund.currentUSD = ZERO_BD
+  fund.feeTokens = []
+  fund.feeSymbols = []
+  fund.feeTokensAmount = []
+  fund.currentTokens = []
+  fund.currentTokensSymbols = []
+  fund.currentTokensDecimals = []
+  fund.currentTokensAmount = []
+
+  const investorID = getInvestorID(event.params.fundId, event.params.manager)
+  let investor = Investor.load(investorID)
+  if (investor === null) {
+    investor = new Investor(investorID)
+    investor.createdAtTimestamp = event.block.timestamp
+    investor.updatedAtTimestamp = event.block.timestamp
+    investor.fundId = event.params.fundId.toString()
+    investor.investor = event.params.manager
+    investor.isManager = true
+    investor.snapshotCount = ZERO_BI
+    investor.principalETH = ZERO_BD
+    investor.principalUSD = ZERO_BD
+    investor.currentETH = ZERO_BD
+    investor.currentUSD = ZERO_BD
+    investor.currentTokens = []
+    investor.currentTokensSymbols = []
+    investor.currentTokensDecimals = []
+    investor.currentTokensAmount = []
+    investor.profitETH = ZERO_BD
+    investor.profitUSD = ZERO_BD
+    investor.profitRatio = ZERO_BD
+  }
+
+  fund.updatedAtTimestamp = event.block.timestamp
+  investor.updatedAtTimestamp = event.block.timestamp
+  investor.save()
+  fund.save()
+
+  const ethPriceInUSD = getEthPriceInUSD()
+  investorSnapshot(event.params.fundId, event.params.manager, event.params.manager, ethPriceInUSD, event)
+  fundSnapshot(event.params.fundId, event.params.manager, event, ethPriceInUSD)
+  infoSnapshot(event)
+}
 
 export function handleSubscribe(event: SubscribeEvent): void {
   let info = Info.load(Bytes.fromHexString(DOTOLI_INFO_ADDRESS))
