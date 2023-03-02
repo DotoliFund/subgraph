@@ -135,6 +135,7 @@ export function handleSubscribe(event: SubscribeEvent): void {
       investor.fundId = fundId.toString()
       investor.investor = event.params.investor
       investor.isManager = false
+      investor.snapshotCount = ZERO_BI
       investor.principalETH = ZERO_BD
       investor.principalUSD = ZERO_BD
       investor.currentETH = ZERO_BD
