@@ -6,7 +6,7 @@ dataSources:
     name: DotoliSetting
     network: goerli
     source:
-      address: "0x883271c9ae70Ef10DDB303f4CEec6d98471F8F59"
+      address: "0x432133213D0D5E9d3083Fca127D0eAb2bf481059"
       abi: DotoliSetting
     mapping:
       kind: ethereum/events
@@ -39,7 +39,7 @@ dataSources:
     name: DotoliInfo
     network: goerli
     source:
-      address: "0x6d1458a0F26cE53e62e0f2772185132BFD672f48"
+      address: "0x23fb826249bA2b673A5E22c00dAF1c0cCc874C52"
       abi: DotoliInfo
     mapping:
       kind: ethereum/events
@@ -71,7 +71,7 @@ dataSources:
     name: DotoliFund
     network: goerli
     source:
-      address: "0xac0701e051542048d24e66ec24C252B1131AFC1d"
+      address: "0x9Fdd250C0136bE83828ef59C7f6875682902F36a"
       abi: DotoliFund
     mapping:
       kind: ethereum/events
