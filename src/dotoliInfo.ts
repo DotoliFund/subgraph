@@ -18,6 +18,7 @@ import {
   ZERO_BI,
   ONE_BI,
   ADDRESS_ZERO,
+  ONE_BD,
 } from './utils/constants'
 import {
   getInvestorID
@@ -36,8 +37,8 @@ export function handleInfoCreated(event: InfoCreated): void {
   let info = Info.load(Bytes.fromHexString(DOTOLI_INFO_ADDRESS))
   if (info === null) {
     info = new Info(Bytes.fromHexString(DOTOLI_INFO_ADDRESS))
-    info.fundCount = ONE_BI
-    info.investorCount = ONE_BI
+    info.fundCount = ZERO_BI
+    info.investorCount = ZERO_BI
     info.totalCurrentETH = ZERO_BD
     info.totalCurrentUSD = ZERO_BD
     info.owner = Address.fromString(ADDRESS_ZERO)
@@ -54,6 +55,12 @@ export function handleOwnerChanged(event: OwnerChanged): void {
 }
 
 export function handleFundCreated(event: FundCreated): void {
+  let info = Info.load(Bytes.fromHexString(DOTOLI_INFO_ADDRESS))
+  if (!info) return
+  info.fundCount = info.fundCount.plus(ONE_BI)
+  info.investorCount = info.investorCount.plus(ONE_BI)
+  info.save()
+
   let fund = new Fund(event.params.fundId.toString())
   fund.fundId = event.params.fundId.toString()
   fund.createdAtTimestamp = event.block.timestamp
@@ -69,6 +76,8 @@ export function handleFundCreated(event: FundCreated): void {
   fund.currentTokensSymbols = []
   fund.currentTokensDecimals = []
   fund.currentTokensAmount = []
+  fund.updatedAtTimestamp = event.block.timestamp
+  fund.save()
 
   const investorID = getInvestorID(event.params.fundId, event.params.manager)
   let investor = Investor.load(investorID)
@@ -91,17 +100,14 @@ export function handleFundCreated(event: FundCreated): void {
     investor.profitETH = ZERO_BD
     investor.profitUSD = ZERO_BD
     investor.profitRatio = ZERO_BD
+    investor.updatedAtTimestamp = event.block.timestamp
   }
-
-  fund.updatedAtTimestamp = event.block.timestamp
-  investor.updatedAtTimestamp = event.block.timestamp
   investor.save()
-  fund.save()
 
   const ethPriceInUSD = getEthPriceInUSD()
-  investorSnapshot(event.params.fundId, event.params.manager, event.params.manager, ethPriceInUSD, event)
-  fundSnapshot(event.params.fundId, event.params.manager, event, ethPriceInUSD)
   infoSnapshot(event)
+  fundSnapshot(event.params.fundId, event.params.manager, event, ethPriceInUSD)
+  investorSnapshot(event.params.fundId, event.params.manager, event.params.manager, ethPriceInUSD, event)
 }
 
 export function handleSubscribe(event: SubscribeEvent): void {
