@@ -24,13 +24,12 @@ export function infoSnapshot(event: ethereum.Event): void {
 
   let timestamp = event.block.timestamp.toI32()
   let dayID = timestamp / 86400 // rounded
-  let dayStartTimestamp = dayID * 86400
   
   let infoSnapshot = InfoSnapshot.load(dayID.toString())
   if (infoSnapshot === null) {
     infoSnapshot = new InfoSnapshot(dayID.toString())
   }
-  infoSnapshot.date = dayStartTimestamp
+  infoSnapshot.date = timestamp
   infoSnapshot.fundCount = info.fundCount
   infoSnapshot.investorCount = info.investorCount
   infoSnapshot.totalCurrentETH = info.totalCurrentETH
@@ -73,13 +72,11 @@ export function fundSnapshot(
     currentTokensAmountUSD.push(amountUSD)
   }
   
-  let timestamp = event.block.timestamp
-  let fundTimeID = fundId.toString()
-    .concat('-').concat(timestamp.toString())
-    
-  let fundSnapshot = FundSnapshot.load(fundTimeID)
-  fundSnapshot = new FundSnapshot(fundTimeID)
-  fundSnapshot.timestamp = timestamp
+  let dayID = event.block.timestamp.toI32() / 86400 // rounded
+
+  let fundSnapshot = FundSnapshot.load(dayID.toString())
+  fundSnapshot = new FundSnapshot(dayID.toString())
+  fundSnapshot.timestamp = event.block.timestamp
   fundSnapshot.fundId = fundId.toString()
   fundSnapshot.manager = managerAddress
   fundSnapshot.investorCount = fund.investorCount
@@ -115,13 +112,11 @@ export function investorSnapshot(
   investor.snapshotCount = snapshotCount
   investor.save()
 
-  let timestamp = event.block.timestamp
-  let investorSnapshotID = investorAddress.toHexString()
-    .concat('-').concat(snapshotCount.toString())
+  let dayID = event.block.timestamp.toI32() / 86400 // rounded
 
-  let investorSnapshot = InvestorSnapshot.load(investorSnapshotID)
-  investorSnapshot = new InvestorSnapshot(investorSnapshotID)
-  investorSnapshot.timestamp = timestamp
+  let investorSnapshot = InvestorSnapshot.load(dayID.toString())
+  investorSnapshot = new InvestorSnapshot(dayID.toString())
+  investorSnapshot.timestamp = event.block.timestamp
   investorSnapshot.fundId = fundId.toString()
   investorSnapshot.manager = managerAddress
   investorSnapshot.investor = investorAddress
