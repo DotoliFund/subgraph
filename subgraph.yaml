@@ -2,39 +2,28 @@ specVersion: 0.0.4
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum
-    name: DotoliFactory
+  - kind: ethereum/contract
+    name: DotoliSetting
     network: goerli
     source:
-      address: "0xD17d0A17BAe5941b81aEE173f2575e5D69450fe0"
-      abi: DotoliFactory
+      address: "0x432133213D0D5E9d3083Fca127D0eAb2bf481059"
+      abi: DotoliSetting
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Factory
-        - Fund
-        - Token
+        - Setting
+        - WhiteListToken
       abis:
-        - name: DotoliFactory
-          file: ./abis/DotoliFactory.json
-        - name: DotoliFund
-          file: ./abis/DotoliFund.json
-        - name: UniswapV3Factory
-          file: ./abis/UniswapV3Factory.json
-        - name: UniswapV3Pool
-          file: ./abis/UniswapV3Pool.json
+        - name: DotoliSetting
+          file: ./abis/DotoliSetting.json
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
-        - event: FactoryCreated()
-          handler: handleFactoryCreated
-        - event: FundCreated(indexed address,indexed address)
-          handler: handleFundCreated
-        - event: Subscribe(indexed address,indexed address,indexed address)
-          handler: handleSubscribe
-        - event: OwnerChanged(indexed address,indexed address)
+        - event: SettingCreated()
+          handler: handleSettingCreated
+        - event: OwnerChanged(address,address)
           handler: handleOwnerChanged
         - event: MinPoolAmountChanged(uint256)
           handler: handleMinPoolAmountChanged
@@ -44,12 +33,45 @@ dataSources:
           handler: handleWhiteListTokenAdded
         - event: WhiteListTokenRemoved(indexed address)
           handler: handleWhiteListTokenRemoved
-      file: ./src/dotolifactory.ts
-templates:
-  - kind: ethereum
+      file: ./src/dotoliSetting.ts
+
+  - kind: ethereum/contract
+    name: DotoliInfo
+    network: goerli
+    source:
+      address: "0x23fb826249bA2b673A5E22c00dAF1c0cCc874C52"
+      abi: DotoliInfo
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Info
+      abis:
+        - name: DotoliInfo
+          file: ./abis/DotoliInfo.json
+        - name: UniswapV3Factory
+          file: ./abis/UniswapV3Factory.json
+        - name: UniswapV3Pool
+          file: ./abis/UniswapV3Pool.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: InfoCreated()
+          handler: handleInfoCreated
+        - event: OwnerChanged(address,address)
+          handler: handleOwnerChanged
+        - event: FundCreated(uint256,indexed address)
+          handler: handleFundCreated
+        - event: Subscribe(uint256,indexed address)
+          handler: handleSubscribe
+      file: ./src/dotoliInfo.ts
+
+  - kind: ethereum/contract
     name: DotoliFund
     network: goerli
     source:
+      address: "0x9Fdd250C0136bE83828ef59C7f6875682902F36a"
       abi: DotoliFund
     mapping:
       kind: ethereum/events
@@ -61,29 +83,31 @@ templates:
       abis:
         - name: DotoliFund
           file: ./abis/DotoliFund.json
+        - name: DotoliInfo
+          file: ./abis/DotoliInfo.json
         - name: LiquidityOracle
           file: ./abis/LiquidityOracle.json
-        - name: ERC20
-          file: ./abis/ERC20.json
         - name: UniswapV3Factory
           file: ./abis/UniswapV3Factory.json
         - name: UniswapV3Pool
           file: ./abis/UniswapV3Pool.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
-        - event: ManagerFeeOut(address,uint256)
-          handler: handleManagerFeeOut
-        - event: Deposit(indexed address,address,uint256)
+        - event: Deposit(uint256,indexed address,address,uint256)
           handler: handleDeposit
-        - event: Withdraw(indexed address,address,uint256,uint256)
+        - event: Withdraw(uint256,indexed address,address,uint256,uint256)
           handler: handleWithdraw
-        - event: Swap(indexed address,address,address,uint256,uint256)
+        - event: Swap(uint256,indexed address,address,address,uint256,uint256)
           handler: handleSwap
-        - event: MintNewPosition(indexed address,address,address,uint256,uint256)
+        - event: WithdrawFee(uint256,indexed address,address,uint256)
+          handler: handleWithdrawFee
+        - event: MintNewPosition(uint256,indexed address,address,address,uint256,uint256)
           handler: handleMintNewPosition
-        - event: IncreaseLiquidity(indexed address,address,address,uint256,uint256)
+        - event: IncreaseLiquidity(uint256,indexed address,address,address,uint256,uint256)
           handler: handleIncreaseLiquidity
-        - event: CollectPositionFee(indexed address,address,address,uint256,uint256)
+        - event: CollectPositionFee(uint256,indexed address,address,address,uint256,uint256)
           handler: handleCollectPositionFee
-        - event: DecreaseLiquidity(indexed address,address,address,uint256,uint256)
+        - event: DecreaseLiquidity(uint256,indexed address,address,address,uint256,uint256)
           handler: handleDecreaseLiquidity
-      file: ./src/dotolifund.ts
+      file: ./src/dotoliFund.ts

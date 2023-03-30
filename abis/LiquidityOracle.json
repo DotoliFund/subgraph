@@ -1,6 +1,17 @@
 [
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "uniswapV3Factory",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "nonfungiblePositionManager",
+        "type": "address"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },

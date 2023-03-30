@@ -1,28 +1,51 @@
-# DotoliFund Factory
-type Factory @entity {
-  # factory address
+# DotoliSetting
+type Setting @entity {
+  # DotoliSetting address
+  id: Bytes!
+  # manager fee ratio
+  managerFee: BigInt!
+  # minimum ETH value of token + ETH pool to be whitelist token
+  minPoolAmount: BigInt!
+  # owner of the DotoliSetting contract
+  owner: Bytes!
+}
+
+# DotoliInfo
+type Info @entity {
+  # DotoliInfo address
   id: Bytes!
   # amount of funds created
   fundCount: BigInt!
   # amount of investor
   investorCount: BigInt!
-  # manager fee ratio
-  managerFee: BigInt!
-  # minimum ETH value of token + ETH pool to be whitelist token
-  minPoolAmount: BigInt!
   # all fund's ETH value of the token held by the contract
   totalCurrentETH: BigDecimal!
   # all fund's USD value of the token held by the contract
   totalCurrentUSD: BigDecimal!
-  # owner of the factory
+  # owner of the DotoliInfo contract
   owner: Bytes!
 }
 
-type Fund @entity {
-  # fund address
+type WhiteListToken @entity {
+  # token address
   id: Bytes!
-  # fund address
+  # token address
   address: Bytes!
+  # token decimals
+  decimals: BigInt!
+  # token symbol
+  symbol: String!
+  # creation
+  updatedTimestamp: BigInt!
+  # true : added, false : removed
+  isWhiteListToken: Boolean!
+}
+
+type Fund @entity {
+  # fund id
+  id: ID!
+  # fund id
+  fundId: String!
   # creation
   createdAtTimestamp: BigInt!
   # update
@@ -52,18 +75,20 @@ type Fund @entity {
 }
 
 type Investor @entity {
-  # format: <fund address>-<investor address>
+  # format: <fund id>-<investor address>
   id: ID!
   # creation
   createdAtTimestamp: BigInt!
   # update
   updatedAtTimestamp: BigInt!
-  # fund address
-  fund: Bytes!
+  # fund id
+  fundId: String!
   # investor address
   investor: Bytes!
   # investor is manager
   isManager: Boolean!
+  # snapshot count
+  snapshotCount: BigInt!
   # ETH value of principal
   principalETH: BigDecimal!
   # USD value of principal
@@ -88,39 +113,26 @@ type Investor @entity {
   profitRatio: BigDecimal!
 }
 
-type Token @entity {
-  # fund address
-  id: Bytes!
-  # fund address
-  address: Bytes!
-  # token symbol
-  symbol: String!
-  # creation
-  updatedTimestamp: BigInt!
-  # true : added, false : removed
-  active: Boolean!
-}
-
 type Subscribe @entity {
-  # <fund address>-<investor address>
+  # <fund id>-<investor address>
   id: ID!
   # hash
   hash: Bytes!
   # time of txn
   timestamp: BigInt!
-  # pointer to Fund 
-  fund: Bytes!
+  # fund id
+  fundId: String!
   # investor address
   investor: Bytes!
 }
 
-type ManagerFeeOut @entity {
+type WithdrawFee @entity {
   # transaction hash
   id: ID!
   # time of txn
   timestamp: BigInt!
-  # pointer to Fund 
-  fund: Bytes!
+  # fund id
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # withdraw token address
@@ -140,8 +152,10 @@ type Deposit @entity {
   id: ID!
   # time of txn
   timestamp: BigInt!
-  # pointer to Fund 
-  fund: Bytes!
+  # fund id
+  fundId: String!
+  # pointer to Manager 
+  manager: Bytes!
   # pointer to investor
   investor: Bytes!
   # withdraw token address
@@ -161,8 +175,10 @@ type Withdraw @entity {
   id: ID!
   # time of txn
   timestamp: BigInt!
-  # pointer to fund 
-  fund: Bytes!
+  # fund id
+  fundId: String!
+  # pointer to Manager 
+  manager: Bytes!
   # pointer to investor
   investor: Bytes!
   # withdraw token address
@@ -182,8 +198,8 @@ type Swap @entity {
   id: ID!
   # timestamp of txn
   timestamp: BigInt!
-  # fund swap occured within
-  fund: Bytes!
+  # fund id
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -211,8 +227,8 @@ type MintNewPosition @entity {
   id: ID!
   # timestamp of txn
   timestamp: BigInt!
-  # fund swap occured within
-  fund: Bytes!
+  # fund id
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -240,8 +256,8 @@ type IncreaseLiquidity @entity {
   id: ID!
   # timestamp of txn
   timestamp: BigInt!
-  # fund swap occured within
-  fund: Bytes!
+  # fund id
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -269,8 +285,8 @@ type CollectPositionFee @entity {
   id: ID!
   # timestamp of txn
   timestamp: BigInt!
-  # fund swap occured within
-  fund: Bytes!
+  # fund id
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -298,8 +314,8 @@ type DecreaseLiquidity @entity {
   id: ID!
   # timestamp of txn
   timestamp: BigInt!
-  # fund swap occured within
-  fund: Bytes!
+  # fund id
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
@@ -322,8 +338,8 @@ type DecreaseLiquidity @entity {
   amountUSD: BigDecimal!
 }
 
-# daily stats tracker for DotoliFund Factory
-type FactorySnapshot @entity {
+# daily stats tracker for DotoliInfo
+type InfoSnapshot @entity {
   # txn hash
   id: ID!
   # date
@@ -340,12 +356,12 @@ type FactorySnapshot @entity {
 
 # daily stats tracker for fund
 type FundSnapshot @entity {
-  # format: <fund address>-<timestamp>
+  # format: <fund id>-<timestamp>
   id: ID!
   # timestamp
   timestamp: BigInt!
-  # pointer to fund
-  fund: Bytes!
+  # fund id
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # investorCount
@@ -370,12 +386,12 @@ type FundSnapshot @entity {
 
 # daily stats tracker for investor
 type InvestorSnapshot @entity {
-  # format: <investor address>-<timestamp>
+  # format: <fund id>-<investor address>-<snapshot count>
   id: ID!
   # timestamp
   timestamp: BigInt!
-  # pointer to fund
-  fund: Bytes!
+  # fund id
+  fundId: String!
   # pointer to Manager 
   manager: Bytes!
   # pointer to investor
