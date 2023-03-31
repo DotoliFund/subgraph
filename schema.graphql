@@ -87,8 +87,6 @@ type Investor @entity {
   investor: Bytes!
   # investor is manager
   isManager: Boolean!
-  # snapshot count
-  snapshotCount: BigInt!
   # ETH value of principal
   principalETH: BigDecimal!
   # USD value of principal
