@@ -74,8 +74,8 @@ export function fundSnapshot(
   
   let dayID = event.block.timestamp.toI32() / 86400 // rounded
 
-  let fundSnapshot = FundSnapshot.load(dayID.toString())
-  fundSnapshot = new FundSnapshot(dayID.toString())
+  let fundSnapshot = FundSnapshot.load(fundId.toString() + "-" + dayID.toString())
+  fundSnapshot = new FundSnapshot(fundId.toString() + "-" + dayID.toString())
   fundSnapshot.timestamp = event.block.timestamp
   fundSnapshot.fundId = fundId.toString()
   fundSnapshot.manager = managerAddress
@@ -104,18 +104,17 @@ export function investorSnapshot(
   ethPriceInUSD: BigDecimal,
   event: ethereum.Event
 ): void {
-  let investor = Investor.load(getInvestorID(
+  const investorId = getInvestorID(
     fundId, 
-    Address.fromString(investorAddress.toHexString())))
+    Address.fromString(investorAddress.toHexString()))
+  let investor = Investor.load(investorId)
   if (!investor) return 
-  const snapshotCount = investor.snapshotCount.plus(ONE_BI)
-  investor.snapshotCount = snapshotCount
   investor.save()
 
   let dayID = event.block.timestamp.toI32() / 86400 // rounded
 
-  let investorSnapshot = InvestorSnapshot.load(dayID.toString())
-  investorSnapshot = new InvestorSnapshot(dayID.toString())
+  let investorSnapshot = InvestorSnapshot.load(investorId + "-" + dayID.toString())
+  investorSnapshot = new InvestorSnapshot(investorId + "-" + dayID.toString())
   investorSnapshot.timestamp = event.block.timestamp
   investorSnapshot.fundId = fundId.toString()
   investorSnapshot.manager = managerAddress
