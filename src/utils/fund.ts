@@ -25,7 +25,7 @@ export function updateFundCurrent(fundId: BigInt, ethPriceInUSD: BigDecimal): vo
   for (let i=0; i<tokens.length; i++) {
     const amount = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS)).getFundTokenAmount(fundId, Address.fromBytes(tokens[i]))
     const decimals = fetchTokenDecimals(Address.fromBytes(tokens[i]))
-    if (decimals === null) {
+    if (decimals === ZERO_BI) {
       log.debug('the decimals on {} token was null', [tokens[i].toHexString()])
       return
     }
@@ -134,7 +134,7 @@ export function updateFundFee(fundId: BigInt): void {
     const amount = feeTokensInfo[i].amount
 
     const decimals = fetchTokenDecimals(tokenAddress)
-    if (decimals === null) {
+    if (decimals === ZERO_BI) {
       log.debug('the decimals on {} token was null', [tokenAddress.toHexString()])
       return
     }

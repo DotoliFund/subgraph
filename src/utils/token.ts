@@ -1,6 +1,6 @@
 import { BigInt, Address } from '@graphprotocol/graph-ts'
 import { ERC20 } from '../types/DotoliFund/ERC20'
-import { UNKNWON } from './constants'
+import { UNKNWON, ZERO_BI } from './constants'
 
 export function fetchTokenSymbol(tokenAddress: Address): string {
     let contract = ERC20.bind(tokenAddress)
@@ -19,12 +19,10 @@ export function fetchTokenSymbol(tokenAddress: Address): string {
   export function fetchTokenDecimals(tokenAddress: Address): BigInt {
     let contract = ERC20.bind(tokenAddress)
     // try types uint8 for decimals
-    let decimalValue = null
     let decimalResult = contract.try_decimals()
     if (decimalResult.reverted) {
-
+      return ZERO_BI
     } else {
-        decimalValue = decimalResult.value
+      return BigInt.fromI32(decimalResult.value as i32)
     }
-    return BigInt.fromI32(decimalValue as i32)
   }

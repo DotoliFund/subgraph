@@ -3,6 +3,7 @@ import { Investor } from '../types/schema'
 import {
   LIQUIDITY_ORACLE_ADDRESS,
   ZERO_BD,
+  ZERO_BI,
   ONE_BD,
   TYPE_DEPOSIT,
   TYPE_WITHDRAW,
@@ -43,7 +44,7 @@ export function updateInvestor(
     currentTokensSymbols.push(fetchTokenSymbol(tokenAddress))
     const amount = tokensInfo[i].amount
     const decimals = fetchTokenDecimals(tokenAddress)
-    if (decimals === null) {
+    if (decimals === ZERO_BI) {
       log.debug('the decimals on {} token was null', [tokenAddress.toHexString()])
       return
     }
@@ -92,7 +93,7 @@ export function updateInvestorProfit(
     const token0 = positionTokens.getToken0()
     const amount0 = positionTokens.getAmount0()
     const decimal0 = fetchTokenDecimals(token0)
-    if (decimal0 === null) {
+    if (decimal0 === ZERO_BI) {
       log.debug('the decimals on {} token was null', [token0.toHexString()])
       return
     }
@@ -108,7 +109,7 @@ export function updateInvestorProfit(
     const token1 = positionTokens.getToken1()
     const amount1 = positionTokens.getAmount1()
     const decimal1 = fetchTokenDecimals(token1)
-    if (decimal1 === null) {
+    if (decimal1 === ZERO_BI) {
       log.debug('the decimals on {} token was null', [token1.toHexString()])
       return
     }

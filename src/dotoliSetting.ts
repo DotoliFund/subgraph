@@ -16,7 +16,8 @@ import {
   ADDRESS_ZERO,
   DECIMAL_18,
   WETH9,
-  DTL
+  DTL,
+  ZERO_BI
 } from './utils/constants'
 import { fetchTokenSymbol, fetchTokenDecimals } from './utils/token'
 
@@ -35,7 +36,7 @@ export function handleSettingCreated(event: SettingCreated): void {
   weth9.id = Bytes.fromHexString(WETH9)
   weth9.address = Bytes.fromHexString(WETH9)
   weth9.decimals = fetchTokenDecimals(Address.fromString(WETH9))
-  if (weth9.decimals === null) {
+  if (weth9.decimals === ZERO_BI) {
     log.debug('the decimals on weth9 token was null', [])
     return
   }
@@ -48,7 +49,7 @@ export function handleSettingCreated(event: SettingCreated): void {
   dtl.id = Bytes.fromHexString(DTL)
   dtl.address = Bytes.fromHexString(DTL)
   dtl.decimals = fetchTokenDecimals(Address.fromString(DTL))
-  if (dtl.decimals === null) {
+  if (dtl.decimals === ZERO_BI) {
     log.debug('the decimals on dtl token was null', [])
     return
   }
@@ -87,7 +88,7 @@ export function handleWhiteListTokenAdded(event: WhiteListTokenAdded): void {
     token.id = event.params.token
     token.address = event.params.token
     token.decimals = fetchTokenDecimals(event.params.token)
-    if (token.decimals === null) {
+    if (token.decimals === ZERO_BI) {
       log.debug('the decimals on {} token was null', [event.params.token.toHexString()])
       return
     }

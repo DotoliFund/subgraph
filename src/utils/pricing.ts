@@ -77,7 +77,7 @@ export function getTokenPriceETH(token: Address): BigDecimal | null {
   let largestLiquidity = ZERO_BI
 
   const decimals = fetchTokenDecimals(token)
-  if (decimals === null) {
+  if (decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [token.toHexString()])
     return null
   }

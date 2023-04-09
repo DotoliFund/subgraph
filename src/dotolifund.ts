@@ -25,6 +25,7 @@ import {
   TYPE_WITHDRAW, 
   TYPE_NORMAL, 
   ZERO_BD,
+  ZERO_BI,
   DOTOLI_INFO_ADDRESS,
 } from './utils/constants'
 import { updateUpdatedAtTime, exponentToBigDecimal } from "./utils"
@@ -64,7 +65,7 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.token = event.params.token
   deposit.tokenSymbol = fetchTokenSymbol(event.params.token)
   const decimals = fetchTokenDecimals(event.params.token)
-  if (decimals === null) {
+  if (decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.token.toHexString()])
     return
   }
@@ -116,7 +117,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
   withdraw.token = event.params.token
   withdraw.tokenSymbol = fetchTokenSymbol(event.params.token)
   const decimals = fetchTokenDecimals(event.params.token)
-  if (decimals === null) {
+  if (decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.token.toHexString()])
     return
   }
@@ -168,13 +169,13 @@ export function handleSwap(event: SwapEvent): void {
   swap.token1Symbol = fetchTokenSymbol(event.params.tokenOut)
 
   const tokenIndecimals = fetchTokenDecimals(event.params.tokenIn)
-  if (tokenIndecimals === null) {
+  if (tokenIndecimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.tokenIn.toHexString()])
     return
   }
   const tokenInDecimal = exponentToBigDecimal(tokenIndecimals)
   const tokenOutdecimals = fetchTokenDecimals(event.params.tokenOut)
-  if (tokenOutdecimals === null) {
+  if (tokenOutdecimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.tokenOut.toHexString()])
     return
   }
@@ -220,7 +221,7 @@ export function handleWithdrawFee(event: WithdrawFeeEvent): void {
   withdrawFee.token = event.params.token
   withdrawFee.tokenSymbol = fetchTokenSymbol(event.params.token)
   const decimals = fetchTokenDecimals(event.params.token)
-  if (decimals === null) {
+  if (decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.token.toHexString()])
     return
   }
@@ -255,13 +256,13 @@ export function handleMintNewPosition(event: MintNewPositionEvent): void {
   const token0 = event.params.token0.toHexString()
   const token1 = event.params.token1.toHexString()
   const token0decimals = fetchTokenDecimals(event.params.token0)
-  if (token0decimals === null) {
+  if (token0decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.token0.toHexString()])
     return
   }
   const token0Decimal = exponentToBigDecimal(token0decimals)
   const token1decimals = fetchTokenDecimals(event.params.token1)
-  if (token1decimals === null) {
+  if (token1decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.token1.toHexString()])
     return
   }
@@ -309,13 +310,13 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidityEvent): void {
   const token0 = event.params.token0.toHexString()
   const token1 = event.params.token1.toHexString()
   const token0decimals = fetchTokenDecimals(event.params.token0)
-  if (token0decimals === null) {
+  if (token0decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.token0.toHexString()])
     return
   }
   const token0Decimal = exponentToBigDecimal(token0decimals)
   const token1decimals = fetchTokenDecimals(event.params.token1)
-  if (token1decimals === null) {
+  if (token1decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.token1.toHexString()])
     return
   }
@@ -363,13 +364,13 @@ export function handleCollectPositionFee(event: CollectPositionFeeEvent): void {
   const token0 = event.params.token0.toHexString()
   const token1 = event.params.token1.toHexString()
   const token0decimals = fetchTokenDecimals(event.params.token0)
-  if (token0decimals === null) {
+  if (token0decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.token0.toHexString()])
     return
   }
   const token0Decimal = exponentToBigDecimal(token0decimals)
   const token1decimals = fetchTokenDecimals(event.params.token1)
-  if (token1decimals === null) {
+  if (token1decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.token1.toHexString()])
     return
   }
@@ -417,13 +418,13 @@ export function handleDecreaseLiquidity(event: DecreaseLiquidityEvent): void {
   const token0 = event.params.token0.toHexString()
   const token1 = event.params.token1.toHexString()
   const token0decimals = fetchTokenDecimals(event.params.token0)
-  if (token0decimals === null) {
+  if (token0decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.token0.toHexString()])
     return
   }
   const token0Decimal = exponentToBigDecimal(token0decimals)
   const token1decimals = fetchTokenDecimals(event.params.token1)
-  if (token1decimals === null) {
+  if (token1decimals === ZERO_BI) {
     log.debug('the decimals on {} token was null', [event.params.token1.toHexString()])
     return
   }

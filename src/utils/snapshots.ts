@@ -9,7 +9,7 @@ import {
   InvestorSnapshot,
 } from '../types/schema'
 import { getInvestorID } from './investor'
-import { DOTOLI_INFO_ADDRESS, LIQUIDITY_ORACLE_ADDRESS, ONE_BI, ZERO_BD } from './constants'
+import { DOTOLI_INFO_ADDRESS, LIQUIDITY_ORACLE_ADDRESS, ZERO_BI, ZERO_BD } from './constants'
 import { Bytes, ethereum, Address } from '@graphprotocol/graph-ts'
 import { LiquidityOracle } from '../types/DotoliFund/LiquidityOracle'
 import { getTokenPriceETH } from './pricing'
@@ -56,7 +56,7 @@ export function fundSnapshot(
   for (let i=0; i<currentTokens.length; i++) {
     const amount = DotoliInfo.bind(Address.fromString(DOTOLI_INFO_ADDRESS)).getFundTokenAmount(fundId, Address.fromBytes(currentTokens[i]))
     const decimals = fetchTokenDecimals(Address.fromBytes(currentTokens[i]))
-    if (decimals === null) {
+    if (decimals === ZERO_BI) {
       log.debug('the decimals on {} token was null', [currentTokens[i].toHexString()])
       return
     }
@@ -176,7 +176,7 @@ export function investorSnapshot(
     const token0 = poolTokens.getToken0()
     const amount0 = poolTokens.getAmount0()
     const decimal0 = fetchTokenDecimals(token0)
-    if (decimal0 === null) {
+    if (decimal0 === ZERO_BI) {
       log.debug('the decimals on {} token was null', [token0.toHexString()])
       return
     }
@@ -204,7 +204,7 @@ export function investorSnapshot(
     const token1 = poolTokens.getToken1()
     const amount1 = poolTokens.getAmount1()
     const decimal1 = fetchTokenDecimals(token1)
-    if (decimal1 === null) {
+    if (decimal1 === ZERO_BI) {
       log.debug('the decimals on {} token was null', [token1.toHexString()])
       return
     }
