@@ -4,9 +4,9 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: DotoliSetting
-    network: goerli
+    network: mainnet
     source:
-      address: "0x04e4351B57aD0362A1Ac82759617c221112c8a22"
+      address: "0x5E1cE0e492f956b4a1A1963E4A465256C060966c"
       abi: DotoliSetting
     mapping:
       kind: ethereum/events
@@ -37,9 +37,9 @@ dataSources:
 
   - kind: ethereum/contract
     name: DotoliInfo
-    network: goerli
+    network: mainnet
     source:
-      address: "0xd8F93D42E2a57137Ae9A3bF89c88f05db15B2B2e"
+      address: "0xD72008394f456362765446aD8638a0B0ee226d70"
       abi: DotoliInfo
     mapping:
       kind: ethereum/events
@@ -69,9 +69,9 @@ dataSources:
 
   - kind: ethereum/contract
     name: DotoliFund
-    network: goerli
+    network: mainnet
     source:
-      address: "0x696BFdA5f07225ab2fE5B43B9AC1093D2E044D74"
+      address: "0x5EA02ce75D173f03C88831893C69724C3F38df5e"
       abi: DotoliFund
     mapping:
       kind: ethereum/events
